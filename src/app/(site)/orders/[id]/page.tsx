@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CheckCircle2 } from "lucide-react";
+import { ArrowLeft, CheckCircle2 } from "lucide-react";
 import { StatusBadge } from "@/components/order/StatusBadge";
 import { OrderTracker } from "@/components/order/OrderTracker";
 import { StoreOrderActions } from "@/components/order/StoreOrderActions";
@@ -38,9 +38,9 @@ export default async function OrderPage({ params, searchParams }: Props) {
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
       <p className="mb-6">{current && current.profile.role !== "admin"
-        ? <Link href="/account/orders" className="font-semibold text-blue pop hover:text-orange">All my orders</Link>
-        : current ? <Link href="/admin/orders" className="font-semibold text-blue pop hover:text-orange">Back to admin orders</Link>
-        : <Link href="/track" className="font-semibold text-blue pop hover:text-orange">Track another order</Link>}</p>
+        ? <Link href="/account/orders" className="inline-flex items-center gap-1.5 font-semibold text-blue pop hover:text-orange"><ArrowLeft className="size-4" aria-hidden /> All My Orders</Link>
+        : current ? <Link href="/admin/orders" className="inline-flex items-center gap-1.5 font-semibold text-blue pop hover:text-orange"><ArrowLeft className="size-4" aria-hidden /> Back to Admin Orders</Link>
+        : <Link href="/track" className="inline-flex items-center gap-1.5 font-semibold text-blue pop hover:text-orange"><ArrowLeft className="size-4" aria-hidden /> Track Another Order</Link>}</p>
       {placed && (
         <div role="status" className="mb-8 flex gap-3 rounded-xl bg-green-50 p-5 text-green-900">
           <CheckCircle2 className="mt-0.5 size-6 shrink-0" aria-hidden />

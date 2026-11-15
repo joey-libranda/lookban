@@ -303,6 +303,20 @@ reset role;
 select t.ok((select status = 'delivered' and payment_status = 'paid' from orders where id = (select id from bob_o3)),
             'guest tracking link can confirm receipt; order delivered, COD paid');
 
+-- ================= GUEST CHECKOUT NEEDS AN EMAIL (migration 0011) =================
+select t.as_anon();
+select t.fails($$ select place_guest_order(jsonb_build_array(jsonb_build_object('product_id', (select p_miki from ids), 'quantity', 1)),
+                   '', 'Guest', '09171234567', '1 St', null, 'Lucban', 'Quezon', null, null, 'cod') $$, 'valid email', 'guest checkout without an email is refused');
+select t.fails($$ select place_guest_order(jsonb_build_array(jsonb_build_object('product_id', (select p_miki from ids), 'quantity', 1)),
+                   'not-an-email', 'Guest', '09171234567', '1 St', null, 'Lucban', 'Quezon', null, null, 'cod') $$, 'valid email', 'guest checkout with a malformed email is refused');
+create temp table guest_o(r jsonb);
+grant all on guest_o to anon;
+insert into guest_o select place_guest_order(jsonb_build_array(jsonb_build_object('product_id', (select p_miki from ids), 'quantity', 1)),
+                   '  guest@example.com ', 'Guest', '09171234567', '1 St', null, 'Lucban', 'Quezon', null, null, 'cod');
+reset role;
+select t.ok((select customer_email = 'guest@example.com' and customer_id is null from orders where id = ((select r->>'id' from guest_o))::uuid),
+            'guest order saves the trimmed email');
+
 -- ================= ADMIN MANAGEMENT (two-role UI: customer + admin) =================
 select t.as_user('00000000-0000-0000-0000-0000000000ad');
 select t.ok(t.affected($$ insert into categories (slug, name) values ('test-cat', 'Test cat') $$) = 1, 'admin can create a category');
@@ -352,13 +366,13 @@ create temp table gres(res jsonb);
 grant all on gres to anon, authenticated;
 
 select t.as_anon();
-select t.fails($$ select place_guest_order('[]'::jsonb, null, 'G', '09171234567', 'x', null, 'Lucban', 'Quezon', null, null, 'cod') $$, 'EMPTY_CART', 'guest: empty cart rejected');
-select t.fails($$ select place_guest_order('{"a":1}'::jsonb, null, 'G', '09171234567', 'x', null, 'Lucban', 'Quezon', null, null, 'cod') $$, 'EMPTY_CART', 'guest: non-array items rejected');
-select t.fails($$ select place_guest_order('[{"product_id":"nope","quantity":1}]'::jsonb, null, 'G', '09171234567', 'x', null, 'Lucban', 'Quezon', null, null, 'cod') $$, 'INVALID_INPUT', 'guest: malformed product id rejected');
-select t.fails($$ select place_guest_order('[{"product_id":"00000000-0000-0000-0000-0000000000a1","quantity":0}]'::jsonb, null, 'G', '09171234567', 'x', null, 'Lucban', 'Quezon', null, null, 'cod') $$, 'INVALID_INPUT', 'guest: zero quantity rejected');
-select t.fails($$ select place_guest_order('[{"product_id":"00000000-0000-0000-0000-00000000dead","quantity":1}]'::jsonb, null, 'G', '09171234567', 'x', null, 'Lucban', 'Quezon', null, null, 'cod') $$, 'UNAVAILABLE', 'guest: unknown product rejected');
-select t.fails($$ select place_guest_order('[{"product_id":"00000000-0000-0000-0000-0000000000a2","quantity":6}]'::jsonb, null, 'G', '09171234567', 'x', null, 'Lucban', 'Quezon', null, null, 'cod') $$, 'INSUFFICIENT_STOCK', 'guest: cannot exceed stock');
-select t.fails($$ select place_guest_order('[{"product_id":"00000000-0000-0000-0000-0000000000a1","quantity":1}]'::jsonb, null, '', '09171234567', 'x', null, 'Lucban', 'Quezon', null, null, 'cod') $$, 'INVALID_INPUT', 'guest: name and address required');
+select t.fails($$ select place_guest_order('[]'::jsonb, 'g@example.com', 'G', '09171234567', 'x', null, 'Lucban', 'Quezon', null, null, 'cod') $$, 'EMPTY_CART', 'guest: empty cart rejected');
+select t.fails($$ select place_guest_order('{"a":1}'::jsonb, 'g@example.com', 'G', '09171234567', 'x', null, 'Lucban', 'Quezon', null, null, 'cod') $$, 'EMPTY_CART', 'guest: non-array items rejected');
+select t.fails($$ select place_guest_order('[{"product_id":"nope","quantity":1}]'::jsonb, 'g@example.com', 'G', '09171234567', 'x', null, 'Lucban', 'Quezon', null, null, 'cod') $$, 'INVALID_INPUT', 'guest: malformed product id rejected');
+select t.fails($$ select place_guest_order('[{"product_id":"00000000-0000-0000-0000-0000000000a1","quantity":0}]'::jsonb, 'g@example.com', 'G', '09171234567', 'x', null, 'Lucban', 'Quezon', null, null, 'cod') $$, 'INVALID_INPUT', 'guest: zero quantity rejected');
+select t.fails($$ select place_guest_order('[{"product_id":"00000000-0000-0000-0000-00000000dead","quantity":1}]'::jsonb, 'g@example.com', 'G', '09171234567', 'x', null, 'Lucban', 'Quezon', null, null, 'cod') $$, 'UNAVAILABLE', 'guest: unknown product rejected');
+select t.fails($$ select place_guest_order('[{"product_id":"00000000-0000-0000-0000-0000000000a2","quantity":6}]'::jsonb, 'g@example.com', 'G', '09171234567', 'x', null, 'Lucban', 'Quezon', null, null, 'cod') $$, 'INSUFFICIENT_STOCK', 'guest: cannot exceed stock');
+select t.fails($$ select place_guest_order('[{"product_id":"00000000-0000-0000-0000-0000000000a1","quantity":1}]'::jsonb, 'g@example.com', '', '09171234567', 'x', null, 'Lucban', 'Quezon', null, null, 'cod') $$, 'INVALID_INPUT', 'guest: name and address required');
 -- a client-supplied "price" field is ignored; duplicates of one product are merged
 insert into gres select place_guest_order(
   '[{"product_id":"00000000-0000-0000-0000-0000000000a1","quantity":1,"price":1},

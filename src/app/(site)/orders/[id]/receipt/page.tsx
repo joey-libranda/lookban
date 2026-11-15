@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
 import { PrintButton } from "@/components/order/PrintButton";
 import { requireUser } from "@/lib/auth/guards";
@@ -31,7 +32,7 @@ export default async function ReceiptPage({ params, searchParams }: Props) {
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 print:max-w-none print:p-0">
       <div className="no-print mb-6 flex flex-wrap items-center justify-between gap-3">
-        <Link href={`/orders/${order.id}${viaToken ? `?t=${t}` : ""}`} className="font-semibold text-blue pop hover:text-orange">Back to order</Link>
+        <Link href={`/orders/${order.id}${viaToken ? `?t=${t}` : ""}`} className="inline-flex items-center gap-1.5 font-semibold text-blue pop hover:text-orange"><ArrowLeft className="size-4" aria-hidden /> Back to Order</Link>
         <PrintButton />
       </div>
 

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 import { StatusBadge } from "@/components/order/StatusBadge";
 import { requireUser } from "@/lib/auth/guards";
 import { formatPeso } from "@/lib/utils/format";
@@ -13,7 +14,10 @@ export default async function MyOrdersPage() {
   const orders = await getMyOrders();
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
-      <h1 className="text-4xl">My orders</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-4xl">My orders</h1>
+        <Link href="/account" className="btn-outline !py-2"><ArrowLeft className="size-4" aria-hidden /> My Account</Link>
+      </div>
       {orders.length === 0 ? (
         <div className="card mt-8 p-10 text-center">
           <p className="text-muted">You haven&apos;t placed any orders yet.</p>

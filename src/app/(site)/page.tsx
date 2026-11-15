@@ -96,8 +96,8 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* CLOSING BAND: yellow, so the blue Discover band and the blue footer never touch. */}
-      <section className="flush-footer relative bg-yellow" aria-labelledby="cta-h">
+      {/* CLOSING BAND: white, so the blue Discover band and the blue footer never touch. */}
+      <section className="flush-footer relative bg-white" aria-labelledby="cta-h">
         <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 px-4 py-14 text-center sm:px-6">
           <h2 id="cta-h" className="max-w-2xl text-3xl !font-display !font-normal !tracking-normal sm:text-4xl">Bring home a taste of Lucban.</h2>
           <p className="max-w-xl text-ink/80">Longganisa, miki, hardinera, biscuits and more, straight from the stores that make them.</p>

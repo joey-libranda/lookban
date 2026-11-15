@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Field, FormNotice } from "@/components/ui/Field";
 import { checkoutSchema, guestCheckoutSchema, type CheckoutValues, type GuestCheckoutValues } from "@/lib/validators/checkout";
@@ -14,9 +14,10 @@ import { clearGuestCart, type GuestItem } from "@/lib/guest-cart";
 /** `guest` = visitor checkout: the cart items come from this browser and the order is not tied to an account. */
 export function CheckoutForm({ defaults, guest }: { defaults: Partial<CheckoutValues>; guest?: { items: GuestItem[] } }) {
   const router = useRouter();
+  // The form's fields are the guest set (it adds email). Customers use the base schema: their email is the account's.
   const { register, handleSubmit, formState: { errors } } = useForm<GuestCheckoutValues>({
-    resolver: zodResolver(guest ? guestCheckoutSchema : checkoutSchema),
-    defaultValues: { province: "Quezon", city: "Lucban", payment_method: "cod", ...defaults },
+    resolver: zodResolver(guest ? guestCheckoutSchema : checkoutSchema) as unknown as Resolver<GuestCheckoutValues>,
+    defaultValues: { province: "Quezon", city: "Lucban", payment_method: "cod", email: "", ...defaults },
   });
   const [pending, start] = useTransition();
   const [fail, setFail] = useState<{ error: string; fixInCart?: boolean } | null>(null);
@@ -49,7 +50,7 @@ export function CheckoutForm({ defaults, guest }: { defaults: Partial<CheckoutVa
           <Field label="Full name" autoComplete="name" error={errors.full_name} {...register("full_name")} />
           <Field label="Mobile number" type="tel" autoComplete="tel" placeholder="09171234567" error={errors.phone} {...register("phone")} />
         </div>
-        {guest && <Field label="Email (optional)" type="email" autoComplete="email" hint="Just for your own reference - we won't send marketing." error={errors.email} {...register("email")} />}
+        {guest && <Field label="Email" type="email" autoComplete="email" hint="We use it to contact you about your order." error={errors.email} {...register("email")} />}
         <Field label="House no. / street" autoComplete="address-line1" error={errors.line1} {...register("line1")} />
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Barangay (optional)" error={errors.barangay} {...register("barangay")} />

@@ -38,6 +38,7 @@ in number order, from `migrations/`. What each one adds:
 | `0008_product_promo.sql` | "Original price" for promos (`compare_at_price`) |
 | `0009_hero_slides.sql` | admin-managed home hero photos + `hero-banners` bucket |
 | `0010_cancel_receive_rate.sql` | customer cancel / "Mark as Received" / star rating, and totals that exclude cancelled stores |
+| `0011_guest_email_required.sql` | guests must give a valid email at checkout (the database refuses it otherwise) |
 | `seed.sql` | starter data (safe to re-run) |
 
 ## C. Make yourself admin
@@ -71,7 +72,7 @@ When a new numbered migration arrives (for example `0010_...sql`), run just that
 
 ## G. Database tests (optional, local Postgres only)
 
-`tests/rls_and_orders.sql` checks security and ordering (132 checks). Never run it on your real Supabase project.
+`tests/rls_and_orders.sql` checks security and ordering (135 checks). Never run it on your real Supabase project.
 Locally: create an empty Postgres database, then in order: `tests/00_local_supabase_stub.sql`
 (stand-ins for Supabase's `auth`/`storage`), `migrations/*.sql`, `seed.sql`, `tests/rls_and_orders.sql`
 (`psql -v ON_ERROR_STOP=1 -f <file>`). It ends with `ALL DATABASE TESTS PASSED`.

@@ -18,8 +18,8 @@ export const checkoutSchema = z.object({
 });
 export type CheckoutValues = z.infer<typeof checkoutSchema>;
 
-/** Visitors may also leave an email (optional) so they have a reference. */
+/** Visitors must leave an email, so the store and LOOKBAN have a second way to reach them. */
 export const guestCheckoutSchema = checkoutSchema.extend({
-  email: z.union([z.string().trim().email("Enter a valid email"), z.literal("")]).optional(),
+  email: z.string().trim().min(1, "Email is required").max(120, "Email is too long").email("Enter a valid email"),
 });
 export type GuestCheckoutValues = z.infer<typeof guestCheckoutSchema>;
