@@ -1,0 +1,17 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { StoreForm } from "@/components/admin/StoreForm";
+import { saveStoreAction } from "@/server/actions/admin";
+
+export const metadata: Metadata = { title: "Add store · Admin" };
+
+export default function NewStore() {
+  return (
+    <div className="max-w-3xl space-y-5">
+      <Link href="/admin/stores" className="text-sm font-semibold text-blue pop hover:text-orange">← Stores</Link>
+      <h1 className="text-4xl">Add store</h1>
+      <p className="text-muted">Save the store first, then you can upload its logo and cover photo.</p>
+      <div className="card p-5"><StoreForm action={saveStoreAction.bind(null, null)} submitLabel="Create store" /></div>
+    </div>
+  );
+}

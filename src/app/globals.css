@@ -1,0 +1,107 @@
+@import "tailwindcss";
+
+/* Tropika Island (display face). NOTE: current font file is a "Demo for Personal
+   Use" licence - buy a commercial licence or swap before a public launch. */
+@font-face {
+  font-family: "Tropika";
+  src: url("/fonts/tropika-int.otf") format("opentype");
+  font-weight: 400;
+  font-display: swap;
+}
+
+:root {
+  /* LOOKBAN brand palette (from the Brand Identity PDF) */
+  --lb-orange: #fc4c00;
+  --lb-blue: #00167a;
+  --lb-yellow: #fff399;
+  --lb-ink: #1f2122;
+  --lb-cream: #fffaf0;
+}
+
+@theme inline {
+  --color-orange: var(--lb-orange);
+  --color-orange-600: #d93f00;
+  --color-orange-50: #fff0e8;
+  --color-blue: var(--lb-blue);
+  --color-blue-700: #000f57;
+  --color-blue-50: #eaedf8;
+  --color-yellow: var(--lb-yellow);
+  --color-ink: var(--lb-ink);
+  --color-cream: var(--lb-cream);
+  --color-line: #e7e2d6;
+  --color-muted: #5f6368;
+
+  --font-display: "Tropika", "Inter Variable", system-ui, sans-serif;
+  --font-heading: "Helvetica Neue", Helvetica, Arial, "Liberation Sans", sans-serif;
+  --font-sans: "Inter Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: #ffffff;
+  color: var(--lb-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Headings: bold Helvetica with tight tracking and leading. Tropika stays for the logo, photo placeholders
+   and the home hero headline (add `!font-display` to opt a heading back in). */
+@layer base {
+  h1, h2, h3 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    color: var(--lb-blue);
+    letter-spacing: -0.04em;
+    line-height: 1.05;
+  }
+}
+
+:focus-visible {
+  outline: 3px solid var(--lb-blue);
+  outline-offset: 2px;
+}
+
+/* Reusable component classes (kept small; most styling stays in utilities).
+   `btn` is a Tailwind v4 @utility so the variants below can @apply it. */
+@utility btn {
+  @apply inline-flex items-center justify-center gap-2 rounded-lg px-5 py-2.5 text-base font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+@layer components {
+  .btn-primary { @apply btn bg-orange text-white hover:bg-orange-600; }
+  .btn-secondary { @apply btn bg-blue text-white hover:bg-blue-700; }
+  .btn-outline { @apply btn border-2 border-blue text-blue hover:bg-blue-50; }
+  .input {
+    @apply w-full min-w-0 rounded-lg border border-line bg-white px-3.5 py-2.5 text-base text-ink placeholder:text-muted/70 focus:border-blue focus:outline-none focus:ring-2 focus:ring-blue/20;
+  }
+  .label { @apply mb-1.5 block text-sm font-semibold text-ink; }
+  .field-error { @apply mt-1 text-sm text-red-700; }
+  .card { @apply rounded-xl border border-line bg-white; }
+}
+
+/* Receipt printing */
+@media print {
+  @page { size: A4; margin: 14mm; }
+  .no-print { display: none !important; }
+  body { background: #fff; }
+}
+
+/* Subtle Lucban touch: a kiping-leaf inspired colour strip, used sparingly as a divider. */
+.kiping-strip {
+  height: 6px;
+  background: repeating-linear-gradient(90deg,
+    var(--lb-orange) 0 28px, var(--lb-yellow) 28px 56px, var(--lb-blue) 56px 84px, #fff 84px 90px);
+}
+
+/* Links/buttons grow slightly on hover instead of being underlined. */
+@layer base {
+  :where(a.pop, button.pop, span.pop) { display: inline-block; } /* transforms need a non-inline box; lowest priority so flex/block classes win */
+}
+@layer components {
+  .pop { transition: transform 0.15s ease, color 0.15s ease, opacity 0.15s ease; }
+  .pop:hover { transform: scale(1.05); }
+}
+@media (prefers-reduced-motion: reduce) { .pop:hover { transform: none; } }
