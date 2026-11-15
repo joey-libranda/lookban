@@ -207,10 +207,10 @@ export async function deleteStoreAction(id: string): Promise<FormState> {
 // ---------------------------------------------------------------- categories
 export async function saveCategoryAction(id: string | null, _prev: FormState, fd: FormData): Promise<FormState> {
   await requireAdmin("/admin/categories");
-  const parsed = categorySchema.safeParse(toObject(fd, ["is_featured"]));
+  const parsed = categorySchema.safeParse(toObject(fd));
   if (!parsed.success) return flatten(parsed.error);
   const v = parsed.data;
-  const row = { name: v.name, slug: v.slug || slugify(v.name), description: nullish(v.description), sort_order: v.sort_order, is_featured: !!v.is_featured };
+  const row = { name: v.name, slug: v.slug || slugify(v.name), description: nullish(v.description), sort_order: v.sort_order };
   const supabase = await createClient();
   const { error } = id ? await supabase.from("categories").update(row).eq("id", id) : await supabase.from("categories").insert(row);
   if (error) return dbError(error, "Category");

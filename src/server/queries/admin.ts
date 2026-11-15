@@ -50,8 +50,8 @@ export async function getAdminStoreOptions() {
 
 export async function getAdminCategoryOptions() {
   const supabase = await createClient();
-  const { data } = await supabase.from("categories").select("id, name, slug, description, sort_order, is_featured").order("sort_order").order("name");
-  return (data ?? []) as { id: string; name: string; slug: string; description: string | null; sort_order: number; is_featured: boolean }[];
+  const { data } = await supabase.from("categories").select("id, name, slug, description, sort_order").order("sort_order").order("name");
+  return (data ?? []) as { id: string; name: string; slug: string; description: string | null; sort_order: number }[];
 }
 
 export async function getAdminProducts(opts: { q?: string; store?: string; status?: string; page: number }) {

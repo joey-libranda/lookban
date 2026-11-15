@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ProductGrid } from "@/components/product/ProductCard";
 import { ShopFilters } from "@/components/shop/ShopFilters";
+import { PendingRegion, ShopTransition } from "@/components/shop/ShopTransition";
 import { Pagination } from "@/components/ui/Pagination";
 import { SafeImage } from "@/components/ui/SafeImage";
 import { param, parsePage, parseSort, type RawSearchParams } from "@/lib/search-params";
@@ -64,7 +65,9 @@ export default async function StorePage({ params, searchParams }: Props) {
 
         <section className="mt-10" aria-labelledby="store-products">
           <h2 id="store-products" className="mb-4 text-3xl">Products</h2>
+          <ShopTransition>
           <ShopFilters action={`/stores/${slug}`} q={q} category={category} sort={sort} categories={categories} />
+          <PendingRegion>
           <div className="mt-6">
             {result.items.length === 0 ? (
               <div className="card p-10 text-center">
@@ -74,6 +77,8 @@ export default async function StorePage({ params, searchParams }: Props) {
             ) : <ProductGrid items={result.items} />}
           </div>
           <Pagination page={result.page} pageCount={result.pageCount} params={{ q, category, sort: sort === "newest" ? undefined : sort }} />
+          </PendingRegion>
+          </ShopTransition>
         </section>
       </div>
     </div>

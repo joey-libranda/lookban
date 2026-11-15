@@ -48,7 +48,7 @@ export function ProductCard({ l, priority }: { l: ProductListing; priority?: boo
         </span>
       </Link>
 
-      <div className="flex flex-1 flex-col gap-1 p-4">
+      <div className="flex flex-1 flex-col gap-1 px-4 pb-3 pt-3.5">
         <Link href={`/stores/${l.store.slug}`} className="block truncate text-xs font-bold uppercase tracking-wide text-orange pop hover:text-orange-600">
           {l.store.name}
         </Link>
@@ -68,12 +68,13 @@ export function ProductCard({ l, priority }: { l: ProductListing; priority?: boo
         </div>
         <Rating rating={l.rating} />
 
-        <div className="pt-1">
+        {/* mt-auto: price + button always sit at the bottom, so cards in a row end level even when one has no rating. */}
+        <div className="mt-auto pt-1.5">
           <AddToCartButton key={v.id} productId={v.id} stock={v.stock} disabled={!chosen || !a.canBuy} compact withQuantity
             priceSlot={chosen
               ? (qty: number) => <Price price={times(v.price, qty)} compareAt={v.compare_at_price ? times(v.compare_at_price, qty) : null} />
               : <Price price={Math.min(...l.items.map((i) => i.price))} prefix="From " />} />
-          <div className="flex min-h-6 items-center pt-1">{chosen && <StockBadge stock={v.stock} storeOpen={l.store.is_open} />}</div>
+          <div className="flex min-h-5 items-center pt-1">{chosen && <StockBadge stock={v.stock} storeOpen={l.store.is_open} />}</div>
         </div>
       </div>
     </article>

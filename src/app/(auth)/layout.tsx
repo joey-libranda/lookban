@@ -8,7 +8,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-cream px-4 py-10">
       <Link href="/" aria-label="LOOKBAN home" className="mb-4">
-        <Image src="/brand/lookban-logo.png" alt="LOOKBAN - local finds, lucban pride" width={220} height={91} priority />
+        <Image src="/brand/lookban-logo.png" alt="LOOKBAN - local finds, lucban pride" width={220} height={96} priority />
       </Link>
       <div className="card w-full max-w-md p-6 shadow-sm sm:p-8">
         <BackButton />

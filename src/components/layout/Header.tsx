@@ -20,7 +20,7 @@ export async function Header() {
     <header className="no-print sticky top-0 z-40 border-b border-line bg-white/95 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-6">
         <Link href="/" aria-label="LOOKBAN home" className="shrink-0">
-          <Image src="/brand/lookban-wordmark.png" alt="LOOKBAN" width={120} height={33} priority />
+          <Image src="/brand/lookban-wordmark.png" alt="LOOKBAN" width={132} height={40} priority />
         </Link>
 
         <nav aria-label="Main" className="ml-4 hidden gap-6 lg:flex">

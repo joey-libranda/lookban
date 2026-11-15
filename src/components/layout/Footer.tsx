@@ -10,7 +10,7 @@ export function Footer() {
     <footer className="no-print mt-16 bg-blue text-white [main:has(.flush-footer)+&]:mt-0">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
         <div>
-          <Image src="/brand/lookban-wordmark-white.png" alt="LOOKBAN" width={140} height={36} />
+          <Image src="/brand/lookban-wordmark-white.png" alt="LOOKBAN" width={150} height={45} />
           <p className="mt-3 text-sm text-white/80">Local finds, Lucban pride.</p>
           <p className="mt-2 max-w-xs text-sm text-white/70">Lucban&apos;s pasalubong stores and local delicacies, together in one online marketplace.</p>
           <SocialLinks className="mt-4" />

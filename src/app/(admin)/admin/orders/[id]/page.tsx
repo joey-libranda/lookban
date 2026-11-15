@@ -23,7 +23,9 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
       <Link href="/admin/orders" className="text-sm font-semibold text-blue pop hover:text-orange">← Orders</Link>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div><h1 className="text-4xl">{o.receipt_no}</h1><p className="text-muted">Placed {formatDateTime(o.created_at)}</p></div>
-        <div className="flex items-center gap-3"><StatusBadge status={o.status} /><Link href={`/orders/${o.id}/receipt`} className="btn-outline">View Receipt</Link></div>
+        <div className="flex flex-wrap items-center gap-3"><StatusBadge status={o.status} />
+          <Link href={`/orders/${o.id}`} className="btn-outline">Order Details</Link>
+          <Link href={`/orders/${o.id}/receipt`} className="btn-outline">View Receipt</Link></div>
       </div>
 
       <section className="card grid gap-4 p-5 sm:grid-cols-2">

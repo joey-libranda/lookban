@@ -4,6 +4,7 @@ import { ProductGrid } from "@/components/product/ProductCard";
 import { CompareTable } from "@/components/product/CompareTable";
 import { groupByProduct } from "@/lib/utils/compare";
 import { ShopFilters } from "@/components/shop/ShopFilters";
+import { PendingRegion, ShopTransition } from "@/components/shop/ShopTransition";
 import { Pagination } from "@/components/ui/Pagination";
 import { param, parsePage, parseSort, type RawSearchParams } from "@/lib/search-params";
 import { getCategories, getProducts, getStores } from "@/server/queries/catalog";
@@ -43,11 +44,13 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
         {activeCategory?.description ?? "Every listing shows which Lucban store sells it, so you can compare and choose."}
       </p>
 
+      <ShopTransition>
       <div className="mt-6">
         <ShopFilters action="/shop" sale={sale} q={q} category={category} store={store} sort={sort}
                      view={compare ? "compare" : undefined} categories={categories} stores={stores} />
       </div>
 
+      <PendingRegion>
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
         <p className="text-sm text-muted" aria-live="polite">
           {result.total} {result.total === 1 ? "product" : "products"}{q ? ` for “${q}”` : ""}
@@ -75,6 +78,8 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
       </div>
 
       {!compare && <Pagination page={result.page} pageCount={result.pageCount} params={baseParams} />}
+      </PendingRegion>
+      </ShopTransition>
     </div>
   );
 }

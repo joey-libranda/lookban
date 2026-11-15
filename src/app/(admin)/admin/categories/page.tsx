@@ -16,7 +16,7 @@ export default async function AdminCategories() {
       {cats.map((c) => (
         <details key={c.id} className="card p-5">
           <summary className="flex cursor-pointer flex-wrap items-center justify-between gap-2 font-semibold">
-            <span>{c.name} {c.is_featured && <span className="ml-1 rounded-full bg-yellow px-2 py-0.5 text-xs">Featured</span>}</span>
+            <span>{c.name}</span>
             <span className="text-sm font-normal text-muted">/{c.slug} · order {c.sort_order}</span>
           </summary>
           <div className="mt-4 space-y-4">

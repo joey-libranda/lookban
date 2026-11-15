@@ -39,7 +39,7 @@ export default async function ReceiptPage({ params, searchParams }: Props) {
       <article className="rounded-xl border border-line bg-white p-8 print:rounded-none print:border-0 print:p-0" aria-label={`Receipt ${order.receipt_no}`}>
         <header className="flex flex-wrap items-start justify-between gap-4 border-b-2 border-blue pb-5 print:pb-3">
           <div>
-            <Image src="/brand/lookban-logo.png" alt="LOOKBAN - local finds, lucban pride" width={170} height={70} />
+            <Image src="/brand/lookban-logo.png" alt="LOOKBAN - local finds, lucban pride" width={170} height={74} />
           </div>
           <div className="text-right text-sm">
             <p className="font-heading text-2xl font-bold tracking-tighter text-blue">Official receipt</p>

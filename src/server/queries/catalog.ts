@@ -185,13 +185,13 @@ export async function getCategories(): Promise<CategoryData[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("categories")
-    .select("id, slug, name, description, image_url, is_featured, sort_order, products(name, store_id)")
+    .select("id, slug, name, description, image_url, sort_order, products(name, store_id)")
     .eq("products.status", "active")
     .order("sort_order");
   if (error) throw new Error(`Could not load categories: ${error.message}`);
   return (data ?? []).map((c: Raw) => ({
     id: c.id, slug: c.slug, name: c.name, description: c.description ?? null, image_url: c.image_url ?? null,
-    is_featured: c.is_featured, product_count: listingCount(c.products),
+    product_count: listingCount(c.products),
   }));
 }
 

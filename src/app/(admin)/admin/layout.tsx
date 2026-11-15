@@ -18,7 +18,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <div className="grid min-h-screen grid-cols-1 lg:grid-cols-[15rem_minmax(0,1fr)]">
         <aside className="min-w-0 border-b border-line bg-white px-4 py-4 lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto lg:border-b-0 lg:border-r lg:px-4 lg:py-4">
           <Link href="/admin" aria-label="LOOKBAN admin dashboard" className="mb-3 inline-block">
-            <Image src="/brand/lookban-wordmark.png" alt="LOOKBAN" width={120} height={33} priority />
+            <Image src="/brand/lookban-wordmark.png" alt="LOOKBAN" width={132} height={40} priority />
           </Link>
           <AdminNav />
         </aside>

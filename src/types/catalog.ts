@@ -51,7 +51,7 @@ export interface ProductModalData {
 
 export interface CategoryData {
   id: string; slug: string; name: string; description: string | null;
-  image_url: string | null; is_featured: boolean; product_count: number;
+  image_url: string | null; product_count: number;
 }
 
 export interface StoreData {

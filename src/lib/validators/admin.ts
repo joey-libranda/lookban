@@ -46,7 +46,6 @@ export const storeSchema = z.object({
 export const categorySchema = z.object({
   name: req("Name", 60), slug: slugField, description: opt(300),
   sort_order: z.coerce.number().int().min(0).max(999),
-  is_featured: z.boolean().optional(),
 });
 
 export const settingsSchema = z.object({ default_shipping_fee: money });
