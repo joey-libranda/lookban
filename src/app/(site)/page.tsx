@@ -42,14 +42,14 @@ export default async function HomePage() {
 
       {/* BESTSELLERS / FEATURED PRODUCTS */}
       {featured.items.length > 0 && (
-        <ProductCarousel id="best-h" title={featured.isBestselling ? "Bestselling products" : "Fresh on LOOKBAN"} items={featured.items} href="/shop" />
+        <ProductCarousel id="best-h" title={featured.isBestselling ? "Best Selling Products" : "Fresh on LOOKBAN"} items={featured.items} href="/shop" />
       )}
 
       {/* PROMO BANNER */}
       <section className="bg-orange text-white">
         <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-4 px-4 py-10 sm:px-6 md:flex-row md:items-center">
           <div>
-            <h2 className="text-3xl !text-white sm:text-4xl">One cart, many Lucban stores.</h2>
+            <h2 className="text-3xl !text-white sm:text-4xl">One Cart, Many Lucban Stores.</h2>
             <p className="mt-1 max-w-xl text-white/90">Mix longganisa from one store with miki from another. Each store prepares its own part of your order.</p>
           </div>
           <Link href="/shop" className="btn bg-white text-blue hover:bg-yellow">Start Shopping</Link>
@@ -60,7 +60,7 @@ export default async function HomePage() {
       {stores.length > 0 && (
         <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6" aria-labelledby="stores-h">
           <div className="mb-6 flex items-end justify-between gap-4">
-            <h2 id="stores-h" className="text-3xl sm:text-4xl">Featured local stores</h2>
+            <h2 id="stores-h" className="text-3xl sm:text-4xl">Featured Local Stores</h2>
             <Link href="/stores" className="shrink-0 font-semibold text-blue pop hover:text-orange">All stores</Link>
           </div>
           <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 [&>*]:min-w-0">

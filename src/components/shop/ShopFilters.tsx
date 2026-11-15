@@ -58,14 +58,23 @@ export function ShopFilters({ action, sale, q = "", category = "", store = "", s
   const active = !!(q || category || store || sale);
   return (
     <form onSubmit={(e) => { e.preventDefault(); go(f); }} className="card grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-12" role="search" aria-label="Filter products">
-      <div className="sm:col-span-2 lg:col-span-4">
-        <label htmlFor="f-q" className="label">Search</label>
+      <div className={`sm:col-span-2 ${stores ? "lg:col-span-4" : "lg:col-span-5"}`}>
+        <div className="flex items-baseline justify-between">
+          <label htmlFor="f-q" className="label">Search</label>
+          {active && (
+            <button type="button" className="mb-1.5 text-sm font-semibold text-blue pop hover:text-orange"
+                    onClick={() => { const next = { q: "", category: "", store: "", sort: f.sort }; setF(next); go(next); }}>
+              Clear Filters
+            </button>
+          )}
+        </div>
         <div className="relative">
           <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted" aria-hidden />
-          <input id="f-q" name="q" type="search" value={f.q} onChange={(e) => setF({ ...f, q: e.target.value })} placeholder="e.g. longganisa" className="input pl-9" />
+          <input id="f-q" name="q" type="search" value={f.q} onChange={(e) => setF({ ...f, q: e.target.value })}
+                 onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); go(f); } }} placeholder="e.g. longganisa" className="input pl-9" />
         </div>
       </div>
-      <div className="lg:col-span-2">
+      <div className={stores ? "lg:col-span-3" : "lg:col-span-4"}>
         <label htmlFor="f-cat" className="label">Category</label>
         <Select id="f-cat" name="category" value={f.category} onChange={(v) => change({ category: v })}>
           <option value="">All categories</option>
@@ -73,7 +82,7 @@ export function ShopFilters({ action, sale, q = "", category = "", store = "", s
         </Select>
       </div>
       {stores && (
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-3">
           <label htmlFor="f-store" className="label">Store</label>
           <Select id="f-store" name="store" value={f.store} onChange={(v) => change({ store: v })}>
             <option value="">All stores</option>
@@ -86,10 +95,6 @@ export function ShopFilters({ action, sale, q = "", category = "", store = "", s
         <Select id="f-sort" name="sort" value={f.sort} onChange={(v) => change({ sort: v })}>
           {SORT_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
         </Select>
-      </div>
-      <div className="flex items-end gap-2 sm:col-span-2 lg:col-span-2">
-        <button type="submit" className="btn-primary flex-1">Apply</button>
-        {active && <button type="button" className="btn-outline !px-3" onClick={() => { const next = { q: "", category: "", store: "", sort: f.sort }; setF(next); go(next); }}>Clear</button>}
       </div>
     </form>
   );
