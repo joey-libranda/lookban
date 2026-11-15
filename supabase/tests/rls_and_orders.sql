@@ -165,7 +165,7 @@ reset role;
 create temp table so_ids as select id, store_id, order_id from store_orders;   -- built as superuser
 grant select on so_ids to authenticated;
 create temp table alice_order as select id from orders where customer_id = '00000000-0000-0000-0000-00000000000a';
-grant select on alice_order to authenticated;
+grant select on alice_order to anon, authenticated;
 select t.as_user('00000000-0000-0000-0000-0000000000c1');
 select t.ok(t.affected($$ update products set price = 140 where id = (select p_long from ids) $$) = 1, 'vendor can edit own product');
 select t.ok(t.affected($$ update products set price = 1 where id = (select p_miki from ids) $$) = 0, 'vendor cannot edit another store''s product');
@@ -208,6 +208,100 @@ end $$;
 select t.as_user('00000000-0000-0000-0000-00000000000b');
 select t.fails($$ insert into reviews (product_id, user_id, rating) select p_long, auth.uid(), 5 from ids $$, 'row-level security', 'cannot review a product that has not been delivered');
 reset role;
+
+-- ================= CANCEL / RECEIVED / RATING (migration 0010) =================
+create temp table sx as
+  select so.id, so.order_id, so.store_id, o.access_token as tok, o.customer_id
+    from store_orders so join orders o on o.id = so.order_id;
+grant select on sx to anon, authenticated;
+create temp table bob_o1 as select id from orders where customer_id = '00000000-0000-0000-0000-00000000000b';
+grant select on bob_o1 to anon, authenticated;
+
+-- a vendor-side cancel already removed Bob's miki store_order: totals now cover only what is still payable
+select t.ok((select o.total = (select sum(total) from store_orders where order_id = o.id and fulfillment_status <> 'cancelled')
+                and o.subtotal = (select sum(subtotal) from store_orders where order_id = o.id and fulfillment_status <> 'cancelled')
+                and o.shipping_total = 50
+            from orders o where o.id = (select id from bob_o1)),
+            'cancelled store_order drops out of the order totals (items, shipping and total)');
+select t.ok((select payment_status = 'simulated' from orders where id = (select id from bob_o1)),
+            'partial cancel keeps online payment status (never turns into paid)');
+
+-- guests: tracking-link holders can cancel before delivery, others cannot
+select t.as_anon();
+select t.fails($$ select cancel_store_order_by_token((select order_id from sx where store_id = (select s1 from ids) and order_id = (select id from alice_order)),
+                   gen_random_uuid(), (select id from sx where store_id = (select s1 from ids) and order_id = (select id from alice_order))) $$,
+               'NOT_FOUND', 'wrong tracking token cannot cancel an order');
+select t.fails($$ select cancel_my_store_order((select id from sx limit 1)) $$, 'permission denied', 'visitor cannot call the signed-in cancel');
+select t.fails($$ select rate_my_store_order((select id from sx limit 1), 5, 'x') $$, 'permission denied', 'visitor cannot rate');
+select cancel_store_order_by_token(order_id, tok, id) from sx where store_id = (select s1 from ids) and order_id = (select id from alice_order);
+reset role;
+select t.ok((select fulfillment_status = 'cancelled' from store_orders where id = (select id from sx where store_id = (select s1 from ids) and order_id = (select id from alice_order))),
+            'guest with the tracking link cancelled a confirmed store_order');
+select t.ok((select total = (select total from store_orders where order_id = o.id and store_id = (select s2 from ids)) and status = 'delivered' and payment_status = 'paid'
+               from orders o where id = (select id from alice_order)),
+            'Alice''s order: total = only the delivered store, COD marked paid');
+
+-- signed-in customers
+select t.as_user('00000000-0000-0000-0000-00000000000b');
+select t.fails($$ select cancel_my_store_order((select id from sx where order_id = (select id from alice_order) and store_id = (select s2 from ids))) $$, 'NOT_FOUND', 'customer cannot cancel someone else''s order');
+select t.fails($$ select rate_my_store_order((select id from sx where order_id = (select id from alice_order) and store_id = (select s2 from ids)), 5, 'x') $$, 'NOT_FOUND', 'customer cannot rate someone else''s order');
+reset role;
+select t.as_user('00000000-0000-0000-0000-00000000000a');
+select t.fails($$ select cancel_my_store_order((select id from sx where order_id = (select id from alice_order) and store_id = (select s2 from ids))) $$, 'no longer be cancelled', 'delivered order cannot be cancelled');
+select t.fails($$ select confirm_my_store_order_received((select id from sx where order_id = (select id from alice_order) and store_id = (select s2 from ids))) $$, 'out for delivery', 'cannot confirm receipt unless out for delivery');
+select t.fails($$ select rate_my_store_order((select id from sx where order_id = (select id from alice_order) and store_id = (select s1 from ids)), 5, 'x') $$, 'after it is delivered', 'cancelled order cannot be rated');
+select t.fails($$ select rate_my_store_order((select id from sx where order_id = (select id from alice_order) and store_id = (select s2 from ids)), 6, 'x') $$, '1 to 5', 'rating must be 1 to 5');
+select rate_my_store_order((select id from sx where order_id = (select id from alice_order) and store_id = (select s2 from ids)), 4, '  Masarap!  ');
+select t.fails($$ select rate_my_store_order((select id from sx where order_id = (select id from alice_order) and store_id = (select s2 from ids)), 5, null) $$, 'already rated', 'an order can be rated only once');
+reset role;
+select t.ok((select rating = 4 and rating_comment = 'Masarap!' and rated_at is not null from store_orders
+              where id = (select id from sx where order_id = (select id from alice_order) and store_id = (select s2 from ids))),
+            'rating and trimmed feedback saved on the store_order');
+select t.ok((select rating = 4 and comment = 'Masarap!' from reviews
+              where user_id = '00000000-0000-0000-0000-00000000000a' and product_id = (select p_miki from ids)),
+            'rating also became a product review');
+
+-- Bob cancels his still-pending store_order: stock comes back, order becomes cancelled, total 0
+do $$
+declare before_stock int; after_stock int;
+begin
+  select stock into before_stock from products where id = (select p_long from ids);
+  perform t.as_user('00000000-0000-0000-0000-00000000000b');
+  perform cancel_my_store_order((select id from sx where order_id = (select id from bob_o1) and store_id = (select s1 from ids)));
+  reset role;
+  select stock into after_stock from products where id = (select p_long from ids);
+  perform t.ok(after_stock = before_stock + 2, 'customer cancel restocks the items');
+end $$;
+select t.ok((select status = 'cancelled' and payment_status = 'cancelled' and total = 0 from orders where id = (select id from bob_o1)),
+            'fully cancelled order: status cancelled, nothing left to pay');
+
+-- a second order for Bob, then out for delivery: no more cancelling, but "received" works
+select t.as_user('00000000-0000-0000-0000-00000000000b');
+insert into cart_items (cart_id, product_id, quantity) select (select id from carts where user_id = auth.uid()), p_miki, 1 from ids;
+insert into cart_items (cart_id, product_id, quantity) select (select id from carts where user_id = auth.uid()), p_long, 1 from ids;
+insert into placed select place_order('Bob','0918','1 St',null,'Lucban','Quezon',null,null,'cod');
+reset role;
+create temp table bob_o3 as select id from orders where customer_id = '00000000-0000-0000-0000-00000000000b' and id <> (select id from bob_o1);
+grant select on bob_o3 to anon, authenticated;
+create temp table sx3 as
+  select so.id, so.store_id, o.access_token as tok, so.order_id from store_orders so join orders o on o.id = so.order_id where so.order_id = (select id from bob_o3);
+grant select on sx3 to anon, authenticated;
+select t.as_user('00000000-0000-0000-0000-0000000000ad');
+select update_store_order_status(id, 'out_for_delivery') from sx3;
+reset role;
+select t.as_user('00000000-0000-0000-0000-00000000000b');
+select t.fails($$ select cancel_my_store_order((select id from sx3 where store_id = (select s1 from ids))) $$, 'no longer be cancelled', 'out-for-delivery order cannot be cancelled by the customer');
+select confirm_my_store_order_received((select id from sx3 where store_id = (select s1 from ids)));
+select t.fails($$ select confirm_my_store_order_received((select id from sx3 where store_id = (select s1 from ids))) $$, 'out for delivery', 'receipt cannot be confirmed twice');
+select rate_my_store_order((select id from sx3 where store_id = (select s1 from ids)), 5, null);
+reset role;
+select t.ok((select received_at is not null and fulfillment_status = 'delivered' and rating = 5 and rating_comment is null from store_orders where id = (select id from sx3 where store_id = (select s1 from ids))),
+            'customer confirmed receipt then rated 5 stars with no feedback');
+select t.as_anon();
+select confirm_store_order_received_by_token(order_id, tok, id) from sx3 where store_id = (select s2 from ids);
+reset role;
+select t.ok((select status = 'delivered' and payment_status = 'paid' from orders where id = (select id from bob_o3)),
+            'guest tracking link can confirm receipt; order delivered, COD paid');
 
 -- ================= ADMIN MANAGEMENT (two-role UI: customer + admin) =================
 select t.as_user('00000000-0000-0000-0000-0000000000ad');

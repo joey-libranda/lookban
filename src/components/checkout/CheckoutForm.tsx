@@ -87,7 +87,7 @@ export function CheckoutForm({ defaults, guest }: { defaults: Partial<CheckoutVa
         </FormNotice>
       )}
       <button type="submit" disabled={pending} className="btn-primary w-full sm:w-auto sm:px-10">
-        {pending ? "Placing your order…" : "Place order"}
+        {pending ? "Placing Your Order…" : "Place Order"}
       </button>
     </form>
   );

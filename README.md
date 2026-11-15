@@ -55,7 +55,7 @@ Key guarantees (all enforced in Postgres, not in the UI):
 `npm test` runs the cart-maths unit tests (`tests/logic.test.ts`).
 
 ### Database tests
-`supabase/tests/rls_and_orders.sql` (111 checks: privilege escalation, RLS isolation, order creation, overselling,
+`supabase/tests/rls_and_orders.sql` (132 checks: privilege escalation, RLS isolation, order creation, overselling,
 atomic rollback, price snapshots, vendor boundaries, status flow, restock on cancel). It runs inside a transaction that is rolled back.
 Local run against a throwaway Postgres: apply `supabase/tests/00_local_supabase_stub.sql` (stand-ins for Supabase's `auth`/`storage`
 schemas), then the migrations, `seed.sql`, then the test file with `psql -v ON_ERROR_STOP=1 -f ...`.

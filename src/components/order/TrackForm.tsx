@@ -21,7 +21,7 @@ export function TrackForm() {
       <TextInput name="receipt" label="Receipt number" placeholder="LB-20261113-00001" autoComplete="off" required />
       <TextInput name="phone" label="Mobile number used at checkout" type="tel" placeholder="09171234567" autoComplete="tel" required />
       {error && <FormNotice kind="error">{error}</FormNotice>}
-      <button className="btn-primary w-full" disabled={pending}>{pending ? "Looking…" : "Track my order"}</button>
+      <button className="btn-primary w-full" disabled={pending}>{pending ? "Looking…" : "Track My Order"}</button>
     </form>
   );
 }

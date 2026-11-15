@@ -69,7 +69,7 @@ export default async function StorePage({ params, searchParams }: Props) {
             {result.items.length === 0 ? (
               <div className="card p-10 text-center">
                 <p className="text-muted">{store.product_count === 0 ? "This store hasn't listed any products yet." : "No products match your filters."}</p>
-                {store.product_count > 0 && <Link href={`/stores/${slug}`} className="btn-primary mt-4">Clear filters</Link>}
+                {store.product_count > 0 && <Link href={`/stores/${slug}`} className="btn-primary mt-4">Clear Filters</Link>}
               </div>
             ) : <ProductGrid items={result.items} />}
           </div>

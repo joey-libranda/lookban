@@ -46,7 +46,7 @@ export function AddToCartButton({ productId, stock, disabled, compact, withQuant
     return (
       <>
         {slot && <div className="flex items-center justify-between pt-2">{slot}</div>}
-        <Link href={`/admin/products/${productId}`} className={`btn-outline w-full ${compact ? "!py-2 text-sm" : ""}`}>Edit in admin</Link>
+        <Link href={`/admin/products/${productId}`} className={`btn-outline w-full ${compact ? "!py-2 text-sm" : ""}`}>Edit in Admin</Link>
       </>
     );
   }
@@ -85,7 +85,7 @@ export function AddToCartButton({ productId, stock, disabled, compact, withQuant
       )}
       <button type="button" onClick={add} disabled={disabled || pending}
               className={`btn-primary w-full ${compact ? "!py-2 text-sm" : ""}`}>
-        <ShoppingCart className="size-4" aria-hidden /> {pending ? "Adding…" : "Add to cart"}
+        <ShoppingCart className="size-4" aria-hidden /> {pending ? "Adding…" : "Add to Cart"}
       </button>
     </div>
   );

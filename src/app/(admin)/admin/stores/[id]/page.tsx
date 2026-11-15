@@ -40,10 +40,10 @@ export default async function EditStore({ params, searchParams }: { params: Prom
         {imageBlock("cover", store.cover_url, "Cover photo", "aspect-[16/7] w-full")}
       </section>
       <section className="card p-5"><h2 className="mb-4 text-2xl">Details</h2>
-        <StoreForm action={saveStoreAction.bind(null, id)} store={store} submitLabel="Save changes" /></section>
+        <StoreForm action={saveStoreAction.bind(null, id)} store={store} submitLabel="Save Changes" /></section>
       <section className="card flex flex-wrap items-center justify-between gap-3 p-5">
         <div><h2 className="text-xl">Delete store</h2><p className="text-sm text-muted">Only possible when it has no products. Otherwise set it to Suspended.</p></div>
-        <ConfirmButton action={deleteStoreAction.bind(null, id)} confirm="Permanently delete this store?" className="btn border-2 border-red-700 text-red-700 hover:bg-red-50">Delete store</ConfirmButton>
+        <ConfirmButton action={deleteStoreAction.bind(null, id)} confirm="Permanently delete this store?" className="btn border-2 border-red-700 text-red-700 hover:bg-red-50">Delete Store</ConfirmButton>
       </section>
     </div>
   );

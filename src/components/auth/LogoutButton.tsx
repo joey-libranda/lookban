@@ -23,14 +23,14 @@ export function LogoutDialog({ open, onClose }: { open: boolean; onClose: () => 
       <h2 id="logout-title" className="text-2xl">Log out?</h2>
       <p className="mt-2 text-sm text-muted">You&apos;ll need to log in again to see your account.</p>
       <div className="mt-5 flex justify-end gap-3">
-        <button type="button" className="btn-outline !py-2" onClick={onClose}>Stay logged in</button>
-        <form action={logoutAction}><button type="submit" className="btn bg-red-700 !py-2 text-white hover:bg-red-800">Log out</button></form>
+        <button type="button" className="btn-outline !py-2" onClick={onClose}>Stay Logged In</button>
+        <form action={logoutAction}><button type="submit" className="btn bg-red-700 !py-2 text-white hover:bg-red-800">Log Out</button></form>
       </div>
     </dialog>
   );
 }
 
-/** Red "Log out" that asks for confirmation first (so nobody logs out by accident). */
+/** Red "Log Out" that asks for confirmation first (so nobody logs out by accident). */
 export function LogoutButton({ variant = "button" }: { variant?: keyof typeof STYLES }) {
   const [open, setOpen] = useState(false);
   return (

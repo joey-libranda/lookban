@@ -10,7 +10,7 @@ import type { HeroSlideRow } from "@/server/queries/admin";
 import type { FormState } from "@/server/actions/admin";
 
 export function HeroSlideUploader() {
-  return <ImageUploader bucket="hero-banners" folder="slides" label="Upload photo" multiple onUploaded={(p) => addHeroSlideAction(p)} />;
+  return <ImageUploader bucket="hero-banners" folder="slides" label="Upload Photo" multiple onUploaded={(p) => addHeroSlideAction(p)} />;
 }
 
 function Row({ slide, first, last }: { slide: HeroSlideRow; first: boolean; last: boolean }) {

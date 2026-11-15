@@ -41,7 +41,7 @@ export async function Header() {
           {current ? (
             <AccountMenu name={current.profile.full_name?.split(" ")[0] ?? "Account"} isAdmin={role === "admin"} />
           ) : (
-            <Link href="/login" className="btn-primary !px-5 !py-2 text-sm">Log in</Link>
+            <Link href="/login" className="btn-primary !px-5 !py-2 text-sm">Log In</Link>
           )}
 
           <MobileMenu />

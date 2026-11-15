@@ -6,7 +6,7 @@ import { saveAddressAction, saveProfileAction } from "@/server/actions/admin";
 
 export function ProfileForm({ fullName, phone }: { fullName: string; phone: string }) {
   return (
-    <ActionForm action={saveProfileAction} submitLabel="Save profile">
+    <ActionForm action={saveProfileAction} submitLabel="Save Profile">
       {(e) => (
         <div className="grid gap-4 sm:grid-cols-2">
           <TextInput name="full_name" label="Full name" defaultValue={fullName} error={e.full_name} required autoComplete="name" />
@@ -21,7 +21,7 @@ type Addr = { recipient_name: string; phone: string; line1: string; barangay: st
 
 export function AddressForm({ address, fallbackName, fallbackPhone }: { address: Addr; fallbackName: string; fallbackPhone: string }) {
   return (
-    <ActionForm action={saveAddressAction} submitLabel="Save address">
+    <ActionForm action={saveAddressAction} submitLabel="Save Address">
       {(e) => (
         <div className="grid gap-4 sm:grid-cols-2">
           <TextInput name="full_name" label="Recipient name" defaultValue={address?.recipient_name ?? fallbackName} error={e.full_name} required />

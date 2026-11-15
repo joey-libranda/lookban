@@ -28,7 +28,7 @@ export function GuestCheckout() {
     }).catch(() => setError("Could not load your cart. Please try again."));
   }, [router]);
 
-  if (error) return <div className="mx-auto max-w-lg px-4 py-24 text-center"><p role="alert" className="text-red-800">{error}</p><Link href="/cart" className="btn-primary mt-6">Back to cart</Link></div>;
+  if (error) return <div className="mx-auto max-w-lg px-4 py-24 text-center"><p role="alert" className="text-red-800">{error}</p><Link href="/cart" className="btn-primary mt-6">Back to Cart</Link></div>;
   if (!items || !cart) return <div role="status" aria-label="Loading checkout" className="mx-auto mt-10 h-64 max-w-7xl animate-pulse rounded-xl bg-line" />;
 
   return (

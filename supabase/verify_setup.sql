@@ -10,7 +10,9 @@ with expected_tables(name, step) as (values
   ('contact_messages','0007'),('hero_slides','0009')),
 expected_functions(name, step) as (values
   ('place_order','0003'),('place_guest_order','0005'),('get_order_by_token','0005'),('track_order','0005'),
-  ('update_store_order_status','0003'),('is_admin','0002')),
+  ('update_store_order_status','0003'),('is_admin','0002'),
+  ('cancel_my_store_order','0010'),('confirm_my_store_order_received','0010'),('rate_my_store_order','0010'),
+  ('cancel_store_order_by_token','0010'),('confirm_store_order_received_by_token','0010')),
 expected_buckets(name, step) as (values
   ('product-images','0004'),('store-assets','0004'),('hero-banners','0009'))
 select 'table' as kind, t.name, t.step,
@@ -27,6 +29,9 @@ select 'storage bucket', b.name, b.step,
 union all
 select 'column', 'products.compare_at_price', '0008',
        case when exists (select 1 from information_schema.columns where table_schema='public' and table_name='products' and column_name='compare_at_price') then 'ok' else 'MISSING - run 0008' end
+union all
+select 'column', 'store_orders.rating', '0010',
+       case when exists (select 1 from information_schema.columns where table_schema='public' and table_name='store_orders' and column_name='rating') then 'ok' else 'MISSING - run 0010' end
 union all
 select 'row security', c.relname, '0002',
        case when c.relrowsecurity then 'ok' else 'MISSING - run 0002' end

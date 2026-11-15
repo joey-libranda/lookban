@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { CheckCircle2 } from "lucide-react";
 import { StatusBadge } from "@/components/order/StatusBadge";
 import { OrderTracker } from "@/components/order/OrderTracker";
+import { StoreOrderActions } from "@/components/order/StoreOrderActions";
+import { Star } from "lucide-react";
 import { getCurrentUser, requireUser } from "@/lib/auth/guards";
 import { formatPeso } from "@/lib/utils/format";
 import { formatDateTime, paymentMethodLabel } from "@/lib/utils/labels";
@@ -26,6 +28,12 @@ export default async function OrderPage({ params, searchParams }: Props) {
   const current = await getCurrentUser();
   const isGuestView = viaToken && !current;
   const tokenQs = viaToken ? `?t=${t}` : "";
+  // Customers (or guests with the link) can act on their order; admins only look.
+  const canAct = viaToken || (!!current && current.profile.role !== "admin");
+  const canRate = !!current && current.profile.role !== "admin";
+  const isCod = order.payment_method === "cod";
+  // Cancelled stores are left out of the total; their amount is what may be refunded.
+  const cancelledTotal = order.store_orders.filter((so) => so.fulfillment_status === "cancelled").reduce((n, so) => n + so.total, 0);
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
@@ -56,7 +64,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
           <p className="text-muted">Receipt {order.receipt_no} · {formatDateTime(order.created_at)}</p>
         </div>
         <div className="flex items-center gap-3"><StatusBadge status={order.status} />
-          <Link href={`/orders/${order.id}/receipt${tokenQs}`} className="btn-outline !py-2">View / print receipt</Link></div>
+          <Link href={`/orders/${order.id}/receipt${tokenQs}`} className="btn-outline !py-2">View / Print Receipt</Link></div>
       </div>
 
       <section className="card mt-6 p-5" aria-label="Order progress">
@@ -66,14 +74,20 @@ export default async function OrderPage({ params, searchParams }: Props) {
 
       <div className="mt-8 space-y-5">
         {order.store_orders.map((so) => (
-          <section key={so.id} className="card p-5" aria-label={`Items from ${so.store_name}`}>
+          <section key={so.id} className={`card p-5 ${so.fulfillment_status === "cancelled" ? "bg-cream/60" : ""}`} aria-label={`Items from ${so.store_name}`}>
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-3">
               <h2 className="text-xl">{so.store_slug ? <Link href={`/stores/${so.store_slug}`} className="pop hover:text-orange">{so.store_name}</Link> : so.store_name}</h2>
               <StatusBadge status={so.fulfillment_status} />
             </div>
+            {so.fulfillment_status === "cancelled" && (
+              <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-800">
+                Cancelled. This store&apos;s items are not included in your total.
+                {!isCod && <> Refund due: <strong>{formatPeso(so.total)}</strong>.</>}
+              </p>
+            )}
             <ul className="divide-y divide-line">
               {so.items.map((i) => (
-                <li key={i.id} className="flex justify-between gap-4 py-2.5 text-sm">
+                <li key={i.id} className={`flex justify-between gap-4 py-2.5 text-sm ${so.fulfillment_status === "cancelled" ? "text-muted line-through" : ""}`}>
                   <span>{i.quantity} × {i.product_name}{i.variant_label ? ` (${i.variant_label})` : ""} <span className="text-muted">@ {formatPeso(i.price_at_purchase)}</span></span>
                   <span className="shrink-0 font-semibold">{formatPeso(i.line_total)}</span>
                 </li>
@@ -83,6 +97,19 @@ export default async function OrderPage({ params, searchParams }: Props) {
               <div className="flex justify-between"><dt>Subtotal</dt><dd>{formatPeso(so.subtotal)}</dd></div>
               <div className="flex justify-between"><dt>Shipping</dt><dd>{formatPeso(so.shipping_fee)}</dd></div>
             </dl>
+            {so.rating !== null && (
+              <p className="mt-3 flex flex-wrap items-center gap-1 border-t border-line pt-3 text-sm">
+                <span className="font-semibold">{canRate ? "Your rating:" : "Customer rating:"}</span>
+                {[1, 2, 3, 4, 5].map((n) => <Star key={n} className={`size-4 ${n <= so.rating! ? "fill-orange text-orange" : "text-line"}`} aria-hidden />)}
+                <span className="sr-only">{so.rating} out of 5</span>
+                {so.rating_comment && <span className="basis-full text-muted">&ldquo;{so.rating_comment}&rdquo;</span>}
+              </p>
+            )}
+            {canAct && (
+              <StoreOrderActions orderId={order.id} storeOrderId={so.id} storeName={so.store_name}
+                status={so.fulfillment_status} rating={so.rating} canRate={canRate} token={viaToken ? t : undefined}
+                cancelNote={isCod ? "You won't be charged for them." : `Refund due for this store: ${formatPeso(so.total)}.`} />
+            )}
           </section>
         ))}
       </div>
@@ -101,8 +128,15 @@ export default async function OrderPage({ params, searchParams }: Props) {
           <dl className="mt-3 space-y-1 border-t border-line pt-3">
             <div className="flex justify-between"><dt>Items</dt><dd>{formatPeso(order.subtotal)}</dd></div>
             <div className="flex justify-between"><dt>Shipping</dt><dd>{formatPeso(order.shipping_total)}</dd></div>
-            <div className="flex justify-between text-lg font-bold text-blue"><dt>Total</dt><dd>{formatPeso(order.total)}</dd></div>
+            <div className="flex justify-between text-lg font-bold text-blue"><dt>{cancelledTotal > 0 ? "Total to Pay" : "Total"}</dt><dd>{formatPeso(order.total)}</dd></div>
           </dl>
+          {cancelledTotal > 0 && (
+            <p className="mt-3 rounded-lg bg-cream px-3 py-2 text-muted">
+              {isCod
+                ? <>Cancelled stores are not charged. You pay only <strong className="text-ink">{formatPeso(order.total)}</strong> on delivery.</>
+                : <>Refund due for cancelled stores: <strong className="text-ink">{formatPeso(cancelledTotal)}</strong>.</>}
+            </p>
+          )}
         </section>
       </div>
     </div>

@@ -11,7 +11,7 @@ export default function NewStore() {
       <Link href="/admin/stores" className="text-sm font-semibold text-blue pop hover:text-orange">← Stores</Link>
       <h1 className="text-4xl">Add store</h1>
       <p className="text-muted">Save the store first, then you can upload its logo and cover photo.</p>
-      <div className="card p-5"><StoreForm action={saveStoreAction.bind(null, null)} submitLabel="Create store" /></div>
+      <div className="card p-5"><StoreForm action={saveStoreAction.bind(null, null)} submitLabel="Create Store" /></div>
     </div>
   );
 }

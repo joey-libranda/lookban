@@ -32,8 +32,8 @@ export default async function HomePage() {
               Longganisa, miki, broas and more from many family-run Lucban stores. Compare prices, pick the store you love, and check out in one cart.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <Link href="/shop" className="btn-primary">Shop now</Link>
-              <Link href="/stores" className="btn border-2 border-white text-white hover:bg-white hover:text-blue">Explore stores</Link>
+              <Link href="/shop" className="btn-primary">Shop Now</Link>
+              <Link href="/stores" className="btn border-2 border-white text-white hover:bg-white hover:text-blue">Explore Stores</Link>
             </div>
           </div>
         </HeroCarousel>
@@ -52,7 +52,7 @@ export default async function HomePage() {
             <h2 className="text-3xl !text-white sm:text-4xl">One cart, many Lucban stores.</h2>
             <p className="mt-1 max-w-xl text-white/90">Mix longganisa from one store with miki from another. Each store prepares its own part of your order.</p>
           </div>
-          <Link href="/shop" className="btn bg-white text-blue hover:bg-yellow">Start shopping</Link>
+          <Link href="/shop" className="btn bg-white text-blue hover:bg-yellow">Start Shopping</Link>
         </div>
       </section>
 
@@ -76,7 +76,7 @@ export default async function HomePage() {
             <h2 className="text-4xl !text-yellow">Discover Lucban</h2>
             <p className="mt-4 text-lg text-white/90">Known for its Pahiyas Festival, when homes are decorated with colorful kiping, Lucban is also home to garlicky air-dried longganisa, miki noodles for pancit habhab, and heritage biscuits baked for generations.</p>
             <p className="mt-4 text-white/80">Behind each product is a small, family-run business. Shopping on LOOKBAN helps them reach customers beyond the town.</p>
-            <Link href="/about" className="btn mt-6 bg-yellow text-blue hover:bg-white">Our story</Link>
+            <Link href="/about" className="btn mt-6 bg-yellow text-blue hover:bg-white">Our Story</Link>
           </div>
           <ul className="grid gap-4 self-center">
             {[
@@ -102,8 +102,8 @@ export default async function HomePage() {
           <h2 id="cta-h" className="max-w-2xl text-3xl !font-display !font-normal !tracking-normal sm:text-4xl">Bring home a taste of Lucban.</h2>
           <p className="max-w-xl text-ink/80">Longganisa, miki, hardinera, biscuits and more, straight from the stores that make them.</p>
           <div className="mt-2 flex flex-wrap justify-center gap-3">
-            <Link href="/shop" className="btn-primary">Shop now</Link>
-            <Link href="/stores" className="btn-outline">Explore stores</Link>
+            <Link href="/shop" className="btn-primary">Shop Now</Link>
+            <Link href="/stores" className="btn-outline">Explore Stores</Link>
           </div>
         </div>
       </section>

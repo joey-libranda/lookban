@@ -24,7 +24,7 @@ export default async function AdminMessages() {
               </div>
               <div className="flex gap-4 text-sm font-semibold">
                 <form action={setMessageReadAction.bind(null, m.id, m.status === "new")}>
-                  <button className="pop text-blue hover:text-orange">{m.status === "new" ? "Mark as read" : "Mark as new"}</button>
+                  <button className="pop text-blue hover:text-orange">{m.status === "new" ? "Mark as Read" : "Mark as New"}</button>
                 </form>
                 <form action={deleteMessageAction.bind(null, m.id)}>
                   <button className="pop text-red-700 hover:text-red-900">Delete</button>

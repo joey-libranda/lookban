@@ -19,7 +19,7 @@ export default async function AdminProducts({ searchParams }: { searchParams: Pr
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-4xl">Products</h1>
-        <Link href="/admin/products/new" className="btn-primary"><Plus className="size-4" aria-hidden /> Add product</Link>
+        <Link href="/admin/products/new" className="btn-primary"><Plus className="size-4" aria-hidden /> Add Product</Link>
       </div>
 
       <form className="card grid gap-3 p-4 sm:grid-cols-[1fr_12rem_10rem_auto]" role="search">

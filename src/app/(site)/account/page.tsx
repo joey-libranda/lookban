@@ -19,7 +19,7 @@ export default async function AccountPage() {
         <p className="mt-1 text-muted">{profile.email}</p>
       </div>
       <div className="flex flex-wrap gap-3">
-        <Link href="/account/orders" className="btn-outline">My orders</Link>
+        <Link href="/account/orders" className="btn-outline">My Orders</Link>
         <LogoutButton />
       </div>
       <section className="card p-5" aria-labelledby="prof">

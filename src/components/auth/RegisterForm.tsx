@@ -26,7 +26,7 @@ export function RegisterForm() {
              error={errors.confirm_password} {...register("confirm_password")} />
       {result && !result.ok && <FormNotice kind="error">{result.error}</FormNotice>}
       <button type="submit" disabled={pending} className="btn-primary w-full">
-        {pending ? "Creating account…" : "Create account"}
+        {pending ? "Creating Account…" : "Create Account"}
       </button>
     </form>
   );

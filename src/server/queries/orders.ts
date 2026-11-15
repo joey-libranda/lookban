@@ -17,7 +17,7 @@ export async function getOrder(id: string): Promise<OrderRow | null> {
       `id, receipt_no, created_at, customer_name, customer_phone, customer_email,
        delivery_line1, delivery_barangay, delivery_city, delivery_province, delivery_postal, notes,
        payment_method, payment_status, status, subtotal, shipping_total, total,
-       store_orders(id, store_id, store_name, subtotal, shipping_fee, total, fulfillment_status,
+       store_orders(id, store_id, store_name, subtotal, shipping_fee, total, fulfillment_status, received_at, rating, rating_comment, rated_at,
          store:stores(slug, address, contact_phone),
          order_items(id, product_id, product_name, variant_label, price_at_purchase, quantity, line_total))`,
     )
@@ -52,6 +52,7 @@ function normalizeOrder(data: Raw): OrderRow {
         store_phone: (Array.isArray(so.store) ? so.store[0] : so.store)?.contact_phone ?? null,
         subtotal: num(so.subtotal), shipping_fee: num(so.shipping_fee), total: num(so.total),
         fulfillment_status: so.fulfillment_status,
+        received_at: so.received_at ?? null, rating: so.rating ?? null, rating_comment: so.rating_comment ?? null, rated_at: so.rated_at ?? null,
         items: ((so.order_items ?? []) as Raw[]).map((i) => ({
           id: i.id, product_id: i.product_id, product_name: i.product_name, variant_label: i.variant_label ?? "",
           price_at_purchase: num(i.price_at_purchase), quantity: i.quantity, line_total: num(i.line_total),

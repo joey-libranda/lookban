@@ -14,7 +14,7 @@ export default async function AdminStores({ searchParams }: { searchParams: Prom
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-4xl">Stores</h1>
-        <Link href="/admin/stores/new" className="btn-primary"><Plus className="size-4" aria-hidden /> Add store</Link>
+        <Link href="/admin/stores/new" className="btn-primary"><Plus className="size-4" aria-hidden /> Add Store</Link>
       </div>
       {sp.deleted && <FormNotice kind="success">Store deleted.</FormNotice>}
       <div className="card relative overflow-x-auto">

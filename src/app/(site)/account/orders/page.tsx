@@ -6,7 +6,7 @@ import { formatPeso } from "@/lib/utils/format";
 import { formatDateTime, paymentMethodLabel } from "@/lib/utils/labels";
 import { getMyOrders } from "@/server/queries/orders";
 
-export const metadata: Metadata = { title: "My orders" };
+export const metadata: Metadata = { title: "My Orders" };
 
 export default async function MyOrdersPage() {
   await requireUser("/account/orders");
@@ -17,7 +17,7 @@ export default async function MyOrdersPage() {
       {orders.length === 0 ? (
         <div className="card mt-8 p-10 text-center">
           <p className="text-muted">You haven&apos;t placed any orders yet.</p>
-          <Link href="/shop" className="btn-primary mt-4">Start shopping</Link>
+          <Link href="/shop" className="btn-primary mt-4">Start Shopping</Link>
         </div>
       ) : (
         <ul className="mt-6 space-y-3">

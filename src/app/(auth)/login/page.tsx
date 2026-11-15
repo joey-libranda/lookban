@@ -4,7 +4,7 @@ import { LoginForm } from "@/components/auth/LoginForm";
 import { FormNotice } from "@/components/ui/Field";
 import { safeNext } from "@/lib/auth/safe-redirect";
 
-export const metadata: Metadata = { title: "Log in" };
+export const metadata: Metadata = { title: "Log In" };
 
 export default async function LoginPage({
   searchParams,

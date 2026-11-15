@@ -11,9 +11,12 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
   return (
     <ShopperProvider loggedIn={!!current} isAdmin={current?.profile.role === "admin"}>
       <ToastProvider>
-        <Header />
-        <main>{children}</main>
-        <Footer />
+        {/* Column layout: when a page is short the footer still sits at the bottom of the screen. */}
+        <div className="flex min-h-svh flex-col">
+          <Header />
+          <main className="flex-1">{children}</main>
+          <Footer />
+        </div>
         <Suspense fallback={null}><ProductModalHost /></Suspense>
       </ToastProvider>
     </ShopperProvider>

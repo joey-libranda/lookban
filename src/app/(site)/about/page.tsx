@@ -42,8 +42,8 @@ export default function AboutPage() {
           <h2 className="text-3xl sm:text-4xl">Every pasalubong has a story.</h2>
           <p className="max-w-xl text-ink/80">Longganisa, miki, hardinera, biscuits and more, straight from the stores that make them.</p>
           <div className="mt-2 flex flex-wrap justify-center gap-3">
-            <Link href="/shop" className="btn-primary">Shop now</Link>
-            <Link href="/stores" className="btn-outline">Explore stores</Link>
+            <Link href="/shop" className="btn-primary">Shop Now</Link>
+            <Link href="/stores" className="btn-outline">Explore Stores</Link>
           </div>
         </div>
       </div>

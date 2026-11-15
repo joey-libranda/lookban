@@ -63,7 +63,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
           <div className="card p-10 text-center">
             <h2 className="text-2xl">No products found</h2>
             <p className="mt-2 text-muted">Try a different search or clear the filters.</p>
-            <Link href="/shop" className="btn-primary mt-5">Clear filters</Link>
+            <Link href="/shop" className="btn-primary mt-5">Clear Filters</Link>
           </div>
         ) : compare ? (
           <div className="space-y-6">

@@ -46,7 +46,7 @@ export default async function EditProduct({ params, searchParams }: { params: Pr
                 </div>
                 <div className="flex flex-wrap gap-2 text-sm">
                   {!img.is_primary && (
-                    <form action={setPrimaryImageAction.bind(null, id, img.id)}><button className="font-semibold text-blue pop hover:text-orange">Make cover</button></form>
+                    <form action={setPrimaryImageAction.bind(null, id, img.id)}><button className="font-semibold text-blue pop hover:text-orange">Make Cover</button></form>
                   )}
                   <ConfirmButton className="text-sm font-semibold text-red-700 pop hover:text-red-900" confirm="Delete this photo?" action={deleteProductImageAction.bind(null, id, img.id)}>Delete</ConfirmButton>
                 </div>
@@ -55,20 +55,20 @@ export default async function EditProduct({ params, searchParams }: { params: Pr
           </ul>
         )}
         <div className="mt-4">
-          <ImageUploader bucket="product-images" folder={product.store_id as string} label="Upload photos" multiple
+          <ImageUploader bucket="product-images" folder={product.store_id as string} label="Upload Photos" multiple
             onUploaded={addProductImageAction.bind(null, id)} />
         </div>
       </section>
 
       <section className="card p-5" aria-labelledby="details">
         <h2 id="details" className="mb-4 text-2xl">Details</h2>
-        <ProductForm action={saveProductAction.bind(null, id)} product={product} stores={stores} categories={categories} submitLabel="Save changes" />
+        <ProductForm action={saveProductAction.bind(null, id)} product={product} stores={stores} categories={categories} submitLabel="Save Changes" />
       </section>
 
       <section className="card border-red-200 p-5">
         <h2 className="text-xl">Remove product</h2>
         <p className="mt-1 text-sm text-muted">Archiving hides it from the shop but keeps order history. Products already ordered can only be archived.</p>
-        <div className="mt-3"><ConfirmButton action={remove} confirm="Permanently delete this product and its photos?" className="btn border-2 border-red-700 text-red-700 hover:bg-red-50">Delete product</ConfirmButton></div>
+        <div className="mt-3"><ConfirmButton action={remove} confirm="Permanently delete this product and its photos?" className="btn border-2 border-red-700 text-red-700 hover:bg-red-50">Delete Product</ConfirmButton></div>
       </section>
     </div>
   );

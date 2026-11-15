@@ -12,7 +12,7 @@ export default async function AdminCategories() {
     <div className="max-w-3xl space-y-5">
       <h1 className="text-4xl">Categories</h1>
       <section className="card p-5"><h2 className="mb-3 text-2xl">Add category</h2>
-        <CategoryForm action={saveCategoryAction.bind(null, null)} submitLabel="Add category" /></section>
+        <CategoryForm action={saveCategoryAction.bind(null, null)} submitLabel="Add Category" /></section>
       {cats.map((c) => (
         <details key={c.id} className="card p-5">
           <summary className="flex cursor-pointer flex-wrap items-center justify-between gap-2 font-semibold">

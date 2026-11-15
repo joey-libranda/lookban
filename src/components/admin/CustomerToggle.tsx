@@ -19,7 +19,7 @@ export function CustomerToggle({ id, name, active }: { id: string; name: string;
       <ConfirmModal open={open} busy={pending}
         title={active ? "Deactivate this customer?" : "Reactivate this customer?"}
         text={active ? `${name} will no longer be able to log in or place orders. You can reactivate the account later.` : `${name} will be able to log in and place orders again.`}
-        confirmLabel={active ? "Yes, deactivate" : "Yes, reactivate"} cancelLabel="Cancel"
+        confirmLabel={active ? "Yes, Deactivate" : "Yes, Reactivate"} cancelLabel="Cancel"
         confirmClass={active ? "bg-red-700 hover:bg-red-800" : "bg-blue hover:bg-blue-700"}
         onClose={() => setOpen(false)}
         onConfirm={() => start(async () => {

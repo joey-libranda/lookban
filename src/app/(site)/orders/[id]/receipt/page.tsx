@@ -26,6 +26,7 @@ export default async function ReceiptPage({ params, searchParams }: Props) {
   if (!viaToken) await requireUser(`/orders/${id}/receipt`);
   const order = viaToken ? await getOrderByToken(id, t!) : await getOrder(id);
   if (!order) notFound();
+  const hasCancelled = order.store_orders.some((so) => so.fulfillment_status === "cancelled");
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 print:max-w-none print:p-0">
@@ -63,7 +64,7 @@ export default async function ReceiptPage({ params, searchParams }: Props) {
         {order.store_orders.map((so) => (
           <section key={so.id} className="mt-6 break-inside-avoid print:mt-4">
             <div className="flex flex-wrap items-baseline justify-between gap-2 rounded-t-lg bg-blue-50 px-3 py-2">
-              <h2 className="!font-sans text-base font-bold text-blue">{so.store_name}</h2>
+              <h2 className="!font-sans text-base font-bold text-blue">{so.store_name}{so.fulfillment_status === "cancelled" && <span className="ml-2 text-sm font-semibold text-red-700">(Cancelled)</span>}</h2>
               <p className="text-xs text-muted">{[so.store_address, so.store_phone].filter(Boolean).join(" · ")}</p>
             </div>
             <table className="w-full table-fixed text-sm">
@@ -77,7 +78,7 @@ export default async function ReceiptPage({ params, searchParams }: Props) {
               </thead>
               <tbody>
                 {so.items.map((i) => (
-                  <tr key={i.id} className="border-b border-line">
+                  <tr key={i.id} className={`border-b border-line ${so.fulfillment_status === "cancelled" ? "text-muted line-through" : ""}`}>
                     <td className="px-3 py-2">{i.product_name}{i.variant_label && <span className="text-muted"> - {i.variant_label}</span>}</td>
                     <td className="px-3 py-2 text-right">{i.quantity}</td>
                     <td className="px-3 py-2 text-right">{formatPeso(i.price_at_purchase)}</td>
@@ -88,7 +89,9 @@ export default async function ReceiptPage({ params, searchParams }: Props) {
               <tfoot className="text-sm">
                 <tr><td colSpan={3} className="px-3 pt-2 text-right text-muted">Subtotal</td><td className="px-3 pt-2 text-right">{formatPeso(so.subtotal)}</td></tr>
                 <tr><td colSpan={3} className="px-3 text-right text-muted">Shipping</td><td className="px-3 text-right">{formatPeso(so.shipping_fee)}</td></tr>
-                <tr><td colSpan={3} className="px-3 pb-1 text-right font-semibold">Store total</td><td className="px-3 pb-1 text-right font-semibold">{formatPeso(so.total)}</td></tr>
+                {so.fulfillment_status === "cancelled"
+                  ? <tr><td colSpan={3} className="px-3 pb-1 text-right font-semibold text-red-700">Cancelled - {order.payment_method === "cod" ? "not charged" : "refund due"}</td><td className="px-3 pb-1 text-right font-semibold text-red-700">{order.payment_method === "cod" ? formatPeso(0) : formatPeso(so.total)}</td></tr>
+                  : <tr><td colSpan={3} className="px-3 pb-1 text-right font-semibold">Store total</td><td className="px-3 pb-1 text-right font-semibold">{formatPeso(so.total)}</td></tr>}
               </tfoot>
             </table>
           </section>
@@ -100,7 +103,7 @@ export default async function ReceiptPage({ params, searchParams }: Props) {
             <p><span className="text-muted">Order status:</span> {fulfillmentLabel(order.status)}</p>
           </div>
           <dl className="space-y-1">
-            <div className="flex justify-between"><dt>Items subtotal</dt><dd>{formatPeso(order.subtotal)}</dd></div>
+            <div className="flex justify-between"><dt>Items subtotal{hasCancelled && " (cancelled stores excluded)"}</dt><dd>{formatPeso(order.subtotal)}</dd></div>
             <div className="flex justify-between"><dt>Shipping fees</dt><dd>{formatPeso(order.shipping_total)}</dd></div>
             <div className="flex justify-between border-t border-line pt-2 text-xl font-bold text-blue"><dt>Total</dt><dd>{formatPeso(order.total)}</dd></div>
           </dl>

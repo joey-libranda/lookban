@@ -22,7 +22,7 @@ export default async function CartPage() {
       <div className="mx-auto max-w-lg px-4 py-24 text-center">
         <h1 className="text-4xl">Your cart is empty</h1>
         <p className="mt-3 text-muted">Find something from Lucban&apos;s local stores.</p>
-        <Link href="/shop" className="btn-primary mt-6">Browse the shop</Link>
+        <Link href="/shop" className="btn-primary mt-6">Browse the Shop</Link>
       </div>
     );
   }
@@ -64,9 +64,9 @@ export default async function CartPage() {
             </p>
           )}
           {cart.hasIssues
-            ? <button disabled className="btn-primary mt-5 w-full">Check out</button>
-            : <Link href="/checkout" className="btn-primary mt-5 w-full">Check out</Link>}
-          <Link href="/shop" className="btn-outline mt-3 w-full">Continue shopping</Link>
+            ? <button disabled className="btn-primary mt-5 w-full">Check Out</button>
+            : <Link href="/checkout" className="btn-primary mt-5 w-full">Check Out</Link>}
+          <Link href="/shop" className="btn-outline mt-3 w-full">Continue Shopping</Link>
           <ServerEmptyCart />
         </OrderSummary>
       </div>
