@@ -12,7 +12,8 @@
 
 -- ---------- settings ----------
 insert into settings (key, value) values
-  ('default_shipping_fee', '50'::jsonb)          -- PHP per vendor; editable in Admin > Settings
+  ('default_shipping_fee', '50'::jsonb),         -- PHP per vendor; editable in Admin > Settings
+  ('default_commission_rate', '5'::jsonb)        -- percent of a store's item subtotal; editable in Admin > Settings
 on conflict (key) do nothing;
 
 -- ---------- categories ----------

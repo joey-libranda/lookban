@@ -7,7 +7,7 @@ import { requireAdmin, requireUser } from "@/lib/auth/guards";
 import { createClient } from "@/lib/supabase/server";
 import { SUPABASE_URL } from "@/lib/env";
 import {
-  addressSchema, categorySchema, heroSlideSchema, finalSlug, productSchema, settingsSchema, statusSchema, storeSchema, uuid,
+  addressSchema, categorySchema, heroSlideSchema, finalSlug, productSchema, settingsSchema, commissionSettingsSchema, replySchema, statusSchema, storeSchema, uuid,
 } from "@/lib/validators/admin";
 import { slugify } from "@/lib/utils/slug";
 
@@ -163,6 +163,7 @@ export async function saveStoreAction(id: string | null, _prev: FormState, fd: F
     name: v.name, slug: finalSlug(v.slug, v.name), description: nullish(v.description), address: nullish(v.address),
     contact_phone: nullish(v.contact_phone), contact_email: nullish(v.contact_email), opening_hours: nullish(v.opening_hours),
     is_open: v.is_open, shipping_fee: v.shipping_fee === "" || v.shipping_fee === undefined ? null : v.shipping_fee,
+    commission_rate: v.commission_rate === "" || v.commission_rate === undefined ? null : v.commission_rate,
     status: v.status,
   };
   const supabase = await createClient();
@@ -240,6 +241,17 @@ export async function saveSettingsAction(_prev: FormState, fd: FormData): Promis
   return done("Default shipping fee updated. It applies to new orders only.");
 }
 
+export async function saveCommissionSettingAction(_prev: FormState, fd: FormData): Promise<FormState> {
+  await requireAdmin("/admin/settings");
+  const parsed = commissionSettingsSchema.safeParse(toObject(fd));
+  if (!parsed.success) return flatten(parsed.error);
+  const supabase = await createClient();
+  const { error } = await supabase.from("settings").upsert({ key: "default_commission_rate", value: parsed.data.default_commission_rate, updated_at: new Date().toISOString() });
+  if (error) return dbError(error, "Settings");
+  revalidatePath("/admin/settings");
+  return done("Default commission rate updated. It applies to new orders only.");
+}
+
 export async function setCustomerActiveAction(id: string, active: boolean) {
   const { user } = await requireAdmin("/admin/customers");
   if (!uuid.safeParse(id).success || id === user.id) return; // an admin cannot lock themselves out
@@ -300,6 +312,23 @@ export async function setMessageReadAction(id: string, read: boolean) {
   const supabase = await createClient();
   await supabase.from("contact_messages").update({ status: read ? "read" : "new" }).eq("id", id);
   revalidatePath("/admin/messages");
+}
+
+/**
+ * Reply to a contact message. SIMULATED: no email is sent (the prototype has no mail service);
+ * the reply is saved so it can be shown as a conversation, and the message is marked as read.
+ */
+export async function sendReplyAction(messageId: string, _prev: FormState, fd: FormData): Promise<FormState> {
+  const { user } = await requireAdmin("/admin/messages");
+  if (!uuid.safeParse(messageId).success) return fail("Invalid message.");
+  const parsed = replySchema.safeParse(toObject(fd));
+  if (!parsed.success) return flatten(parsed.error);
+  const supabase = await createClient();
+  const { error } = await supabase.from("contact_replies").insert({ message_id: messageId, body: parsed.data.body, sent_by: user.id, delivery: "simulated" });
+  if (error) return dbError(error, "Reply");
+  await supabase.from("contact_messages").update({ status: "read" }).eq("id", messageId);
+  revalidatePath("/admin/messages"); revalidatePath(`/admin/messages/${messageId}`);
+  return done("Reply sent.");
 }
 
 export async function deleteMessageAction(id: string) {

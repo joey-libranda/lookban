@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Package, Store, Tags, ReceiptText, Users, Settings, UserRound, Mail, Globe } from "lucide-react";
+import { LayoutDashboard, Package, Store, Tags, ReceiptText, Users, Settings, UserRound, Mail, Globe, Percent } from "lucide-react";
 import { LogoutButton } from "@/components/auth/LogoutButton";
 
 const SECTIONS = [
   { title: null, items: [{ href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true }] },
   { title: "Sales", items: [
     { href: "/admin/orders", label: "Orders", icon: ReceiptText },
+    { href: "/admin/commission", label: "Commission", icon: Percent },
     { href: "/admin/customers", label: "Customers", icon: Users },
     { href: "/admin/messages", label: "Messages", icon: Mail },
   ] },

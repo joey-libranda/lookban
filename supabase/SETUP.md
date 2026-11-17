@@ -39,6 +39,8 @@ in number order, from `migrations/`. What each one adds:
 | `0009_hero_slides.sql` | admin-managed home hero photos + `hero-banners` bucket |
 | `0010_cancel_receive_rate.sql` | customer cancel / "Mark as Received" / star rating, and totals that exclude cancelled stores |
 | `0011_guest_email_required.sql` | guests must give a valid email at checkout (the database refuses it otherwise) |
+| `0012_commission.sql` | commission: default 5% rate (Admin → Settings), optional per-store rate, and the admin-only `store_order_commissions` table that records each store's commission when its part of an order is Delivered |
+| `0013_message_replies.sql` | admins can reply to Contact-page messages from the Messages page; replies are saved as simulated email (nothing is really sent) |
 | `seed.sql` | starter data (safe to re-run) |
 
 ## C. Make yourself admin

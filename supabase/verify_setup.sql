@@ -36,6 +36,15 @@ union all
 select 'function', 'place_guest_order requires an email', '0011',
        case when exists (select 1 from pg_proc p join pg_namespace n on n.oid=p.pronamespace where n.nspname='public' and p.proname='place_guest_order' and p.prosrc like '%valid email%') then 'ok' else 'MISSING - run 0011' end
 union all
+select 'table', 'store_order_commissions', '0012',
+       case when to_regclass('public.store_order_commissions') is not null then 'ok' else 'MISSING - run 0012' end
+union all
+select 'column', 'stores.commission_rate', '0012',
+       case when exists (select 1 from information_schema.columns where table_schema='public' and table_name='stores' and column_name='commission_rate') then 'ok' else 'MISSING - run 0012' end
+union all
+select 'table', 'contact_replies', '0013',
+       case when to_regclass('public.contact_replies') is not null then 'ok' else 'MISSING - run 0013' end
+union all
 select 'row security', c.relname, '0002',
        case when c.relrowsecurity then 'ok' else 'MISSING - run 0002' end
   from pg_class c join pg_namespace n on n.oid=c.relnamespace

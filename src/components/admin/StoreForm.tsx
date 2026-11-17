@@ -23,6 +23,8 @@ export function StoreForm({ action, store, submitLabel }: {
             <TextInput name="contact_email" label="Contact email" type="email" defaultValue={s(store?.contact_email)} error={e.contact_email} />
             <TextInput name="shipping_fee" label="Shipping fee (₱)" type="number" step="0.01" min="0" defaultValue={s(store?.shipping_fee)} error={e.shipping_fee}
               hint="Leave blank to use the default shipping fee from Settings." />
+            <TextInput name="commission_rate" label="Commission rate (%)" type="number" step="0.01" min="0" max="100" defaultValue={s(store?.commission_rate)} error={e.commission_rate}
+              hint="Leave blank to use the default rate from Settings. Changes apply to new orders only." />
             <Select name="status" label="Listing status" defaultValue={s(store?.status ?? "approved")} error={e.status}>
               <option value="approved">Approved - visible to customers</option>
               <option value="pending">Pending - hidden</option>

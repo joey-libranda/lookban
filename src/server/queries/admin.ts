@@ -1,5 +1,6 @@
 import "server-only";
 import { createClient } from "@/lib/supabase/server";
+import type { Period } from "@/lib/commission-periods";
 import type { FulfillmentStatus, PaymentMethod, PaymentStatus } from "@/types/db";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -135,12 +136,31 @@ export async function getShippingFeeSetting() {
   return Number(data?.value ?? 50);
 }
 
+export async function getCommissionRateSetting() {
+  const supabase = await createClient();
+  const { data } = await supabase.from("settings").select("value").eq("key", "default_commission_rate").maybeSingle();
+  return Number(data?.value ?? 5);
+}
+
 export async function getAdminMessages() {
   const supabase = await createClient();
   const { data, error } = await supabase.from("contact_messages")
-    .select("id, name, email, subject, message, status, created_at").order("created_at", { ascending: false }).limit(200);
+    .select("id, name, email, subject, message, status, created_at, replies:contact_replies(id)").order("created_at", { ascending: false }).limit(200);
   if (error) throw new Error(`Could not load messages: ${error.message}`);
-  return (data ?? []) as { id: string; name: string; email: string; subject: string; message: string; status: "new" | "read"; created_at: string }[];
+  return ((data ?? []) as Raw[]).map((m) => ({ ...m, reply_count: (m.replies ?? []).length })) as {
+    id: string; name: string; email: string; subject: string; message: string; status: "new" | "read"; created_at: string; reply_count: number }[];
+}
+
+export type MessageReply = { id: string; body: string; created_at: string };
+export async function getAdminMessage(id: string) {
+  const supabase = await createClient();
+  const { data } = await supabase.from("contact_messages")
+    .select("id, name, email, subject, message, status, created_at, replies:contact_replies(id, body, created_at)").eq("id", id).maybeSingle();
+  if (!data) return null;
+  const m = data as Raw;
+  const replies = ([...(m.replies ?? [])] as MessageReply[]).sort((a, b) => a.created_at.localeCompare(b.created_at));
+  return { id: m.id as string, name: m.name as string, email: m.email as string, subject: m.subject as string, message: m.message as string,
+    status: m.status as "new" | "read", created_at: m.created_at as string, replies };
 }
 
 export type HeroSlideRow = { id: string; image_url: string; alt: string; link_url: string; sort_order: number; is_active: boolean };
@@ -151,4 +171,42 @@ export async function getAdminHeroSlides() {
     .order("sort_order").order("created_at");
   if (error) throw new Error(`Could not load hero photos: ${error.message}`);
   return (data ?? []) as HeroSlideRow[];
+}
+
+// ---------------------------------------------------------------- commission report
+export type CommissionLine = { store_order_id: string; receipt_no: string; earned_at: string; sales: number; rate: number; commission: number };
+export type CommissionStore = { store_id: string; store_name: string; orders: number; sales: number; commission: number; owed: number; lines: CommissionLine[] };
+
+/** Earned commissions (delivered store orders only), grouped by store, for one period. */
+export async function getCommissionReport(period: Period, storeId?: string): Promise<CommissionStore[]> {
+  const supabase = await createClient();
+  let q = supabase.from("store_order_commissions")
+    .select("store_order_id, store_id, rate, amount, earned_at, store:stores(name), so:store_orders(subtotal, order:orders(receipt_no))")
+    .not("amount", "is", null).order("earned_at", { ascending: true }).limit(10000);
+  if (period.from && period.to) q = q.gte("earned_at", period.from).lt("earned_at", period.to);
+  if (storeId) q = q.eq("store_id", storeId);
+  const { data, error } = await q;
+  if (error) throw new Error(`Could not load commissions: ${error.message}`);
+  const by = new Map<string, CommissionStore>();
+  for (const c of (data ?? []) as Raw[]) {
+    const so = first<Raw>(c.so); const order = first<Raw>(so?.order); const store = first<Raw>(c.store);
+    const row: CommissionStore = by.get(c.store_id) ?? { store_id: c.store_id, store_name: store?.name ?? "Store", orders: 0, sales: 0, commission: 0, owed: 0, lines: [] };
+    const sales = Number(so?.subtotal ?? 0), commission = Number(c.amount);
+    row.orders += 1; row.sales += sales; row.commission += commission;
+    row.lines.push({ store_order_id: c.store_order_id, receipt_no: order?.receipt_no ?? "", earned_at: c.earned_at, sales, rate: Number(c.rate), commission });
+    by.set(c.store_id, row);
+  }
+  const rows = [...by.values()];
+  for (const r2 of rows) {
+    r2.sales = Math.round(r2.sales * 100) / 100; r2.commission = Math.round(r2.commission * 100) / 100;
+    r2.owed = Math.round((r2.sales - r2.commission) * 100) / 100;
+  }
+  return rows.sort((a, b) => b.sales - a.sales);
+}
+
+/** Commission rows for one order (admin order page): store_order_id -> { rate, amount|null }. */
+export async function getOrderCommissions(storeOrderIds: string[]) {
+  const supabase = await createClient();
+  const { data } = await supabase.from("store_order_commissions").select("store_order_id, rate, amount").in("store_order_id", storeOrderIds);
+  return new Map(((data ?? []) as Raw[]).map((c) => [c.store_order_id as string, { rate: Number(c.rate), amount: c.amount === null ? null : Number(c.amount) }]));
 }

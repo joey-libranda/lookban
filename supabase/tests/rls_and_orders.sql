@@ -317,6 +317,85 @@ reset role;
 select t.ok((select customer_email = 'guest@example.com' and customer_id is null from orders where id = ((select r->>'id' from guest_o))::uuid),
             'guest order saves the trimmed email');
 
+-- ================= COMMISSION (migration 0012) =================
+select t.ok((select value = '5'::jsonb from settings where key = 'default_commission_rate'), 'default commission rate is seeded at 5 percent');
+select t.ok(not exists (select 1 from store_orders so left join store_order_commissions c on c.store_order_id = so.id where c.store_order_id is null),
+            'every store_order got a commission record when it was placed');
+select t.ok((select bool_and(rate = 5) from store_order_commissions), 'orders placed with no store override use the 5 percent default');
+select t.ok(not exists (select 1 from store_orders so join store_order_commissions c on c.store_order_id = so.id
+                         where (so.fulfillment_status = 'delivered') <> (c.amount is not null and c.earned_at is not null)),
+            'commission is earned only for delivered store_orders (cancelled and open ones earn nothing)');
+select t.ok(not exists (select 1 from store_orders so join store_order_commissions c on c.store_order_id = so.id
+                         where c.amount is not null and c.amount <> round(so.subtotal * c.rate / 100, 2)),
+            'commission = rate x item subtotal, rounded to centavos (shipping excluded)');
+
+-- a store with its own rate: 7.5 percent, then rates change after the order is placed
+update stores set commission_rate = 7.5 where id = (select s1 from ids);
+select t.as_user('00000000-0000-0000-0000-00000000000b');
+insert into cart_items (cart_id, product_id, quantity) select (select id from carts where user_id = auth.uid()), p_long, 1 from ids;
+insert into cart_items (cart_id, product_id, quantity) select (select id from carts where user_id = auth.uid()), p_miki, 1 from ids;
+insert into placed select place_order('Bob','0918','1 St',null,'Lucban','Quezon',null,null,'cod');
+reset role;
+create temp table bob_o4 as select id from orders where customer_id = '00000000-0000-0000-0000-00000000000b'
+  and id not in (select id from bob_o1 union select id from bob_o3);
+create temp table sx4 as select so.id, so.store_id, so.subtotal from store_orders so where so.order_id = (select id from bob_o4);
+grant select on bob_o4, sx4 to anon, authenticated;
+select t.ok((select rate = 7.5 from store_order_commissions where store_order_id = (select id from sx4 where store_id = (select s1 from ids))),
+            'a store''s own rate overrides the default');
+select t.ok((select rate = 5 from store_order_commissions where store_order_id = (select id from sx4 where store_id = (select s2 from ids))),
+            'a store without an override uses the default');
+select t.ok((select amount is null and earned_at is null from store_order_commissions where store_order_id = (select id from sx4 where store_id = (select s1 from ids))),
+            'nothing is earned while the order is still open');
+
+-- rates change AFTER the order was placed: the order keeps the rate it was placed with
+update stores set commission_rate = 20 where id = (select s1 from ids);
+update settings set value = '9'::jsonb where key = 'default_commission_rate';
+select t.as_user('00000000-0000-0000-0000-0000000000ad');
+select update_store_order_status(id, 'out_for_delivery') from sx4;
+select update_store_order_status(id, 'delivered') from sx4;
+reset role;
+select t.ok((select rate = 7.5 and amount = round((select subtotal from sx4 where store_id = (select s1 from ids)) * 7.5 / 100, 2)
+               from store_order_commissions where store_order_id = (select id from sx4 where store_id = (select s1 from ids))),
+            'earned at the rate fixed when the order was placed, not the later rate');
+select t.ok((select rate = 5 and amount is not null from store_order_commissions where store_order_id = (select id from sx4 where store_id = (select s2 from ids))),
+            'default-rate store keeps its placed rate too');
+
+-- new orders pick up the new rates
+select t.ok(_commission_rate_for((select s1 from ids)) = 20 and _commission_rate_for((select s2 from ids)) = 9, 'new orders use the updated store and default rates');
+update stores set commission_rate = null where id = (select s1 from ids);
+update settings set value = '5'::jsonb where key = 'default_commission_rate';
+
+-- cancelling earns nothing
+select t.as_user('00000000-0000-0000-0000-00000000000b');
+insert into cart_items (cart_id, product_id, quantity) select (select id from carts where user_id = auth.uid()), p_miki, 1 from ids;
+insert into placed select place_order('Bob','0918','1 St',null,'Lucban','Quezon',null,null,'cod');
+reset role;
+create temp table sx5 as select so.id from store_orders so join orders o on o.id = so.order_id
+ where o.customer_id = '00000000-0000-0000-0000-00000000000b' and o.id not in (select id from bob_o1 union select id from bob_o3 union select id from bob_o4);
+grant select on sx5 to anon, authenticated;
+select t.as_user('00000000-0000-0000-0000-00000000000b');
+select cancel_my_store_order(id) from sx5;
+reset role;
+select t.ok((select amount is null and earned_at is null from store_order_commissions where store_order_id = (select id from sx5)),
+            'a cancelled store_order earns no commission');
+
+-- who can see commission figures
+select t.as_user('00000000-0000-0000-0000-00000000000b');
+select t.ok((select count(*) = 0 from store_order_commissions), 'customers cannot see commission figures, even for their own orders');
+select t.fails($$ update store_order_commissions set amount = 999 $$, 'permission denied', 'customers cannot edit commissions');
+reset role;
+select t.as_anon();
+select t.fails($$ select * from store_order_commissions $$, 'permission denied', 'visitors cannot read commissions');
+reset role;
+select t.as_user('00000000-0000-0000-0000-0000000000c1');
+select t.ok((select count(*) > 0 and bool_and(store_id = (select s1 from ids)) from store_order_commissions), 'a store owner sees only their own store''s commissions');
+reset role;
+select t.as_user('00000000-0000-0000-0000-0000000000ad');
+select t.ok((select count(*) = (select count(*) from store_order_commissions) and count(*) > 0 from store_order_commissions), 'admin sees all commissions');
+select t.fails($$ insert into store_order_commissions (store_order_id, rate) select id, 1 from store_orders limit 1 $$, 'permission denied', 'even admins cannot write commissions directly');
+select t.fails($$ update stores set commission_rate = 150 where true $$, 'violates check', 'commission rate must be 0 to 100');
+reset role;
+
 -- ================= ADMIN MANAGEMENT (two-role UI: customer + admin) =================
 select t.as_user('00000000-0000-0000-0000-0000000000ad');
 select t.ok(t.affected($$ insert into categories (slug, name) values ('test-cat', 'Test cat') $$) = 1, 'admin can create a category');
@@ -422,6 +501,21 @@ select t.ok(t.affected($$ select * from contact_messages $$) = 0, 'customer cann
 reset role;
 select t.as_user('00000000-0000-0000-0000-0000000000ad');
 select t.ok((select count(*) >= 1 from contact_messages), 'admin can read contact messages');
+reset role;
+
+-- replies to contact messages: admin only, saved as simulated email
+select t.as_user('00000000-0000-0000-0000-0000000000ad');
+select t.ok(t.affected($$ insert into contact_replies (message_id, body, sent_by) select id, 'Hi! Yes, we have longganisa.', auth.uid() from contact_messages limit 1 $$) = 1, 'admin can reply to a contact message');
+select t.ok((select delivery = 'simulated' from contact_replies limit 1), 'replies are recorded as simulated, never as really sent');
+select t.fails($$ insert into contact_replies (message_id, body) select id, 'x' from contact_messages limit 1 $$, 'check constraint', 'reply body length limit enforced');
+select t.fails($$ insert into contact_replies (message_id, body, delivery) select id, 'Hello there', 'sent' from contact_messages limit 1 $$, 'check constraint', 'a reply cannot claim real delivery');
+reset role;
+select t.as_user('00000000-0000-0000-0000-00000000000a');
+select t.ok(t.affected($$ select * from contact_replies $$) = 0, 'customer cannot read replies');
+select t.fails($$ insert into contact_replies (message_id, body) values (gen_random_uuid(), 'Sneaky reply') $$, 'row-level security', 'customer cannot write replies');
+reset role;
+select t.as_anon();
+select t.fails($$ select * from contact_replies $$, 'permission denied', 'anonymous cannot read replies');
 reset role;
 
 -- promo pricing: original price must be higher than the selling price

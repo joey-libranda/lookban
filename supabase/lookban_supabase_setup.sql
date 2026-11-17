@@ -18,6 +18,8 @@
 --   migrations/0009_hero_slides.sql
 --   migrations/0010_cancel_receive_rate.sql
 --   migrations/0011_guest_email_required.sql
+--   migrations/0012_commission.sql
+--   migrations/0013_message_replies.sql
 --   seed.sql
 -- =====================================================================
 
@@ -25,7 +27,6 @@
 -- #####################################################################
 -- ## migrations/0001_schema.sql
 -- #####################################################################
-
 -- =====================================================================
 -- LOOKBAN 0001 — Core schema
 -- Run order: 0001 -> 0002 -> 0003 -> 0004 -> seed.sql
@@ -310,7 +311,6 @@ create trigger on_auth_user_created
 -- #####################################################################
 -- ## migrations/0002_rls.sql
 -- #####################################################################
-
 -- =====================================================================
 -- LOOKBAN 0002 — Helper functions, guard triggers, Row Level Security
 -- =====================================================================
@@ -522,7 +522,6 @@ create policy reviews_delete_own on reviews for delete to authenticated
 -- #####################################################################
 -- ## migrations/0003_functions.sql
 -- #####################################################################
-
 -- =====================================================================
 -- LOOKBAN 0003 — Business logic (all SECURITY DEFINER, all validate auth)
 -- =====================================================================
@@ -795,7 +794,6 @@ grant execute on function reject_vendor_application(uuid, text)                 
 -- #####################################################################
 -- ## migrations/0004_storage.sql
 -- #####################################################################
-
 -- =====================================================================
 -- LOOKBAN 0004 — Storage buckets + policies
 -- Path convention for uploads:  <store_id>/<unique-file-name>
@@ -840,7 +838,6 @@ create policy lookban_storage_delete on storage.objects for delete to authentica
 -- #####################################################################
 -- ## migrations/0005_guest_checkout.sql
 -- #####################################################################
-
 -- =====================================================================
 -- LOOKBAN 0005 - Guest checkout, order tracking links, admins don't shop
 --
@@ -1077,7 +1074,6 @@ grant execute on function track_order(text, text) to anon, authenticated;
 -- #####################################################################
 -- ## migrations/0006_remove_sample_flag.sql
 -- #####################################################################
-
 -- =====================================================================
 -- LOOKBAN 0006 - Remove the "sample listing" flag
 -- For databases created before this change. Safe to run once (idempotent).
@@ -1117,7 +1113,6 @@ alter table products drop column if exists is_sample;
 -- #####################################################################
 -- ## migrations/0007_contact_messages.sql
 -- #####################################################################
-
 -- =====================================================================
 -- 0007 - Contact page messages
 -- Visitors (logged in or not) can SEND a message; only admins can read, update or delete them.
@@ -1152,7 +1147,6 @@ grant select, update, delete on contact_messages to authenticated; -- still limi
 -- #####################################################################
 -- ## migrations/0008_product_promo.sql
 -- #####################################################################
-
 -- =====================================================================
 -- 0008 - Promo offers ("10% OFF")
 -- `price` stays the price customers pay (checkout, stock and receipts are unchanged).
@@ -1172,7 +1166,6 @@ create index if not exists products_on_sale_idx on products (id) where compare_a
 -- #####################################################################
 -- ## migrations/0009_hero_slides.sql
 -- #####################################################################
-
 -- =====================================================================
 -- 0009 - Home page hero photos managed by admins
 -- Public can read active slides; only admins can add/change/delete. Photos live in the public
@@ -1220,7 +1213,6 @@ create policy lookban_hero_delete on storage.objects for delete to authenticated
 -- #####################################################################
 -- ## migrations/0010_cancel_receive_rate.sql
 -- #####################################################################
-
 -- =====================================================================
 -- 0010: customer cancel / "received" / rating, and correct totals after a cancel.
 --
@@ -1449,7 +1441,6 @@ where exists (select 1 from store_orders s where s.order_id = o.id and s.fulfill
 -- #####################################################################
 -- ## migrations/0011_guest_email_required.sql
 -- #####################################################################
-
 -- =====================================================================
 -- 0011: guests must give a valid email at checkout (a second way to contact them).
 -- The website form already checks this; this makes the database refuse it too.
@@ -1500,9 +1491,137 @@ grant execute on function place_guest_order(jsonb,text,text,text,text,text,text,
 
 
 -- #####################################################################
+-- ## migrations/0012_commission.sql
+-- #####################################################################
+-- =====================================================================
+-- 0012: platform commission.
+--
+-- Rule: commission = rate x the store's ITEM subtotal (shipping is not the store's sale),
+-- earned only when that store's part of the order (store_order) becomes Delivered.
+-- Cancelled store_orders earn nothing.
+--
+--  * default rate: settings.default_commission_rate (percent, seeded at 5)
+--  * optional per-store rate: stores.commission_rate (null = use the default)
+--  * the rate is copied onto the order when it is placed, so changing a rate later never
+--    changes old orders
+--  * commission figures live in their own admin-only table, so customers who can read
+--    their own orders never see them
+--
+-- This is a RECORD and a report. The app does not collect or move any money.
+-- Run AFTER 0001-0011. Safe to run twice.
+-- =====================================================================
+
+insert into settings (key, value) values ('default_commission_rate', '5'::jsonb)
+on conflict (key) do nothing;
+
+alter table stores add column if not exists commission_rate numeric(5,2)
+  check (commission_rate is null or commission_rate between 0 and 100);   -- null => platform default
+
+create table if not exists store_order_commissions (
+  store_order_id uuid primary key references store_orders(id) on delete cascade,
+  store_id       uuid references stores(id) on delete set null,
+  rate           numeric(5,2) not null check (rate between 0 and 100),   -- percent, fixed when the order was placed
+  amount         numeric(10,2) check (amount >= 0),                      -- null until Delivered
+  earned_at      timestamptz,                                            -- null until Delivered
+  created_at     timestamptz not null default now(),
+  check ((amount is null) = (earned_at is null))
+);
+create index if not exists commissions_store_idx  on store_order_commissions(store_id, earned_at);
+create index if not exists commissions_earned_idx on store_order_commissions(earned_at);
+
+-- ---------- row level security: admin (and the store's own owner) read only; nobody writes directly ----------
+alter table store_order_commissions enable row level security;
+drop policy if exists commissions_read on store_order_commissions;
+create policy commissions_read on store_order_commissions for select to authenticated
+  using (is_admin() or owns_store(store_id));
+revoke all on store_order_commissions from anon, authenticated;
+grant select on store_order_commissions to authenticated;
+
+-- ---------- effective rate for a store right now ----------
+create or replace function _commission_rate_for(p_store_id uuid) returns numeric
+language sql stable security definer set search_path = public as $$
+  select coalesce(
+    (select commission_rate from stores where id = p_store_id),
+    (select (value #>> '{}')::numeric from settings where key = 'default_commission_rate'),
+    5);
+$$;
+revoke all on function _commission_rate_for(uuid) from public, anon, authenticated;
+
+-- ---------- a store_order is created: fix its rate ----------
+create or replace function _commission_on_insert() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  insert into store_order_commissions (store_order_id, store_id, rate)
+  values (new.id, new.store_id, _commission_rate_for(new.store_id))
+  on conflict (store_order_id) do nothing;
+  return new;
+end $$;
+
+-- ---------- a store_order becomes Delivered: the commission is earned ----------
+create or replace function _commission_on_delivered() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  if new.fulfillment_status = 'delivered' and old.fulfillment_status is distinct from 'delivered' then
+    insert into store_order_commissions (store_order_id, store_id, rate, amount, earned_at)
+    values (new.id, new.store_id, _commission_rate_for(new.store_id),
+            round(new.subtotal * _commission_rate_for(new.store_id) / 100, 2), now())
+    on conflict (store_order_id) do update
+      set amount = round(new.subtotal * store_order_commissions.rate / 100, 2), earned_at = now();
+  end if;
+  return new;
+end $$;
+revoke all on function _commission_on_insert()    from public, anon, authenticated;
+revoke all on function _commission_on_delivered() from public, anon, authenticated;
+
+drop trigger if exists store_orders_commission_ins on store_orders;
+create trigger store_orders_commission_ins after insert on store_orders
+  for each row execute function _commission_on_insert();
+drop trigger if exists store_orders_commission_upd on store_orders;
+create trigger store_orders_commission_upd after update of fulfillment_status on store_orders
+  for each row execute function _commission_on_delivered();
+
+-- ---------- backfill orders that existed before this migration ----------
+insert into store_order_commissions (store_order_id, store_id, rate, amount, earned_at)
+select so.id, so.store_id, _commission_rate_for(so.store_id),
+       case when so.fulfillment_status = 'delivered' then round(so.subtotal * _commission_rate_for(so.store_id) / 100, 2) end,
+       case when so.fulfillment_status = 'delivered' then coalesce(so.received_at, so.updated_at) end
+  from store_orders so
+on conflict (store_order_id) do nothing;
+
+
+-- #####################################################################
+-- ## migrations/0013_message_replies.sql
+-- #####################################################################
+-- =====================================================================
+-- 0013 - Replies to Contact-page messages (admin only)
+-- An admin can reply to a message from the Messages page. LOOKBAN does not send real
+-- email in this prototype: the reply is SAVED here and shown as a simulated email
+-- (delivery = 'simulated'). Only admins can read or write replies.
+-- Run after 0012. Safe to run twice.
+-- =====================================================================
+create table if not exists contact_replies (
+  id         uuid primary key default gen_random_uuid(),
+  message_id uuid not null references contact_messages(id) on delete cascade,
+  body       text not null check (char_length(btrim(body)) between 2 and 2000),
+  sent_by    uuid references profiles(id) on delete set null,
+  delivery   text not null default 'simulated' check (delivery in ('simulated')),
+  created_at timestamptz not null default now()
+);
+create index if not exists contact_replies_message_idx on contact_replies (message_id, created_at);
+
+alter table contact_replies enable row level security;
+
+drop policy if exists contact_replies_admin_all on contact_replies;
+create policy contact_replies_admin_all on contact_replies for all
+  to authenticated using (is_admin()) with check (is_admin());
+
+revoke all on contact_replies from anon, authenticated;
+grant select, insert, delete on contact_replies to authenticated; -- still limited to admins by the policy above
+
+
+-- #####################################################################
 -- ## seed.sql
 -- #####################################################################
-
 -- =====================================================================
 -- LOOKBAN seed data  (run AFTER migrations 0001-0009)
 --
@@ -1517,7 +1636,8 @@ grant execute on function place_guest_order(jsonb,text,text,text,text,text,text,
 
 -- ---------- settings ----------
 insert into settings (key, value) values
-  ('default_shipping_fee', '50'::jsonb)          -- PHP per vendor; editable in Admin > Settings
+  ('default_shipping_fee', '50'::jsonb),         -- PHP per vendor; editable in Admin > Settings
+  ('default_commission_rate', '5'::jsonb)        -- percent of a store's item subtotal; editable in Admin > Settings
 on conflict (key) do nothing;
 
 -- ---------- categories ----------

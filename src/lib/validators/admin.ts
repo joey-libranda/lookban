@@ -5,6 +5,7 @@ import { phoneSchema } from "@/lib/validators/auth";
 const req = (label: string, max: number) =>
   z.string().trim().min(1, `${label} is required`).max(max, `${label} is too long`);
 const opt = (max: number) => z.string().trim().max(max, "Too long").optional().or(z.literal(""));
+const pct = z.coerce.number({ message: "Enter a number" }).min(0, "Cannot be negative").max(100, "Cannot be more than 100");
 const money = z.coerce.number({ message: "Enter a number" }).min(0, "Cannot be negative").max(1_000_000, "Too large");
 const slugField = z.string().trim().max(80).regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, "Use lowercase letters, numbers and dashes").optional().or(z.literal(""));
 export const uuid = z.string().uuid();
@@ -40,6 +41,7 @@ export const storeSchema = z.object({
   opening_hours: opt(120),
   is_open: z.boolean(),
   shipping_fee: z.union([money, z.literal("")]).optional(),
+  commission_rate: z.union([pct, z.literal("")]).optional(),
   status: z.enum(["pending", "approved", "suspended"]),
 });
 
@@ -49,6 +51,8 @@ export const categorySchema = z.object({
 });
 
 export const settingsSchema = z.object({ default_shipping_fee: money });
+export const replySchema = z.object({ body: z.string().trim().min(2, "Write a reply first").max(2000, "Keep the reply under 2000 characters") });
+export const commissionSettingsSchema = z.object({ default_commission_rate: pct });
 
 export const statusSchema = z.enum(["pending", "confirmed", "preparing", "out_for_delivery", "delivered", "cancelled"]);
 

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getOrder } from "@/server/queries/orders";
+import { getOrderCommissions } from "@/server/queries/admin";
 import { formatPeso } from "@/lib/utils/format";
 import { formatDateTime, paymentMethodLabel, paymentStatusLabel } from "@/lib/utils/labels";
 import { StatusBadge } from "@/components/order/StatusBadge";
@@ -18,6 +19,7 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
   if (!o) notFound();
   // Totals exclude cancelled stores; for online payments the cancelled amount is what is owed back.
   const cancelledTotal = o.store_orders.filter((x) => x.fulfillment_status === "cancelled").reduce((n, x) => n + x.total, 0);
+  const commissions = await getOrderCommissions(o.store_orders.map((x) => x.id));
   return (
     <div className="max-w-4xl space-y-6">
       <Link href="/admin/orders" className="text-sm font-semibold text-blue pop hover:text-orange">← Orders</Link>
@@ -57,6 +59,12 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
             <p className="mt-3 rounded-lg bg-cream px-3 py-2 text-sm"><span className="font-semibold">Customer rating: {so.rating}/5</span>{so.rating_comment && <span className="text-muted"> - &ldquo;{so.rating_comment}&rdquo;</span>}</p>
           )}
           <p className="mt-3 text-right text-sm text-muted">Shipping {formatPeso(so.shipping_fee)} · <span className="font-bold text-ink">Store total {formatPeso(so.total)}</span></p>
+          {(() => {
+            const c = commissions.get(so.id);
+            if (so.fulfillment_status === "cancelled") return <p className="mt-1 text-right text-xs text-muted">Commission: none (cancelled)</p>;
+            if (!c) return null;
+            return <p className="mt-1 text-right text-xs text-muted">Commission ({c.rate}% of items): {c.amount === null ? "pending until delivered" : <span className="font-semibold text-ink">{formatPeso(c.amount)}</span>}</p>;
+          })()}
         </section>
       ))}
     </div>
