@@ -18,7 +18,7 @@ const productBase = z.object({
   slug: slugField,
   description: opt(2000),
   price: money,
-  compare_at_price: z.union([money, z.literal("")]).optional(),
+  compare_at_price: z.union([z.literal(""), money]).optional(), // blank first: money would turn "" into 0
   stock: z.coerce.number({ message: "Enter a whole number" }).int("Whole numbers only").min(0).max(100000),
   weight: opt(40), packaging: opt(80), quantity_per_pack: opt(80),
   ingredients: opt(600), storage_instructions: opt(600),
@@ -40,10 +40,21 @@ export const storeSchema = z.object({
   contact_email: z.union([z.string().trim().email("Invalid email"), z.literal("")]).optional(),
   opening_hours: opt(120),
   is_open: z.boolean(),
-  shipping_fee: z.union([money, z.literal("")]).optional(),
-  commission_rate: z.union([pct, z.literal("")]).optional(),
+  shipping_fee: z.union([z.literal(""), money]).optional(),
+  commission_rate: z.union([z.literal(""), pct]).optional(),
   status: z.enum(["pending", "approved", "suspended"]),
 });
+
+/** What a vendor may change about their own store. */
+export const vendorStoreSchema = z.object({
+  name: req("Store name", 100),
+  description: opt(1500), address: opt(250), contact_phone: opt(40),
+  contact_email: z.union([z.string().trim().email("Invalid email"), z.literal("")]).optional(),
+  opening_hours: opt(120),
+  is_open: z.boolean(),
+});
+
+export const reviewSchema = z.object({ note: z.string().trim().max(500, "Keep it under 500 characters").optional() });
 
 export const categorySchema = z.object({
   name: req("Name", 60), slug: slugField, description: opt(300),

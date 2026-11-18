@@ -4,7 +4,7 @@ import { Plus } from "lucide-react";
 import { getAdminStores } from "@/server/queries/admin";
 import { formatPeso } from "@/lib/utils/format";
 import { ClickableRow } from "@/components/admin/ClickableRow";
-import { FormNotice } from "@/components/ui/Field";
+import { FlashToast } from "@/components/ui/FlashToast";
 
 export const metadata: Metadata = { title: "Stores · Admin" };
 
@@ -16,7 +16,7 @@ export default async function AdminStores({ searchParams }: { searchParams: Prom
         <h1 className="text-4xl">Stores</h1>
         <Link href="/admin/stores/new" className="btn-primary"><Plus className="size-4" aria-hidden /> Add Store</Link>
       </div>
-      {sp.deleted && <FormNotice kind="success">Store deleted.</FormNotice>}
+      {sp.deleted && <FlashToast text="Store deleted." />}
       <div className="card relative overflow-x-auto">
         <table className="w-full min-w-[640px] text-left text-sm">
           <thead className="border-b border-line bg-cream text-xs uppercase text-muted">

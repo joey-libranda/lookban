@@ -15,7 +15,7 @@ export default async function AdminCustomers({ searchParams }: { searchParams: P
     <div className="space-y-5">
       <h1 className="text-4xl">Customers</h1>
       <form role="search" className="card flex gap-3 p-4">
-        <input name="q" defaultValue={q} className="input" placeholder="Search by name or email…" aria-label="Search customers" />
+        <input name="q" defaultValue={q} className="input" placeholder="Search by name or email…" aria-label="Search Customers" />
         <button className="btn-secondary">Search</button>
       </form>
       <p className="text-sm text-muted">{count} customer{count === 1 ? "" : "s"}. Deactivated customers cannot log in or place orders.</p>

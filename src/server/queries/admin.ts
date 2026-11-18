@@ -58,11 +58,12 @@ export async function getAdminCategoryOptions() {
 export async function getAdminProducts(opts: { q?: string; store?: string; status?: string; page: number }) {
   const supabase = await createClient();
   let q = supabase.from("products")
-    .select("id, name, variant_label, price, stock, status, store:stores(id, name), images:product_images(url, is_primary)", { count: "exact" });
+    .select("id, name, variant_label, price, stock, status, approval_status, store:stores(id, name), images:product_images(url, is_primary)", { count: "exact" });
   const term = opts.q ? safeLike(opts.q) : "";
   if (term) q = q.or(`name.ilike.%${term}%,variant_label.ilike.%${term}%`);
   if (opts.store) q = q.eq("store_id", opts.store);
   if (opts.status === "active" || opts.status === "archived") q = q.eq("status", opts.status);
+  if (opts.status === "pending" || opts.status === "rejected") q = q.eq("approval_status", opts.status);
   if (opts.status === "low") q = q.lte("stock", 10).eq("status", "active");
   const from = (opts.page - 1) * ADMIN_PAGE_SIZE;
   const { data, count, error } = await q.order("name").range(from, from + ADMIN_PAGE_SIZE - 1);
@@ -71,7 +72,7 @@ export async function getAdminProducts(opts: { q?: string; store?: string; statu
     count: count ?? 0,
     rows: (data ?? []).map((p: Raw) => ({
       id: p.id as string, name: p.name as string, variant: (p.variant_label ?? "") as string, price: Number(p.price), stock: p.stock as number,
-      status: p.status as "active" | "archived", store: first<Raw>(p.store)?.name as string | undefined,
+      status: p.status as "active" | "archived", approval: (p.approval_status ?? "approved") as "approved" | "pending" | "rejected", store: first<Raw>(p.store)?.name as string | undefined,
       image: ((p.images ?? []) as Raw[]).sort((a, b) => Number(b.is_primary) - Number(a.is_primary))[0]?.url as string | undefined,
     })),
   };
@@ -88,10 +89,10 @@ export async function getAdminProduct(id: string) {
 export async function getAdminStores() {
   const supabase = await createClient();
   const { data, error } = await supabase.from("stores")
-    .select("id, name, slug, status, is_open, address, shipping_fee, products(count)").order("name");
+    .select("id, name, slug, status, is_open, address, shipping_fee, owner:profiles!owner_id(email), products(count)").order("name");
   if (error) throw new Error(`Could not load stores: ${error.message}`);
-  return (data ?? []).map((s: Raw) => ({ ...s, product_count: (s.products?.[0]?.count ?? 0) as number })) as
-    { id: string; name: string; slug: string; status: string; is_open: boolean; address: string | null; shipping_fee: number | null; product_count: number }[];
+  return (data ?? []).map((s: Raw) => ({ ...s, vendor_email: (first<Raw>(s.owner)?.email ?? null) as string | null, product_count: (s.products?.[0]?.count ?? 0) as number })) as
+    { vendor_email: string | null; id: string; name: string; slug: string; status: string; is_open: boolean; address: string | null; shipping_fee: number | null; product_count: number }[];
 }
 
 export async function getAdminStore(id: string) {
@@ -209,4 +210,11 @@ export async function getOrderCommissions(storeOrderIds: string[]) {
   const supabase = await createClient();
   const { data } = await supabase.from("store_order_commissions").select("store_order_id, rate, amount").in("store_order_id", storeOrderIds);
   return new Map(((data ?? []) as Raw[]).map((c) => [c.store_order_id as string, { rate: Number(c.rate), amount: c.amount === null ? null : Number(c.amount) }]));
+}
+
+/** Products waiting for an admin decision (shown as a badge in the admin menu). */
+export async function getPendingProductCount() {
+  const supabase = await createClient();
+  const { count } = await supabase.from("products").select("id", { count: "exact", head: true }).eq("approval_status", "pending");
+  return count ?? 0;
 }

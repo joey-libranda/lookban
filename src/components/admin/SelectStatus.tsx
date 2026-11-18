@@ -19,7 +19,7 @@ export function StatusSelect({ current, action }: { current: FulfillmentStatus; 
   if (terminal) return <p className="text-sm text-muted">No further changes (final status).</p>;
   return (
     <div className="w-52">
-      <Select aria-label="Update status" value="" disabled={pending}
+      <Select aria-label="Update Status" value="" disabled={pending}
         onChange={(v) => {
           if (!v) return;
           if (v === "cancelled" && !window.confirm("Cancel this part of the order? Stock will be returned.")) return;

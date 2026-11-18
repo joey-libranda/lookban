@@ -49,7 +49,7 @@ export async function guestAddCheckAction(productId: string, wanted: number, hav
 export async function mergeGuestCartAction(items: unknown): Promise<{ merged: number; failed: number }> {
   const current = await getCurrentUser();
   const parsed = itemsSchema.safeParse(items);
-  if (!current || current.profile.role === "admin" || !parsed.success) return { merged: 0, failed: 0 };
+  if (!current || current.profile.role !== "customer" || !parsed.success) return { merged: 0, failed: 0 };
   let merged = 0, failed = 0;
   for (const i of parsed.data) {
     try {

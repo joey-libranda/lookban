@@ -14,6 +14,7 @@ export const metadata: Metadata = { title: "Your cart" };
 export default async function CartPage() {
   const current = await getCurrentUser();
   if (current?.profile.role === "admin") redirect("/admin"); // admins have no cart
+  if (current?.profile.role === "vendor") redirect("/vendor");
   if (!current) return <GuestCart />; // visitors: browser-held cart, no login needed
   const cart = await getCart();
 

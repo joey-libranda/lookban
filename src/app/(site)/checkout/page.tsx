@@ -14,6 +14,7 @@ export const metadata: Metadata = { title: "Checkout" };
 export default async function CheckoutPage() {
   const current = await getCurrentUser();
   if (current?.profile.role === "admin") redirect("/admin"); // admins don't shop
+  if (current?.profile.role === "vendor") redirect("/vendor");
   if (!current) return <GuestCheckout />; // visitors can check out as guests
   const { profile } = current;
   const [cart, address] = await Promise.all([getCart(), getDefaultAddress()]);

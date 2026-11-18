@@ -55,7 +55,7 @@ Key guarantees (all enforced in Postgres, not in the UI):
 `npm test` runs the cart-maths unit tests (`tests/logic.test.ts`).
 
 ### Database tests
-`supabase/tests/rls_and_orders.sql` (161 checks: privilege escalation, RLS isolation, order creation, overselling,
+`supabase/tests/rls_and_orders.sql` (208 checks: privilege escalation, RLS isolation, order creation, overselling,
 atomic rollback, price snapshots, vendor boundaries, status flow, restock on cancel). It runs inside a transaction that is rolled back.
 Local run against a throwaway Postgres: apply `supabase/tests/00_local_supabase_stub.sql` (stand-ins for Supabase's `auth`/`storage`
 schemas), then the migrations, `seed.sql`, then the test file with `psql -v ON_ERROR_STOP=1 -f ...`.
@@ -68,7 +68,7 @@ src/app/(auth)/     login, register, forgot/reset password
 src/app/auth/callback   email-link handler
 src/proxy.ts            session refresh + redirect anonymous users from private routes
 src/lib/supabase/       browser / server / admin (service-role, server-only) clients
-src/lib/auth/guards.ts  requireUser / requireAdmin (requireVendor dormant) (server-side role checks)
+src/lib/auth/guards.ts  requireUser / requireAdmin (requireVendor for the vendor area) (server-side role checks)
 src/lib/validators/     Zod schemas (shared by forms and server actions)
 src/server/actions/     mutations (Server Actions)    src/server/queries/  reads
 supabase/               SETUP.md (start here), one-file setup, verify script, migrations, seed.sql, tests

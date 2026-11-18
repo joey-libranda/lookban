@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { useToast } from "@/components/ui/Toast";
 import type { FormState } from "@/server/actions/admin";
 
 const MAX_BYTES = 5 * 1024 * 1024;
@@ -27,11 +28,11 @@ export function ImageUploader({ bucket, folder, onUploaded, label, multiple }: P
   const ref = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const [busy, setBusy] = useState(false);
-  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const toast = useToast();
 
   async function handle(files: FileList | null) {
     if (!files?.length) return;
-    setBusy(true); setMsg(null);
+    setBusy(true);
     const supabase = createClient();
     let okCount = 0; let firstError = "";
     for (const file of Array.from(files)) {
@@ -51,7 +52,7 @@ export function ImageUploader({ bucket, folder, onUploaded, label, multiple }: P
     }
     setBusy(false);
     if (ref.current) ref.current.value = "";
-    setMsg(firstError ? { ok: false, text: firstError } : { ok: true, text: `${okCount} photo${okCount === 1 ? "" : "s"} uploaded.` });
+    if (firstError) toast("error", firstError); else toast("success", `${okCount} photo${okCount === 1 ? "" : "s"} uploaded.`);
     if (okCount) router.refresh();
   }
 
@@ -63,7 +64,6 @@ export function ImageUploader({ bucket, folder, onUploaded, label, multiple }: P
                disabled={busy} onChange={(e) => handle(e.target.files)} />
       </label>
       <p className="mt-1 text-xs text-muted">JPG, PNG or WebP, up to 5 MB.</p>
-      {msg && <p role={msg.ok ? "status" : "alert"} className={`mt-1 text-sm ${msg.ok ? "text-green-800" : "text-red-700"}`}>{msg.text}</p>}
     </div>
   );
 }

@@ -540,5 +540,146 @@ select t.ok((select count(*) from hero_slides) = 1, 'customer sees only active h
 select t.ok(t.affected($$ delete from hero_slides $$) = 0, 'customer cannot delete hero slides');
 reset role;
 
+
+-- ================= VENDOR ACCOUNTS: approval for new products (migration 0014) =================
+create temp table vp(id uuid);
+grant all on vp to anon, authenticated;
+select t.as_user('00000000-0000-0000-0000-0000000000c1');
+-- the vendor TRIES to publish straight away (asks for approved + active)
+with n as (
+  insert into products (store_id, slug, name, price, stock, status, approval_status)
+  select s1, 'vendor-new-item', 'Vendor New Item', 80, 20, 'active', 'approved' from ids returning id)
+insert into vp select id from n;
+select t.ok((select approval_status = 'pending' and status = 'archived' from products where id = (select id from vp)),
+            'a product added by a vendor is forced to pending + hidden, even if they ask for approved');
+select t.fails($$ update products set approval_status = 'approved' where id = (select id from vp) $$, 'Not allowed', 'vendor cannot approve their own product');
+select t.fails($$ update products set review_note = 'looks great' where id = (select id from vp) $$, 'Not allowed', 'vendor cannot write the review note');
+select t.ok(t.affected($$ update products set status = 'active', price = 85 where id = (select id from vp) $$) = 1, 'vendor can still edit a pending product');
+select t.ok((select status = 'archived' and price = 85 from products where id = (select id from vp)), 'a pending product stays hidden whatever the vendor sets');
+select t.ok(t.affected($$ update products set price = 150, stock = 33, description = 'Fresh batch' where id = (select p_long from ids) $$) = 1, 'vendor updates price, stock and description of an approved product directly');
+select t.ok((select approval_status = 'approved' and status = 'active' from products where id = (select p_long from ids)), 'a routine edit does not need approval and keeps the product live');
+select t.fails($$ update stores set commission_rate = 0 where id = (select s1 from ids) $$, 'Not allowed', 'vendor cannot change their own commission rate');
+select t.fails($$ update stores set shipping_fee = 0 where id = (select s1 from ids) $$, 'Not allowed', 'vendor cannot change their own shipping fee');
+select t.fails($$ update stores set owner_id = '00000000-0000-0000-0000-0000000000c2' where id = (select s1 from ids) $$, 'Not allowed', 'vendor cannot hand their store to someone else');
+select t.ok(t.affected($$ update stores set is_open = false where id = (select s1 from ids) $$) = 1, 'vendor can close and reopen their own store');
+update stores set is_open = true where id = (select s1 from ids);
+reset role;
+
+select t.as_anon();
+select t.ok((select count(*) from products where id = (select id from vp)) = 0, 'visitors cannot see a pending product');
+select t.fails($$ select place_guest_order(jsonb_build_array(jsonb_build_object('product_id', (select id from vp), 'quantity', 1)),
+                   'a@example.com', 'Guest', '09171234567', '1 St', null, 'Lucban', 'Quezon', null, null, 'cod') $$, 'UNAVAILABLE', 'a pending product cannot be ordered');
+reset role;
+select t.as_user('00000000-0000-0000-0000-0000000000c2');
+select t.ok((select count(*) from products where id = (select id from vp)) = 0, 'another vendor cannot see a pending product');
+reset role;
+select t.as_user('00000000-0000-0000-0000-00000000000a');
+select t.ok((select count(*) from products where id = (select id from vp)) = 0, 'customers cannot see a pending product');
+reset role;
+
+-- admin reviews: reject first, then approve
+select t.as_user('00000000-0000-0000-0000-0000000000ad');
+select t.ok(t.affected($$ update products set approval_status = 'rejected', review_note = 'Please add a photo and weight' where id = (select id from vp) $$) = 1, 'admin can reject a product with a note');
+reset role;
+select t.as_user('00000000-0000-0000-0000-0000000000c1');
+select t.ok((select approval_status = 'rejected' and review_note like 'Please add%' from products where id = (select id from vp)), 'vendor sees the rejection note');
+select t.ok(t.affected($$ update products set weight = '250g' where id = (select id from vp) $$) = 1, 'vendor fixes the product');
+select t.ok((select approval_status = 'pending' and review_note is null and status = 'archived' from products where id = (select id from vp)), 'editing a rejected product resubmits it for review');
+reset role;
+select t.as_user('00000000-0000-0000-0000-0000000000ad');
+select t.ok(t.affected($$ update products set approval_status = 'approved', status = 'active', review_note = null where id = (select id from vp) $$) = 1, 'admin can approve a product');
+reset role;
+select t.as_anon();
+select t.ok((select count(*) from products where id = (select id from vp)) = 1, 'an approved product is visible to visitors');
+reset role;
+select t.as_user('00000000-0000-0000-0000-0000000000c1');
+select t.ok((select count(*) from store_orders where store_id <> (select s1 from ids)) = 0, 'vendor still sees only their own store orders');
+select t.ok(t.affected($$ delete from products where id = (select id from vp) $$) = 1, 'vendor can delete their own product that was never ordered');
+reset role;
+
+-- ================= STORE APPLICATIONS with proof of business (migration 0015) =================
+-- Alice (customer) applies; she needs the business info AND proof files in her own folder.
+create temp table app_ids (id uuid);
+grant select, insert, delete on app_ids to anon, authenticated;
+grant insert, delete on storage.objects to authenticated;
+
+select t.as_user('00000000-0000-0000-0000-00000000000a');
+select t.fails($$ insert into vendor_applications (applicant_id, store_name, description, address, phone)
+  values (auth.uid(), 'Alice Sweets', 'Homemade kakanin and sweets from Lucban', 'Brgy. Ayuti, Lucban', '09171234567') $$,
+  'owner', 'an application without owner name is refused');
+select t.fails($$ insert into vendor_applications (applicant_id, store_name, description, address, phone, owner_name, contact_email, permit_number, permit_expiry, registration_number)
+  values (auth.uid(), 'Alice Sweets', 'Homemade kakanin and sweets from Lucban', 'Brgy. Ayuti, Lucban', '09171234567', 'Alice A', 'alice@test.dev', 'BP-2026-001', current_date + 200, 'DTI-123456') $$,
+  'Upload your Business', 'an application without the permit file is refused');
+select t.fails($$ insert into vendor_applications (applicant_id, store_name, description, address, phone, owner_name, contact_email, permit_number, permit_expiry, registration_number, permit_path, registration_path)
+  values (auth.uid(), 'Alice Sweets', 'Homemade kakanin and sweets from Lucban', 'Brgy. Ayuti, Lucban', '09171234567', 'Alice A', 'alice@test.dev', 'BP-2026-001', current_date + 200, 'DTI-123456',
+          '00000000-0000-0000-0000-00000000000b/permit.pdf', '00000000-0000-0000-0000-00000000000a/dti.pdf') $$,
+  'Upload your Business', 'proof files must be in the applicant''s own folder');
+select t.fails($$ insert into vendor_applications (applicant_id, store_name, description, address, phone, owner_name, contact_email, permit_number, permit_expiry, registration_number, permit_path, registration_path)
+  values (auth.uid(), 'Alice Sweets', 'Homemade kakanin and sweets from Lucban', 'Brgy. Ayuti, Lucban', '09171234567', 'Alice A', 'alice@test.dev', 'BP-2025-001', current_date - 1, 'DTI-123456',
+          '00000000-0000-0000-0000-00000000000a/permit.pdf', '00000000-0000-0000-0000-00000000000a/dti.pdf') $$,
+  'not expired', 'an expired permit is refused');
+select t.fails($$ insert into vendor_applications (applicant_id, store_name, description, address, phone, owner_name, contact_email, permit_number, permit_expiry, registration_number, permit_path, registration_path)
+  values (auth.uid(), 'Alice Sweets', 'Homemade kakanin and sweets from Lucban', 'Brgy. Ayuti, Lucban', '09171234567', 'Alice A', 'not-an-email', 'BP-2026-001', current_date + 200, 'DTI-123456',
+          '00000000-0000-0000-0000-00000000000a/permit.pdf', '00000000-0000-0000-0000-00000000000a/dti.pdf') $$,
+  'valid business email', 'an invalid business email is refused');
+
+-- storage: she can upload into her own folder only, and only she (and admins) can read it
+select t.ok(t.affected($$ insert into storage.objects (bucket_id, name) values ('vendor-documents', '00000000-0000-0000-0000-00000000000a/permit.pdf') $$) = 1, 'applicant can upload into her own documents folder');
+select t.fails($$ insert into storage.objects (bucket_id, name) values ('vendor-documents', '00000000-0000-0000-0000-00000000000b/permit.pdf') $$, 'row-level security', 'applicant cannot upload into someone else''s folder');
+insert into storage.objects (bucket_id, name) values ('vendor-documents', '00000000-0000-0000-0000-00000000000a/dti.pdf');
+
+-- a complete application; she tries to approve herself
+with ins as (
+  insert into vendor_applications (applicant_id, store_name, description, address, phone, owner_name, contact_email, permit_number, permit_expiry, registration_number, permit_path, registration_path, status, admin_note, reviewed_by)
+  values (auth.uid(), 'Alice Sweets', 'Homemade kakanin and sweets from Lucban', 'Brgy. Ayuti, Lucban', '09171234567', 'Alice A', 'alice@test.dev', 'BP-2026-001', current_date + 200, 'DTI-123456',
+          '00000000-0000-0000-0000-00000000000a/permit.pdf', '00000000-0000-0000-0000-00000000000a/dti.pdf', 'approved', 'trust me', auth.uid())
+  returning id)
+insert into app_ids select id from ins;
+select t.ok((select status = 'pending' and admin_note is null and reviewed_by is null from vendor_applications where id = (select id from app_ids)), 'a complete application is accepted but always starts pending (self-approval ignored)');
+select t.fails($$ insert into vendor_applications (applicant_id, store_name, description, address, phone, owner_name, contact_email, permit_number, permit_expiry, registration_number, permit_path, registration_path)
+  values (auth.uid(), 'Alice Two', 'Another store description here ok', 'Brgy. Ayuti, Lucban', '09171234567', 'Alice A', 'alice@test.dev', 'BP-2026-002', current_date + 200, 'DTI-654321',
+          '00000000-0000-0000-0000-00000000000a/permit.pdf', '00000000-0000-0000-0000-00000000000a/dti.pdf') $$, 'vendor_app_one_pending', 'only one pending application at a time');
+select t.ok(t.affected($$ update vendor_applications set status = 'approved' where id = (select id from app_ids) $$) = 0, 'applicant cannot approve her own application');
+select t.fails($$ select approve_vendor_application((select id from app_ids)) $$, 'Admins only', 'applicant cannot call approve');
+select t.ok(t.affected($$ delete from storage.objects where name = '00000000-0000-0000-0000-00000000000a/permit.pdf' $$) = 0, 'a file used by an application cannot be removed by the applicant');
+reset role;
+
+-- privacy: Bob cannot read Alice's application or documents; admin can
+select t.as_user('00000000-0000-0000-0000-00000000000b');
+select t.ok((select count(*) from vendor_applications) = 0, 'another customer cannot see the application');
+select t.ok((select count(*) from storage.objects where bucket_id = 'vendor-documents') = 0, 'another customer cannot read the documents');
+reset role;
+select t.as_user('00000000-0000-0000-0000-0000000000ad');
+select t.ok((select count(*) from storage.objects where bucket_id = 'vendor-documents') = 2, 'admin can read the documents');
+-- rejecting needs a reason
+select t.fails($$ select reject_vendor_application((select id from app_ids), '') $$, 'short reason', 'rejecting needs a reason');
+select reject_vendor_application((select id from app_ids), 'Permit photo is blurry, please upload a clear copy');
+select t.ok((select status = 'rejected' from vendor_applications where id = (select id from app_ids)), 'admin rejects with a reason');
+reset role;
+
+-- re-apply after rejection, then approve
+select t.as_user('00000000-0000-0000-0000-00000000000a');
+select t.ok((select status = 'rejected' and admin_note like 'Permit photo%' from vendor_applications where id = (select id from app_ids)), 'applicant sees the rejection reason');
+delete from app_ids;
+with ins as (
+  insert into vendor_applications (applicant_id, store_name, description, address, phone, owner_name, contact_email, permit_number, permit_expiry, registration_number, permit_path, registration_path)
+  values (auth.uid(), 'Alice Sweets', 'Homemade kakanin and sweets from Lucban', 'Brgy. Ayuti, Lucban', '09171234567', 'Alice A', 'alice@test.dev', 'BP-2026-001', current_date + 200, 'DTI-123456',
+          '00000000-0000-0000-0000-00000000000a/permit.pdf', '00000000-0000-0000-0000-00000000000a/dti.pdf')
+  returning id)
+insert into app_ids select id from ins;
+select t.ok((select count(*) from vendor_applications where status = 'pending') = 1, 'a rejected applicant can apply again');
+reset role;
+select t.as_user('00000000-0000-0000-0000-0000000000ad');
+select t.ok((select approve_vendor_application((select id from app_ids), 'Documents verified')) is not null, 'admin approves with valid proof');
+select t.ok((select role = 'vendor' from profiles where id = '00000000-0000-0000-0000-00000000000a'), 'approval makes the applicant a vendor');
+select t.ok((select status = 'approved' and owner_id = '00000000-0000-0000-0000-00000000000a' and contact_email = 'alice@test.dev' from stores where name = 'Alice Sweets'), 'approval creates the store, owned by the applicant, with the business email');
+select t.fails($$ select approve_vendor_application((select id from app_ids)) $$, 'already reviewed', 'an application cannot be approved twice');
+reset role;
+select t.as_user('00000000-0000-0000-0000-00000000000a');
+select t.fails($$ insert into vendor_applications (applicant_id, store_name, description, address, phone, owner_name, contact_email, permit_number, permit_expiry, registration_number, permit_path, registration_path)
+  values (auth.uid(), 'Alice Three', 'Yet another store description ok', 'Brgy. Ayuti, Lucban', '09171234567', 'Alice A', 'alice@test.dev', 'BP-2026-009', current_date + 200, 'DTI-999999',
+          '00000000-0000-0000-0000-00000000000a/permit.pdf', '00000000-0000-0000-0000-00000000000a/dti.pdf') $$, 'Only customer accounts', 'a vendor cannot apply for another store');
+reset role;
+
 select 'ALL DATABASE TESTS PASSED' as result;
 rollback;

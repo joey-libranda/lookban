@@ -20,7 +20,7 @@ export function LogoutDialog({ open, onClose }: { open: boolean; onClose: () => 
   }, [open]);
   return (
     <dialog ref={ref} aria-labelledby="logout-title" onClose={onClose} className="m-auto w-[min(92vw,24rem)] rounded-xl text-left p-6 shadow-xl backdrop:bg-black/40">
-      <h2 id="logout-title" className="text-2xl">Log out?</h2>
+      <h2 id="logout-title" className="text-2xl">Log Out?</h2>
       <p className="mt-2 text-sm text-muted">You&apos;ll need to log in again to see your account.</p>
       <div className="mt-5 flex justify-end gap-3">
         <button type="button" className="btn-outline !py-2" onClick={onClose}>Stay Logged In</button>
@@ -36,7 +36,7 @@ export function LogoutButton({ variant = "button" }: { variant?: keyof typeof ST
   return (
     <>
       <button type="button" className={STYLES[variant]} onClick={() => setOpen(true)}>
-        {variant === "nav" && <LogOut className="size-4" aria-hidden />} Log out
+        {variant === "nav" && <LogOut className="size-4" aria-hidden />} Log Out
       </button>
       <LogoutDialog open={open} onClose={() => setOpen(false)} />
     </>

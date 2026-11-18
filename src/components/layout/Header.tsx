@@ -39,7 +39,7 @@ export async function Header() {
           <CartLink serverCount={cartCount} />
 
           {current ? (
-            <AccountMenu name={current.profile.full_name?.split(" ")[0] ?? "Account"} isAdmin={role === "admin"} />
+            <AccountMenu name={current.profile.full_name?.split(" ")[0] ?? "Account"} role={role ?? "customer"} />
           ) : (
             <Link href="/login" className="btn-primary !px-5 !py-2 text-sm">Log In</Link>
           )}

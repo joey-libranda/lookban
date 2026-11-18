@@ -3,6 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { requireAdmin } from "@/lib/auth/guards";
 import { AdminNav } from "@/components/admin/AdminNav";
+import { getPendingProductCount } from "@/server/queries/admin";
+import { getPendingApplicationCount } from "@/server/queries/applications";
 import { ToastProvider } from "@/components/ui/Toast";
 
 export const metadata: Metadata = { robots: { index: false, follow: false } };
@@ -13,14 +15,15 @@ export const metadata: Metadata = { robots: { index: false, follow: false } };
  */
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   await requireAdmin("/admin");
+  const [pendingProducts, pendingApplications] = await Promise.all([getPendingProductCount(), getPendingApplicationCount()]);
   return (
     <ToastProvider>
       <div className="grid min-h-screen grid-cols-1 lg:grid-cols-[15rem_minmax(0,1fr)] print:block">
         <aside className="min-w-0 print:hidden border-b border-line bg-white px-4 py-4 lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto lg:border-b-0 lg:border-r lg:px-4 lg:py-4">
-          <Link href="/admin" aria-label="LOOKBAN admin dashboard" className="mb-3 inline-block">
+          <Link href="/admin" aria-label="LOOKBAN Admin Dashboard" className="mb-3 inline-block">
             <Image src="/brand/lookban-wordmark.png" alt="LOOKBAN" width={132} height={40} priority />
           </Link>
-          <AdminNav />
+          <AdminNav pendingProducts={pendingProducts} pendingApplications={pendingApplications} />
         </aside>
         <div className="min-w-0 px-4 py-6 sm:px-8">{children}</div>
       </div>

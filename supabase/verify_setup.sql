@@ -45,6 +45,15 @@ union all
 select 'table', 'contact_replies', '0013',
        case when to_regclass('public.contact_replies') is not null then 'ok' else 'MISSING - run 0013' end
 union all
+select 'column', 'products.approval_status', '0014',
+       case when exists (select 1 from information_schema.columns where table_schema='public' and table_name='products' and column_name='approval_status') then 'ok' else 'MISSING - run 0014' end
+union all
+select 'column', 'vendor_applications.permit_path', '0015',
+       case when exists (select 1 from information_schema.columns where table_schema='public' and table_name='vendor_applications' and column_name='permit_path') then 'ok' else 'MISSING - run 0015' end
+union all
+select 'bucket', 'vendor-documents (private)', '0015',
+       case when exists (select 1 from storage.buckets where id='vendor-documents' and public = false) then 'ok' else 'MISSING - run 0015' end
+union all
 select 'row security', c.relname, '0002',
        case when c.relrowsecurity then 'ok' else 'MISSING - run 0002' end
   from pg_class c join pg_namespace n on n.oid=c.relnamespace

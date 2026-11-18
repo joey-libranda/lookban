@@ -41,6 +41,8 @@ in number order, from `migrations/`. What each one adds:
 | `0011_guest_email_required.sql` | guests must give a valid email at checkout (the database refuses it otherwise) |
 | `0012_commission.sql` | commission: default 5% rate (Admin → Settings), optional per-store rate, and the admin-only `store_order_commissions` table that records each store's commission when its part of an order is Delivered |
 | `0013_message_replies.sql` | admins can reply to Contact-page messages from the Messages page; replies are saved as simulated email (nothing is really sent) |
+| `0014_vendor_accounts.sql` | vendor logins: a vendor manages their own store, prices, stock, photos and orders; a product a vendor ADDS stays hidden until an admin approves it |
+| `0015_store_applications.sql` | store registration: business info + proof of business (permit and DTI/SEC/CDA registration) uploaded to a private bucket; admin approves or rejects; rejected applicants may re-apply |
 | `seed.sql` | starter data (safe to re-run) |
 
 ## C. Make yourself admin
@@ -54,13 +56,41 @@ update profiles set role = 'admin' where email = 'you@example.com';
 
 Only admins (or the SQL Editor) can change roles; a database trigger blocks everyone else.
 
+## C2. Vendor logins for the stores
+
+Every store gets its own login, so the store owner can manage their own products and orders.
+
+1. Put the Supabase **secret** key in `.env.local` on your computer as `SUPABASE_SECRET_KEY=...` (that file is git-ignored; **never** add this key to Vercel).
+2. Run `npm run vendors:create`.
+3. It creates `shortname@lookban.com` (short names are in `scripts/vendor-emails.json`; edit that file to change an email, then run the script again to rename existing logins) with password `Password123`
+   for every store that has no login yet, links it to the store, and prints the list. Running it again is safe;
+   new stores get their account, existing ones are skipped.
+
+Vendors sign in at `/login` and land on the Vendor Dashboard. **Demo only:** a shared, guessable password and made-up
+`@lookban.com` addresses are fine for a school demo but not for real sellers (no email can be received there, so
+password reset will not work). Before a real launch, give each seller their own email and password.
+
+How approval works: a vendor can edit their store, prices, stock, descriptions and photos directly. A **new** product
+they add waits in Pending until an admin approves it (Admin → Products); a rejected product returns to Pending when edited.
+Commission rate, shipping fee and store status stay admin-only.
+
+## C3. New stores apply on the website
+
+A business owner opens **Store Registration** (footer), creates a customer account, and submits the application with the
+business information and proof: Business / Mayor's Permit (number, valid-until date, file) and DTI / SEC / CDA registration
+(number, file). A Sanitary Permit / FDA file is optional. Files go to a **private** bucket that only the applicant and
+admins can open. In **Admin -> Applications** you open the files, then Approve (creates the store and a Vendor Dashboard,
+and the applicant keeps their own email and password) or Reject with a reason. A rejected applicant sees the reason and may apply again.
+This replaces `npm run vendors:create` for new stores; the script is only for stores you add yourself.
+The permit must not be expired, and the database refuses to approve an application without its proof.
+
 ## D. Supabase dashboard settings (not SQL)
 
 - **Authentication -> URL Configuration:** Site URL `http://localhost:3000` (your Vercel URL when live);
   Redirect URLs `http://localhost:3000/**` and `https://YOUR-APP.vercel.app/**`.
 - **Authentication -> Sign In / Providers -> Email:** enabled; for demos turn **Confirm email** off.
 - **Project Settings -> API:** copy the Project URL and the **publishable** key into `.env.local`
-  (see `.env.example`). The **secret** key is not used by the app: leave it out of Vercel.
+  (see `.env.example`). The **secret** key is not used by the deployed app: leave it out of Vercel (only `npm run vendors:create` uses it, on your computer).
 
 ## E. Starting over (careful: deletes all LOOKBAN data)
 

@@ -9,7 +9,7 @@ import { getCurrentUser } from "@/lib/auth/guards";
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
   const current = await getCurrentUser(); // cached per request, shared with the Header
   return (
-    <ShopperProvider loggedIn={!!current} isAdmin={current?.profile.role === "admin"}>
+    <ShopperProvider loggedIn={!!current} isAdmin={!!current && current.profile.role !== "customer"} role={current?.profile.role}>
       <ToastProvider>
         {/* Column layout: when a page is short the footer still sits at the bottom of the screen. */}
         <div className="flex min-h-svh flex-col">

@@ -28,10 +28,11 @@ export async function loginAction(values: LoginValues, next?: string): Promise<A
     return { ok: false, error: "Incorrect email or password." };
   }
   const target = safeNext(next);
-  // Admins go straight to their dashboard unless they were sent to a specific admin page.
+  // Admins and vendors go straight to their dashboard unless they were sent to a specific admin page.
   if (target === "/account" || target === "/") {
     const { data: me } = await supabase.from("profiles").select("role").eq("id", signedIn.user.id).maybeSingle();
     if (me?.role === "admin") redirect("/admin");
+    if (me?.role === "vendor") redirect("/vendor");
   }
   redirect(target);
 }

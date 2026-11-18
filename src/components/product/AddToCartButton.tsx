@@ -38,7 +38,7 @@ export function AddToCartButton({ productId, stock, disabled, compact, withQuant
   const [pending, start] = useTransition();
   const [qty, setQty] = useState(1);
   const max = maxQuantity(stock);
-  const { loggedIn, isAdmin } = useShopper();
+  const { loggedIn, isAdmin, role } = useShopper();
   // The price can follow the quantity: pass a function and it gets the chosen quantity.
   const slot = typeof priceSlot === "function" ? priceSlot(qty) : priceSlot;
 
@@ -46,7 +46,7 @@ export function AddToCartButton({ productId, stock, disabled, compact, withQuant
     return (
       <>
         {slot && <div className="flex items-center justify-between pt-2">{slot}</div>}
-        <Link href={`/admin/products/${productId}`} className={`btn-outline w-full ${compact ? "!py-2 text-sm" : ""}`}>Edit in Admin</Link>
+        <Link href={role === "vendor" ? "/vendor/products" : `/admin/products/${productId}`} className={`btn-outline w-full ${compact ? "!py-2 text-sm" : ""}`}>{role === "vendor" ? "Manage My Products" : "Edit in Admin"}</Link>
       </>
     );
   }

@@ -29,15 +29,15 @@ export default async function AdminHome() {
       <section aria-label="Totals" className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <Stat label="Customers" value={d.customers} />
         <Stat label="Stores" value={d.stores} />
-        <Stat label="Active products" value={d.products} />
+        <Stat label="Active Products" value={d.products} />
         <Stat label="Orders" value={d.orders} note={`${d.activeOrders} still in progress`} />
       </section>
 
       <section aria-labelledby="sales" className="card p-5">
-        <h2 id="sales" className="text-2xl">Sales summary</h2>
+        <h2 id="sales" className="text-2xl">Sales Summary</h2>
         <p className="mt-1 text-sm text-muted">Order totals, excluding cancelled orders.</p>
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
-          <Stat label="All orders placed" value={formatPeso(d.salesTotal)} />
+          <Stat label="All Orders Placed" value={formatPeso(d.salesTotal)} />
           <Stat label="Delivered" value={formatPeso(d.deliveredTotal)} note="Completed deliveries" />
           <div className="card p-4">
             <p className="text-sm font-semibold text-muted">By payment method</p>
@@ -50,7 +50,7 @@ export default async function AdminHome() {
       <div className="grid gap-6 xl:grid-cols-[1.6fr_1fr]">
         <section aria-labelledby="recent" className="card p-5">
           <div className="flex items-center justify-between">
-            <h2 id="recent" className="text-2xl">Recent orders</h2>
+            <h2 id="recent" className="text-2xl">Recent Orders</h2>
             <Link href="/admin/orders" className="text-sm font-semibold text-blue pop hover:text-orange">All orders</Link>
           </div>
           {d.recent.length === 0 ? <p className="mt-3 text-muted">No orders yet.</p> : (
@@ -69,7 +69,7 @@ export default async function AdminHome() {
         </section>
 
         <section aria-labelledby="low" className="card p-5">
-          <h2 id="low" className="text-2xl">Low stock</h2>
+          <h2 id="low" className="text-2xl">Low Stock</h2>
           {d.lowStock.length === 0 ? <p className="mt-3 text-muted">Nothing running low.</p> : (
             <ul className="mt-3 divide-y divide-line">
               {d.lowStock.map((p) => (

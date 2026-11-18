@@ -46,7 +46,7 @@ export async function addToCartAction(productId: string, quantity: number): Prom
   const userId = await currentUserId(supabase);
   if (!userId) return { ok: false, error: "Please log in to save items to your cart.", needsLogin: true };
   const { data: me } = await supabase.from("profiles").select("role").eq("id", userId).maybeSingle();
-  if (me?.role === "admin") return { ok: false, error: "Admin accounts don't shop. Use a customer account to place orders." };
+  if (me && me.role !== "customer") return { ok: false, error: "Admin and vendor accounts don't shop. Use a customer account to place orders." };
 
   // Everything below is read from the database - the client only says WHICH product and HOW MANY.
   const { data: product } = await supabase

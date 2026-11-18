@@ -28,13 +28,13 @@ export default async function MessageThread({ params }: { params: Promise<{ id: 
         </form>
       </div>
 
-      <section className="card p-5" aria-label="Original message">
+      <section className="card p-5" aria-label="Original Message">
         <p className="label">Received {formatDateTime(m.created_at)}</p>
         <p className="mt-2 whitespace-pre-wrap break-words rounded-lg bg-cream p-4">{m.message}</p>
       </section>
 
       {m.replies.map((r) => (
-        <section key={r.id} className="card border-l-4 border-l-orange p-5" aria-label="Your reply">
+        <section key={r.id} className="card border-l-4 border-l-orange p-5" aria-label="Your Reply">
           <p className="label">Replied {formatDateTime(r.created_at)} · Sent to {m.email}</p>
           <p className="mt-2 whitespace-pre-wrap break-words rounded-lg bg-cream p-4">{r.body}</p>
         </section>

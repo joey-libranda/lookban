@@ -4,7 +4,7 @@ import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from "@/lib/env";
 
 /** Routes that require a signed-in user. Role checks happen in lib/auth/guards.ts. */
 // /cart, /checkout and /orders are public on purpose: visitors can shop as guests. Those pages do their own checks.
-const PROTECTED_PREFIXES = ["/account", "/admin"];
+const PROTECTED_PREFIXES = ["/account", "/admin", "/vendor"];
 
 /**
  * Refreshes the Supabase session cookie and redirects anonymous visitors away

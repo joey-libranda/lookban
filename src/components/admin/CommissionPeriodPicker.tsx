@@ -14,7 +14,7 @@ export function CommissionPeriodPicker({ period }: { period: Period }) {
   const pill = (on: boolean) => `whitespace-nowrap rounded-full border px-3.5 py-1.5 text-sm font-semibold ${on ? "border-blue bg-blue text-white" : "border-line bg-white text-ink hover:bg-blue-50"}`;
 
   return (
-    <section aria-label="Report period" className="card space-y-3 p-4">
+    <section aria-label="Report Period" className="card space-y-3 p-4">
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-3 xl:flex-nowrap">
         <div className="flex flex-wrap gap-2 xl:flex-nowrap">
           {QUICK_VIEWS.map((v) => (

@@ -7,7 +7,7 @@ import { saveCommissionSettingAction, saveSettingsAction } from "@/server/action
 export function SettingsForm({ fee }: { fee: number }) {
   return (
     <ActionForm action={saveSettingsAction} submitLabel="Save">
-      {(e) => <TextInput name="default_shipping_fee" label="Default shipping fee per store (₱)" type="number" step="0.01" min="0" defaultValue={fee} error={e.default_shipping_fee} required />}
+      {(e) => <TextInput name="default_shipping_fee" label="Default Shipping Fee per Store (₱)" type="number" step="0.01" min="0" defaultValue={fee} error={e.default_shipping_fee} required />}
     </ActionForm>
   );
 }
@@ -15,7 +15,7 @@ export function SettingsForm({ fee }: { fee: number }) {
 export function CommissionSettingForm({ rate }: { rate: number }) {
   return (
     <ActionForm action={saveCommissionSettingAction} submitLabel="Save">
-      {(e) => <TextInput name="default_commission_rate" label="Default commission rate (%)" type="number" step="0.01" min="0" max="100" defaultValue={rate} error={e.default_commission_rate} required />}
+      {(e) => <TextInput name="default_commission_rate" label="Default Commission Rate (%)" type="number" step="0.01" min="0" max="100" defaultValue={rate} error={e.default_commission_rate} required />}
     </ActionForm>
   );
 }

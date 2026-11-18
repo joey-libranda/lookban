@@ -21,9 +21,9 @@ export default async function AdminOrders({ searchParams }: { searchParams: Prom
     <div className="space-y-5">
       <h1 className="text-4xl">Orders</h1>
       <form role="search" className="card grid gap-3 p-4 sm:grid-cols-[1fr_12rem_auto]">
-        <input name="q" defaultValue={q} className="input" placeholder="Receipt no., customer name or phone…" aria-label="Search orders" />
+        <input name="q" defaultValue={q} className="input" placeholder="Receipt no., customer name or phone…" aria-label="Search Orders" />
         <Select name="status" defaultValue={status ?? ""} aria-label="Status">
-          <option value="">Any status</option>
+          <option value="">Any Status</option>
           {STATUSES.map((s) => <option key={s} value={s}>{fulfillmentLabel(s)}</option>)}
         </Select>
         <button className="btn-secondary">Filter</button>

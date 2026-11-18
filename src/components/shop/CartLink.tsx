@@ -10,7 +10,7 @@ import { useShopper } from "./ShopperProvider";
 export function CartLink({ serverCount }: { serverCount: number }) {
   const { loggedIn, isAdmin } = useShopper();
   const guest = useSyncExternalStore(onGuestCartChange, () => guestCount(readGuestCart()), () => 0);
-  if (isAdmin) return null; // admins manage the marketplace; they have no cart
+  if (isAdmin) return null; // staff (admin, vendor) have no cart
   const count = loggedIn ? serverCount : guest;
   return (
     <Link href="/cart" aria-label={`Shopping cart${count ? `, ${count} items` : ""}`} className="relative rounded-lg p-2.5 text-blue hover:bg-blue-50">

@@ -4,10 +4,11 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { requireAdmin, requireUser } from "@/lib/auth/guards";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { SUPABASE_URL } from "@/lib/env";
 import {
-  addressSchema, categorySchema, heroSlideSchema, finalSlug, productSchema, settingsSchema, commissionSettingsSchema, replySchema, statusSchema, storeSchema, uuid,
+  vendorStoreSchema, reviewSchema, addressSchema, categorySchema, heroSlideSchema, finalSlug, productSchema, settingsSchema, commissionSettingsSchema, replySchema, statusSchema, storeSchema, uuid,
 } from "@/lib/validators/admin";
 import { slugify } from "@/lib/utils/slug";
 
@@ -15,6 +16,9 @@ import { slugify } from "@/lib/utils/slug";
  * Every admin mutation: (1) re-checks the caller is an admin on the server, (2) re-validates input with Zod,
  * (3) runs through the caller's own RLS session - so even a bug here cannot exceed what `is_admin()` policies allow.
  * No service-role key is used anywhere.
+ *
+ * Product and photo actions are shared with VENDORS (requireStaff): a vendor is pinned to their own store here,
+ * and the database enforces the same (RLS, plus the guard that makes a vendor's new product wait for approval).
  */
 export type FormState = { ok: boolean; message?: string; error?: string; fieldErrors?: Record<string, string> } | null;
 
@@ -46,15 +50,37 @@ function dbError(e: { code?: string; message: string }, what: string): FormState
 
 const nullish = (v: unknown) => (v === "" || v === undefined ? null : v);
 
+type Staff = { role: "admin" | "vendor"; storeId: string | null; base: "/admin" | "/vendor" };
+/** Admin, or a vendor with a store. Anyone else is sent away. */
+async function requireStaff(next: string): Promise<Staff> {
+  const { user, profile } = await requireUser(next);
+  if (profile.role === "admin") return { role: "admin", storeId: null, base: "/admin" };
+  if (profile.role === "vendor") {
+    const supabase = await createClient();
+    const { data } = await supabase.from("stores").select("id").eq("owner_id", user.id).maybeSingle();
+    if (data) return { role: "vendor", storeId: data.id as string, base: "/vendor" };
+  }
+  redirect("/unauthorized");
+}
+
+/** A vendor may only touch products of their own store; admins may touch any. */
+async function productInScope(supabase: SupabaseClient, productId: string, who: Staff) {
+  let q = supabase.from("products").select("id, name, store_id, slug").eq("id", productId);
+  if (who.storeId) q = q.eq("store_id", who.storeId);
+  const { data } = await q.maybeSingle();
+  return data as { id: string; name: string; store_id: string; slug: string } | null;
+}
+
 // ---------------------------------------------------------------- products
 export async function saveProductAction(id: string | null, _prev: FormState, fd: FormData): Promise<FormState> {
-  await requireAdmin("/admin/products");
+  const who = await requireStaff("/admin/products");
   const parsed = productSchema.safeParse(toObject(fd));
   if (!parsed.success) return flatten(parsed.error);
   const v = parsed.data;
+  if (who.storeId) v.store_id = who.storeId; // a vendor can only ever save into their own store
   const row = {
     store_id: v.store_id, category_id: nullish(v.category_id), name: v.name, variant_label: v.variant_label ?? "",
-    slug: finalSlug(v.slug, v.name, v.variant_label), description: nullish(v.description), price: v.price,
+    slug: who.storeId ? finalSlug(v.slug, `${v.store_id.slice(0, 8)} ${v.name}`, v.variant_label) : finalSlug(v.slug, v.name, v.variant_label), description: nullish(v.description), price: v.price,
     compare_at_price: v.compare_at_price === "" || v.compare_at_price === undefined ? null : Number(v.compare_at_price), stock: v.stock,
     weight: nullish(v.weight), packaging: nullish(v.packaging), quantity_per_pack: nullish(v.quantity_per_pack),
     ingredients: nullish(v.ingredients), storage_instructions: nullish(v.storage_instructions),
@@ -63,23 +89,27 @@ export async function saveProductAction(id: string | null, _prev: FormState, fd:
   const supabase = await createClient();
   if (id) {
     if (!uuid.safeParse(id).success) return fail("Invalid product.");
-    const { error } = await supabase.from("products").update(row).eq("id", id);
+    if (who.storeId && !(await productInScope(supabase, id, who))) return fail("Product not found.");
+    // A vendor editing an existing product keeps its slug (links and past orders stay valid).
+    const { slug, ...rest } = row;
+    const { error } = await supabase.from("products").update(who.storeId ? rest : row).eq("id", id);
     if (error) return dbError(error, "Product");
-    revalidatePath("/admin/products"); revalidatePath("/shop"); revalidatePath(`/products/${row.slug}`);
+    revalidatePath(`${who.base}/products`); revalidatePath("/admin/products"); revalidatePath("/shop"); revalidatePath(`/products/${slug}`);
     return done("Product saved.");
   }
   const { data, error } = await supabase.from("products").insert(row).select("id").single();
   if (error) return dbError(error, "Product");
-  revalidatePath("/admin/products"); revalidatePath("/shop");
-  redirect(`/admin/products/${data.id}?created=1`);
+  revalidatePath(`${who.base}/products`); revalidatePath("/admin/products"); revalidatePath("/shop");
+  redirect(`${who.base}/products/${data.id}?created=1`);
 }
 
 export async function setProductStatusAction(id: string, status: "active" | "archived") {
-  await requireAdmin("/admin/products");
+  const who = await requireStaff("/admin/products");
   if (!uuid.safeParse(id).success || !["active", "archived"].includes(status)) return;
   const supabase = await createClient();
+  if (who.storeId && !(await productInScope(supabase, id, who))) return;
   await supabase.from("products").update({ status }).eq("id", id);
-  revalidatePath("/admin/products"); revalidatePath("/shop");
+  revalidatePath("/admin/products"); revalidatePath("/vendor/products"); revalidatePath("/shop");
 }
 
 /**
@@ -87,9 +117,10 @@ export async function setProductStatusAction(id: string, status: "active" | "arc
  * the admin is told to archive instead.
  */
 export async function deleteProductAction(id: string): Promise<FormState> {
-  await requireAdmin("/admin/products");
+  const who = await requireStaff("/admin/products");
   if (!uuid.safeParse(id).success) return fail("Invalid product.");
   const supabase = await createClient();
+  if (who.storeId && !(await productInScope(supabase, id, who))) return fail("Product not found.");
   const { data: images } = await supabase.from("product_images").select("storage_path").eq("product_id", id);
   const { error } = await supabase.from("products").delete().eq("id", id);
   if (error) {
@@ -98,7 +129,7 @@ export async function deleteProductAction(id: string): Promise<FormState> {
   }
   const paths = (images ?? []).map((i) => i.storage_path).filter((p): p is string => !!p);
   if (paths.length) await supabase.storage.from("product-images").remove(paths);
-  revalidatePath("/admin/products"); revalidatePath("/shop");
+  revalidatePath("/admin/products"); revalidatePath("/vendor/products"); revalidatePath("/shop");
   return done("Product deleted.");
 }
 
@@ -111,10 +142,10 @@ const BUCKET_PREFIX = `${SUPABASE_URL}/storage/v1/object/public/`;
  * and build the public URL ourselves.
  */
 export async function addProductImageAction(productId: string, storagePath: string): Promise<FormState> {
-  await requireAdmin("/admin/products");
+  const who = await requireStaff("/admin/products");
   if (!uuid.safeParse(productId).success) return fail("Invalid product.");
   const supabase = await createClient();
-  const { data: product } = await supabase.from("products").select("id, name, store_id, slug").eq("id", productId).maybeSingle();
+  const product = await productInScope(supabase, productId, who);
   if (!product) return fail("Product not found.");
   if (!storagePath.startsWith(`${product.store_id}/`) || storagePath.includes("..")) return fail("Invalid upload path.");
   const { count } = await supabase.from("product_images").select("id", { count: "exact", head: true }).eq("product_id", productId);
@@ -124,24 +155,26 @@ export async function addProductImageAction(productId: string, storagePath: stri
     alt: product.name, position: count ?? 0, is_primary: first,
   });
   if (error) return dbError(error, "Photo");
-  revalidatePath(`/admin/products/${productId}`); revalidatePath("/shop"); revalidatePath(`/products/${product.slug}`);
+  revalidatePath(`${who.base}/products/${productId}`); revalidatePath("/shop"); revalidatePath(`/products/${product.slug}`);
   return done("Photo added.");
 }
 
 export async function setPrimaryImageAction(productId: string, imageId: string) {
-  await requireAdmin("/admin/products");
+  const who = await requireStaff("/admin/products");
   if (!uuid.safeParse(productId).success || !uuid.safeParse(imageId).success) return;
   const supabase = await createClient();
+  if (who.storeId && !(await productInScope(supabase, productId, who))) return;
   // Clear first, then set: the partial unique index (if any) never sees two primaries.
   await supabase.from("product_images").update({ is_primary: false }).eq("product_id", productId);
   await supabase.from("product_images").update({ is_primary: true }).eq("id", imageId).eq("product_id", productId);
-  revalidatePath(`/admin/products/${productId}`); revalidatePath("/shop");
+  revalidatePath(`${who.base}/products/${productId}`); revalidatePath("/shop");
 }
 
 export async function deleteProductImageAction(productId: string, imageId: string) {
-  await requireAdmin("/admin/products");
+  const who = await requireStaff("/admin/products");
   if (!uuid.safeParse(productId).success || !uuid.safeParse(imageId).success) return;
   const supabase = await createClient();
+  if (who.storeId && !(await productInScope(supabase, productId, who))) return;
   const { data: img } = await supabase.from("product_images").select("storage_path, is_primary").eq("id", imageId).eq("product_id", productId).maybeSingle();
   if (!img) return;
   await supabase.from("product_images").delete().eq("id", imageId);
@@ -150,7 +183,7 @@ export async function deleteProductImageAction(productId: string, imageId: strin
     const { data: next } = await supabase.from("product_images").select("id").eq("product_id", productId).order("position").limit(1).maybeSingle();
     if (next) await supabase.from("product_images").update({ is_primary: true }).eq("id", next.id);
   }
-  revalidatePath(`/admin/products/${productId}`); revalidatePath("/shop");
+  revalidatePath(`${who.base}/products/${productId}`); revalidatePath("/shop");
 }
 
 // ---------------------------------------------------------------- stores
@@ -180,16 +213,52 @@ export async function saveStoreAction(id: string | null, _prev: FormState, fd: F
   redirect(`/admin/stores/${data.id}?created=1`);
 }
 
+/** A vendor edits their own store page. Name/contact/hours only: web address, shipping, commission and approval stay admin-only. */
+export async function saveVendorStoreAction(_prev: FormState, fd: FormData): Promise<FormState> {
+  const who = await requireStaff("/vendor/store");
+  if (!who.storeId) return fail("Only vendor accounts can use this page.");
+  const parsed = vendorStoreSchema.safeParse(toObject(fd, ["is_open"]));
+  if (!parsed.success) return flatten(parsed.error);
+  const v = parsed.data;
+  const supabase = await createClient();
+  const { data, error } = await supabase.from("stores").update({
+    name: v.name, description: nullish(v.description), address: nullish(v.address), contact_phone: nullish(v.contact_phone),
+    contact_email: nullish(v.contact_email), opening_hours: nullish(v.opening_hours), is_open: v.is_open,
+  }).eq("id", who.storeId).select("slug").single();
+  if (error) return dbError(error, "Store");
+  revalidatePath("/vendor/store"); revalidatePath("/stores"); revalidatePath(`/stores/${data.slug}`);
+  return done("Store information saved.");
+}
+
+/** Admin decision on a product a vendor submitted. Approving publishes it; rejecting needs a short reason. */
+export async function reviewProductAction(id: string, decision: "approve" | "reject", _prev: FormState, fd: FormData): Promise<FormState> {
+  await requireAdmin("/admin/products");
+  if (!uuid.safeParse(id).success) return fail("Invalid product.");
+  const parsed = reviewSchema.safeParse(toObject(fd));
+  if (!parsed.success) return flatten(parsed.error);
+  if (decision === "reject" && !parsed.data.note) return { ok: false, error: "Please tell the store why.", fieldErrors: { note: "Add a short reason so the store can fix it." } };
+  const supabase = await createClient();
+  const patch = decision === "approve"
+    ? { approval_status: "approved", status: "active", review_note: null }
+    : { approval_status: "rejected", status: "archived", review_note: parsed.data.note };
+  const { data, error } = await supabase.from("products").update(patch).eq("id", id).select("slug").maybeSingle();
+  if (error) return dbError(error, "Product");
+  if (!data) return fail("Product not found.");
+  revalidatePath("/admin", "layout"); revalidatePath("/vendor/products"); revalidatePath("/shop"); revalidatePath(`/products/${data.slug}`);
+  return done(decision === "approve" ? "Product approved and now live in the shop." : "Product sent back to the store with your note.");
+}
+
 /** Logo / cover: browser uploads to the store-assets bucket, then we record the URL after checking the path. */
 export async function setStoreImageAction(storeId: string, kind: "logo" | "cover", storagePath: string | null): Promise<FormState> {
-  await requireAdmin("/admin/stores");
+  const who = await requireStaff("/admin/stores");
+  if (who.storeId && who.storeId !== storeId) return fail("You can only change your own store.");
   if (!uuid.safeParse(storeId).success || !["logo", "cover"].includes(kind)) return fail("Invalid request.");
   if (storagePath && (!storagePath.startsWith(`${storeId}/`) || storagePath.includes(".."))) return fail("Invalid upload path.");
   const supabase = await createClient();
   const url = storagePath ? `${BUCKET_PREFIX}store-assets/${storagePath}` : null;
   const { error } = await supabase.from("stores").update(kind === "logo" ? { logo_url: url } : { cover_url: url }).eq("id", storeId);
   if (error) return dbError(error, "Image");
-  revalidatePath(`/admin/stores/${storeId}`); revalidatePath("/stores");
+  revalidatePath(`/admin/stores/${storeId}`); revalidatePath("/vendor/store"); revalidatePath("/stores");
   return done(storagePath ? "Image updated." : "Image removed.");
 }
 
@@ -262,13 +331,13 @@ export async function setCustomerActiveAction(id: string, active: boolean) {
 
 /** Goes through the database function, which enforces the allowed transitions, restocking on cancel, and payment rules. */
 export async function updateStoreOrderStatusAction(orderId: string, storeOrderId: string, status: string): Promise<FormState> {
-  await requireAdmin("/admin/orders");
+  const who = await requireStaff("/admin/orders"); // the database function re-checks that a vendor owns this store order
   const s = statusSchema.safeParse(status);
   if (!uuid.safeParse(storeOrderId).success || !s.success) return fail("Invalid request.");
   const supabase = await createClient();
   const { error } = await supabase.rpc("update_store_order_status", { p_store_order_id: storeOrderId, p_status: s.data });
   if (error) return fail(error.message.replace(/^[A-Z_]+:\s*/, "") || "Could not update the status.");
-  revalidatePath(`/admin/orders/${orderId}`); revalidatePath("/admin/orders"); revalidatePath("/admin");
+  revalidatePath(`${who.base}/orders/${orderId}`); revalidatePath(`${who.base}/orders`); revalidatePath(who.base);
   return done("Status updated.");
 }
 

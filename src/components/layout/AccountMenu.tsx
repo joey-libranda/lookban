@@ -8,7 +8,7 @@ import { LogoutDialog } from "@/components/auth/LogoutButton";
 const ITEM = "block w-full rounded-md px-3 py-2 text-left text-sm hover:bg-blue-50";
 
 /** Account dropdown: outlined button; closes after any choice, on outside click and on Escape. */
-export function AccountMenu({ name, isAdmin }: { name: string; isAdmin: boolean }) {
+export function AccountMenu({ name, role }: { name: string; role: "customer" | "vendor" | "admin" }) {
   const [open, setOpen] = useState(false);
   const [logout, setLogout] = useState(false);
   const box = useRef<HTMLDivElement>(null);
@@ -31,9 +31,9 @@ export function AccountMenu({ name, isAdmin }: { name: string; isAdmin: boolean 
       {open && (
         <div role="menu" className="card absolute right-0 z-50 mt-2 w-52 p-1.5 shadow-lg" onClick={() => setOpen(false)}>
           <Link role="menuitem" href="/account" className={ITEM}>My Account</Link>
-          {isAdmin
-            ? <Link role="menuitem" href="/admin" className={ITEM}>Admin Dashboard</Link>
-            : <Link role="menuitem" href="/account/orders" className={ITEM}>My Orders</Link>}
+          {role === "admin" && <Link role="menuitem" href="/admin" className={ITEM}>Admin Dashboard</Link>}
+          {role === "vendor" && <Link role="menuitem" href="/vendor" className={ITEM}>Vendor Dashboard</Link>}
+          {role === "customer" && <Link role="menuitem" href="/account/orders" className={ITEM}>My Orders</Link>}
           <button type="button" role="menuitem" className="block w-full rounded-md px-3 py-2 text-left text-sm font-semibold text-red-700 hover:bg-red-50" onClick={() => setLogout(true)}>Log Out</button>
         </div>
       )}

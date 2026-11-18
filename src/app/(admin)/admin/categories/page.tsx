@@ -11,7 +11,7 @@ export default async function AdminCategories() {
   return (
     <div className="max-w-3xl space-y-5">
       <h1 className="text-4xl">Categories</h1>
-      <section className="card p-5"><h2 className="mb-3 text-2xl">Add category</h2>
+      <section className="card p-5"><h2 className="mb-3 text-2xl">Add Category</h2>
         <CategoryForm action={saveCategoryAction.bind(null, null)} submitLabel="Add Category" /></section>
       {cats.map((c) => (
         <details key={c.id} className="card p-5">

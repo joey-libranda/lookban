@@ -20,6 +20,7 @@ export function Footer() {
           <h2 className="!font-sans text-sm font-bold uppercase tracking-wide !text-yellow">Customer service</h2>
           <ul className="mt-3 space-y-2 text-sm">
             <li><Link href="/track" className="text-white/85 pop hover:text-white">Track Your Order</Link></li>
+            <li><Link href="/apply" className="text-white/85 pop hover:text-white">Store Registration</Link></li>
             <LegalLinks />
           </ul>
         </div>

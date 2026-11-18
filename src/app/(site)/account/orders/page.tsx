@@ -15,7 +15,7 @@ export default async function MyOrdersPage() {
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-4xl">My orders</h1>
+        <h1 className="text-4xl">My Orders</h1>
         <Link href="/account" className="btn-outline !py-2"><ArrowLeft className="size-4" aria-hidden /> My Account</Link>
       </div>
       {orders.length === 0 ? (

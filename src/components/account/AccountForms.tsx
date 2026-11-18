@@ -9,8 +9,8 @@ export function ProfileForm({ fullName, phone }: { fullName: string; phone: stri
     <ActionForm action={saveProfileAction} submitLabel="Save Profile">
       {(e) => (
         <div className="grid gap-4 sm:grid-cols-2">
-          <TextInput name="full_name" label="Full name" defaultValue={fullName} error={e.full_name} required autoComplete="name" />
-          <TextInput name="phone" label="Mobile number" defaultValue={phone} error={e.phone} autoComplete="tel" placeholder="09171234567" />
+          <TextInput name="full_name" label="Full Name" defaultValue={fullName} error={e.full_name} required autoComplete="name" />
+          <TextInput name="phone" label="Mobile Number" defaultValue={phone} error={e.phone} autoComplete="tel" placeholder="09171234567" />
         </div>
       )}
     </ActionForm>
@@ -24,13 +24,13 @@ export function AddressForm({ address, fallbackName, fallbackPhone }: { address:
     <ActionForm action={saveAddressAction} submitLabel="Save Address">
       {(e) => (
         <div className="grid gap-4 sm:grid-cols-2">
-          <TextInput name="full_name" label="Recipient name" defaultValue={address?.recipient_name ?? fallbackName} error={e.full_name} required />
-          <TextInput name="phone" label="Mobile number" defaultValue={address?.phone ?? fallbackPhone} error={e.phone} required placeholder="09171234567" />
-          <div className="sm:col-span-2"><TextInput name="line1" label="House no. / street" defaultValue={address?.line1 ?? ""} error={e.line1} required autoComplete="address-line1" /></div>
+          <TextInput name="full_name" label="Recipient Name" defaultValue={address?.recipient_name ?? fallbackName} error={e.full_name} required />
+          <TextInput name="phone" label="Mobile Number" defaultValue={address?.phone ?? fallbackPhone} error={e.phone} required placeholder="09171234567" />
+          <div className="sm:col-span-2"><TextInput name="line1" label="House No. / Street" defaultValue={address?.line1 ?? ""} error={e.line1} required autoComplete="address-line1" /></div>
           <TextInput name="barangay" label="Barangay" defaultValue={address?.barangay ?? ""} error={e.barangay} />
-          <TextInput name="city" label="City / municipality" defaultValue={address?.city ?? "Lucban"} error={e.city} required />
+          <TextInput name="city" label="City / Municipality" defaultValue={address?.city ?? "Lucban"} error={e.city} required />
           <TextInput name="province" label="Province" defaultValue={address?.province ?? "Quezon"} error={e.province} required />
-          <TextInput name="postal" label="Postal code" defaultValue={address?.postal_code ?? ""} error={e.postal} inputMode="numeric" maxLength={4} />
+          <TextInput name="postal" label="Postal Code" defaultValue={address?.postal_code ?? ""} error={e.postal} inputMode="numeric" maxLength={4} />
         </div>
       )}
     </ActionForm>

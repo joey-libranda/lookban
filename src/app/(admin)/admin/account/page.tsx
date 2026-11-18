@@ -9,11 +9,11 @@ export default async function AdminAccount() {
   return (
     <div className="max-w-2xl space-y-5">
       <div>
-        <h1 className="text-4xl">My account</h1>
+        <h1 className="text-4xl">My Account</h1>
         <p className="mt-1 text-muted">{profile.email}</p>
       </div>
       <section className="card p-5" aria-labelledby="prof">
-        <h2 id="prof" className="mb-4 text-2xl">Your details</h2>
+        <h2 id="prof" className="mb-4 text-2xl">Your Details</h2>
         <ProfileForm fullName={profile.full_name ?? ""} phone={profile.phone ?? ""} />
       </section>
     </div>

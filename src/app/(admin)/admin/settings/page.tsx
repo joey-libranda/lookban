@@ -22,7 +22,7 @@ export default async function AdminSettings() {
       </section>
       <section className="space-y-4" aria-labelledby="hero-h">
         <div>
-          <h2 id="hero-h" className="text-2xl">Hero photos</h2>
+          <h2 id="hero-h" className="text-2xl">Hero Photos</h2>
           <p className="mt-1 max-w-2xl text-sm text-muted">
             These photos slide in the card at the top of the home page, in the order shown. Use wide, bright photos (about 5:4) or promo banners.
             {slides.length === 0 && " Until you add a photo, the site shows its built-in Pahiyas photos."}

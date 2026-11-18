@@ -50,9 +50,9 @@ function Row({ slide, first, last }: { slide: HeroSlideRow; first: boolean; last
         <div className="flex flex-wrap items-center gap-2">
           <button type="button" className="btn-primary" disabled={pending}
             onClick={() => run(() => updateHeroSlideAction(slide.id, { alt, link_url: link, is_active: active }), "Slide saved")}>Save</button>
-          <button type="button" className="btn-outline" disabled={pending || first} aria-label="Move earlier" onClick={() => run(() => moveHeroSlideAction(slide.id, "up"))}><ArrowUp className="size-4" aria-hidden /></button>
-          <button type="button" className="btn-outline" disabled={pending || last} aria-label="Move later" onClick={() => run(() => moveHeroSlideAction(slide.id, "down"))}><ArrowDown className="size-4" aria-hidden /></button>
-          <button type="button" className="btn-outline text-red-700" disabled={pending} aria-label="Delete slide"
+          <button type="button" className="btn-outline" disabled={pending || first} aria-label="Move Earlier" onClick={() => run(() => moveHeroSlideAction(slide.id, "up"))}><ArrowUp className="size-4" aria-hidden /></button>
+          <button type="button" className="btn-outline" disabled={pending || last} aria-label="Move Later" onClick={() => run(() => moveHeroSlideAction(slide.id, "down"))}><ArrowDown className="size-4" aria-hidden /></button>
+          <button type="button" className="btn-outline text-red-700" disabled={pending} aria-label="Delete Slide"
             onClick={() => { if (window.confirm("Delete this photo from the home page?")) run(() => deleteHeroSlideAction(slide.id), "Photo deleted"); }}><Trash2 className="size-4" aria-hidden /></button>
         </div>
       </div>

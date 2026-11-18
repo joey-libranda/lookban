@@ -29,15 +29,15 @@ export default async function OrderPage({ params, searchParams }: Props) {
   const isGuestView = viaToken && !current;
   const tokenQs = viaToken ? `?t=${t}` : "";
   // Customers (or guests with the link) can act on their order; admins only look.
-  const canAct = viaToken || (!!current && current.profile.role !== "admin");
-  const canRate = !!current && current.profile.role !== "admin";
+  const canAct = viaToken || (!!current && current.profile.role === "customer");
+  const canRate = !!current && current.profile.role === "customer";
   const isCod = order.payment_method === "cod";
   // Cancelled stores are left out of the total; their amount is what may be refunded.
   const cancelledTotal = order.store_orders.filter((so) => so.fulfillment_status === "cancelled").reduce((n, so) => n + so.total, 0);
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
-      <p className="mb-6">{current && current.profile.role !== "admin"
+      <p className="mb-6">{current && current.profile.role === "customer"
         ? <Link href="/account/orders" className="inline-flex items-center gap-1.5 font-semibold text-blue pop hover:text-orange"><ArrowLeft className="size-4" aria-hidden /> All My Orders</Link>
         : current ? <Link href="/admin/orders" className="inline-flex items-center gap-1.5 font-semibold text-blue pop hover:text-orange"><ArrowLeft className="size-4" aria-hidden /> Back to Admin Orders</Link>
         : <Link href="/track" className="inline-flex items-center gap-1.5 font-semibold text-blue pop hover:text-orange"><ArrowLeft className="size-4" aria-hidden /> Track Another Order</Link>}</p>
