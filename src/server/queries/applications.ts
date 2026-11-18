@@ -56,6 +56,9 @@ export async function getAdminApplications(): Promise<AdminApplication[]> {
 
 export async function getPendingApplicationCount() {
   const supabase = await createClient();
-  const { count } = await supabase.from("vendor_applications").select("id", { count: "exact", head: true }).eq("status", "pending");
-  return count ?? 0;
+  const [apps, docs] = await Promise.all([
+    supabase.from("vendor_applications").select("id", { count: "exact", head: true }).eq("status", "pending"),
+    supabase.from("store_document_requests").select("id", { count: "exact", head: true }).eq("status", "pending"),
+  ]);
+  return (apps.count ?? 0) + (docs.count ?? 0); // new stores + document updates both wait on this page
 }

@@ -14,11 +14,11 @@ export function CategoryForm({ action, category, submitLabel }: {
       {(e) => (
         <>
           <div className="grid gap-4 sm:grid-cols-3">
-            <TextInput name="name" label="Name" defaultValue={category?.name} error={e.name} required />
-            <TextInput name="slug" label="Web Address (Optional)" defaultValue={category?.slug} error={e.slug} />
-            <TextInput name="sort_order" label="Display Order" type="number" min="0" defaultValue={category?.sort_order ?? 0} error={e.sort_order} />
+            <TextInput placeholder="e.g. Longganisang Lucban" name="name" label="Name" defaultValue={category?.name} error={e.name} required />
+            <TextInput placeholder="e.g. longganisang-lucban" name="slug" label="Web Address (Optional)" defaultValue={category?.slug} error={e.slug} />
+            <TextInput placeholder="e.g. 1" name="sort_order" label="Display Order" type="number" min="0" defaultValue={category?.sort_order ?? 0} error={e.sort_order} />
           </div>
-          <TextArea name="description" label="Description" defaultValue={category?.description ?? ""} error={e.description} rows={2} />
+          <TextArea placeholder="A short line about this category" name="description" label="Description" defaultValue={category?.description ?? ""} error={e.description} rows={2} />
         </>
       )}
     </ActionForm>

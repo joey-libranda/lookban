@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { requireVendor } from "@/lib/auth/guards";
+import { ExpiryNotice } from "@/components/vendor/BusinessDocuments";
+import { getStoreDocuments } from "@/server/queries/documents";
 import { getVendorDashboard } from "@/server/queries/vendor";
 import { formatPeso } from "@/lib/utils/format";
 import { formatDateTime } from "@/lib/utils/labels";
@@ -21,7 +23,7 @@ function Stat({ label, value, note, href }: { label: string; value: string | num
 
 export default async function VendorHome() {
   const { store } = await requireVendor("/vendor");
-  const d = await getVendorDashboard(store.id);
+  const [d, docs] = await Promise.all([getVendorDashboard(store.id), getStoreDocuments(store.id)]);
   return (
     <div className="space-y-8">
       <div>
@@ -34,6 +36,7 @@ export default async function VendorHome() {
           Your store is currently {store.status === "pending" ? "waiting for approval" : "suspended"}, so customers can&apos;t see it. Contact LOOKBAN for details.
         </p>
       )}
+      <ExpiryNotice expiry={docs?.permit_expiry} />
       {d.pendingProducts > 0 && (
         <p role="status" className="rounded-lg bg-blue-50 px-4 py-3 text-sm">
           <span className="font-semibold">{d.pendingProducts} new product{d.pendingProducts === 1 ? " is" : "s are"} waiting for LOOKBAN&apos;s approval.</span> They will appear in the shop once approved.{" "}

@@ -23,7 +23,7 @@ export default async function CartPage() {
       <div className="mx-auto max-w-lg px-4 py-24 text-center">
         <h1 className="text-4xl">Your cart is empty</h1>
         <p className="mt-3 text-muted">Find something from Lucban&apos;s local stores.</p>
-        <Link href="/shop" className="btn-primary mt-6">Browse the Shop</Link>
+        <Link href="/shop" className="btn-primary mt-6">Browse Products</Link>
       </div>
     );
   }

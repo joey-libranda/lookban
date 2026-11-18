@@ -15,8 +15,8 @@ export function LoginForm({ next }: { next?: string }) {
 
   return (
     <form onSubmit={handleSubmit((v) => submit(() => loginAction(v, next)))} className="space-y-4" noValidate>
-      <Field label="Email" type="email" autoComplete="email" error={errors.email} {...register("email")} />
-      <Field label="Password" type="password" autoComplete="current-password" error={errors.password} {...register("password")} />
+      <Field placeholder="you@email.com" label="Email" type="email" autoComplete="email" error={errors.email} {...register("email")} />
+      <Field placeholder="Your password" label="Password" type="password" autoComplete="current-password" error={errors.password} {...register("password")} />
       {result && !result.ok && <FormNotice kind="error">{result.error}</FormNotice>}
       <button type="submit" disabled={pending} className="btn-primary w-full">
         {pending ? "Logging In…" : "Log In"}

@@ -37,7 +37,7 @@ function Row({ slide, first, last }: { slide: HeroSlideRow; first: boolean; last
       <div className="min-w-0 flex-1 space-y-3">
         <div>
           <label className="label" htmlFor={`alt-${slide.id}`}>Photo description (for screen readers)</label>
-          <input id={`alt-${slide.id}`} className="input" value={alt} maxLength={200} onChange={(e) => setAlt(e.target.value)} />
+          <input id={`alt-${slide.id}`} className="input" value={alt} placeholder="e.g. A box of Longganisang Lucban on a wooden table" maxLength={200} onChange={(e) => setAlt(e.target.value)} />
         </div>
         <div>
           <label className="label" htmlFor={`link-${slide.id}`}>Opens this page when clicked</label>

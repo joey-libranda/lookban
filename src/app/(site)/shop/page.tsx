@@ -39,7 +39,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
-      <h1 className="text-4xl">{sale ? "On Sale" : activeCategory ? activeCategory.name : "Shop All Products"}</h1>
+      <h1 className="text-4xl">{sale ? "On Sale" : activeCategory ? activeCategory.name : "All Products"}</h1>
       <p className="mt-1 max-w-2xl text-muted">
         {activeCategory?.description ?? "Every listing shows which Lucban store sells it, so you can compare and choose."}
       </p>

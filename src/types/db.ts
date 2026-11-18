@@ -14,6 +14,8 @@ export interface Profile {
   phone: string | null;
   role: UserRole;
   is_active: boolean;
+  avatar_path: string | null;
+  created_at: string;
 }
 
 export interface Store {

@@ -16,13 +16,13 @@ export function RegisterForm() {
 
   return (
     <form onSubmit={handleSubmit((v) => submit(() => registerAction(v)))} className="space-y-4" noValidate>
-      <Field label="Full name" autoComplete="name" error={errors.full_name} {...register("full_name")} />
-      <Field label="Email" type="email" autoComplete="email" error={errors.email} {...register("email")} />
+      <Field placeholder="e.g. Juan Dela Cruz" label="Full name" autoComplete="name" error={errors.full_name} {...register("full_name")} />
+      <Field placeholder="you@email.com" label="Email" type="email" autoComplete="email" error={errors.email} {...register("email")} />
       <Field label="Mobile number (optional)" type="tel" autoComplete="tel" placeholder="09171234567"
              error={errors.phone} {...register("phone")} />
-      <Field label="Password" type="password" autoComplete="new-password"
+      <Field placeholder="Create a password" label="Password" type="password" autoComplete="new-password"
              hint="At least 8 characters, with a letter and a number." error={errors.password} {...register("password")} />
-      <Field label="Confirm password" type="password" autoComplete="new-password"
+      <Field placeholder="Type the password again" label="Confirm password" type="password" autoComplete="new-password"
              error={errors.confirm_password} {...register("confirm_password")} />
       {result && !result.ok && <FormNotice kind="error">{result.error}</FormNotice>}
       <button type="submit" disabled={pending} className="btn-primary w-full">

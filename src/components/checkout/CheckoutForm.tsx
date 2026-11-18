@@ -47,16 +47,16 @@ export function CheckoutForm({ defaults, guest }: { defaults: Partial<CheckoutVa
       <fieldset className="card space-y-4 p-5">
         <legend className="px-1 text-2xl font-heading font-bold tracking-tighter text-blue">Delivery details</legend>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Full name" autoComplete="name" error={errors.full_name} {...register("full_name")} />
+          <Field placeholder="e.g. Juan Dela Cruz" label="Full name" autoComplete="name" error={errors.full_name} {...register("full_name")} />
           <Field label="Mobile number" type="tel" autoComplete="tel" placeholder="09171234567" error={errors.phone} {...register("phone")} />
         </div>
-        {guest && <Field label="Email" type="email" autoComplete="email" hint="We use it to contact you about your order." error={errors.email} {...register("email")} />}
-        <Field label="House no. / street" autoComplete="address-line1" error={errors.line1} {...register("line1")} />
+        {guest && <Field placeholder="you@email.com" label="Email" type="email" autoComplete="email" hint="We use it to contact you about your order." error={errors.email} {...register("email")} />}
+        <Field placeholder="House no. and street, e.g. 12 Rizal St" label="House no. / street" autoComplete="address-line1" error={errors.line1} {...register("line1")} />
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Barangay (optional)" error={errors.barangay} {...register("barangay")} />
-          <Field label="City / municipality" autoComplete="address-level2" error={errors.city} {...register("city")} />
-          <Field label="Province" autoComplete="address-level1" error={errors.province} {...register("province")} />
-          <Field label="Postal code (optional)" inputMode="numeric" autoComplete="postal-code" error={errors.postal} {...register("postal")} />
+          <Field placeholder="e.g. Brgy. Ayuti" label="Barangay (optional)" error={errors.barangay} {...register("barangay")} />
+          <Field placeholder="e.g. Lucban" label="City / municipality" autoComplete="address-level2" error={errors.city} {...register("city")} />
+          <Field placeholder="e.g. Quezon" label="Province" autoComplete="address-level1" error={errors.province} {...register("province")} />
+          <Field placeholder="e.g. 4328" label="Postal code (optional)" inputMode="numeric" autoComplete="postal-code" error={errors.postal} {...register("postal")} />
         </div>
         <div>
           <label htmlFor="notes" className="label">Delivery notes (optional)</label>

@@ -1,37 +1,85 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { AccountShell } from "@/components/account/AccountShell";
+import { AddressForm } from "@/components/account/AccountForms";
+import { ProfileSection, Section, SecuritySection, Tile } from "@/components/account/AccountSections";
+import { StatusBadge } from "@/components/order/StatusBadge";
 import { requireUser } from "@/lib/auth/guards";
-import { getDefaultAddress } from "@/server/queries/orders";
-import { LogoutButton } from "@/components/auth/LogoutButton";
-import { AddressForm, ProfileForm } from "@/components/account/AccountForms";
+import { formatPeso } from "@/lib/utils/format";
+import { formatDateTime } from "@/lib/utils/labels";
+import { getCustomerOverview } from "@/server/queries/account";
+import { getDefaultAddress, getMyOrders } from "@/server/queries/orders";
 
-export const metadata: Metadata = { title: "My account" };
+export const metadata: Metadata = { title: "My Account" };
 
-export default async function AccountPage() {
-  const { profile } = await requireUser("/account");
+const TABS = [
+  { key: "overview", label: "Overview" },
+  { key: "profile", label: "Profile" },
+  { key: "security", label: "Security" },
+  { key: "address", label: "Delivery Address" },
+];
+
+export default async function AccountPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
+  const { user, profile } = await requireUser("/account");
   if (profile.role === "admin") redirect("/admin/account");
   if (profile.role === "vendor") redirect("/vendor/account");
+  const { tab } = await searchParams;
+  const active = TABS.some((t) => t.key === tab) ? (tab as string) : "overview";
+
+  return (
+    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
+      <AccountShell profile={profile} base="/account" tabs={TABS} active={active} extraLinks={[{ href: "/account/orders", label: "My Orders" }]}>
+        {active === "overview" && <Overview firstName={profile.full_name?.split(" ")[0] ?? "there"} />}
+        {active === "profile" && <ProfileSection profile={profile} />}
+        {active === "security" && <SecuritySection profile={profile} lastSignIn={user.last_sign_in_at} />}
+        {active === "address" && <AddressSection name={profile.full_name ?? ""} phone={profile.phone ?? ""} />}
+      </AccountShell>
+    </div>
+  );
+}
+
+async function Overview({ firstName }: { firstName: string }) {
+  const [orders, o] = await Promise.all([getMyOrders(), getCustomerOverview()]);
+  const recent = orders.slice(0, 3);
+  return (
+    <>
+      <p className="text-lg">Hello, {firstName}! Here&apos;s what&apos;s happening with your orders.</p>
+      <div className="grid gap-3 sm:grid-cols-3">
+        <Tile label="Total Orders" value={orders.length} href="/account/orders" />
+        <Tile label="On the Way" value={o.toReceive} note="Out for delivery" href="/account/orders" />
+        <Tile label="Waiting for Your Rating" value={o.toRate} note="Delivered, not yet rated" href="/account/orders" />
+      </div>
+      <Section title="Recent Orders">
+        {recent.length === 0 ? (
+          <p className="text-muted">You haven&apos;t placed any orders yet. <Link href="/shop" className="font-semibold text-blue pop hover:text-orange">Start Shopping</Link></p>
+        ) : (
+          <ul className="divide-y divide-line">
+            {recent.map((r) => (
+              <li key={r.id} className="flex flex-wrap items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
+                <div>
+                  <p className="font-semibold">{r.receipt_no}</p>
+                  <p className="text-sm text-muted">{formatDateTime(r.created_at)}</p>
+                </div>
+                <div className="flex items-center gap-4">
+                  <StatusBadge status={r.status} />
+                  <span className="font-bold text-blue">{formatPeso(r.total)}</span>
+                  <Link href={`/orders/${r.id}`} className="font-semibold text-blue pop hover:text-orange">Details</Link>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Section>
+    </>
+  );
+}
+
+async function AddressSection({ name, phone }: { name: string; phone: string }) {
   const address = await getDefaultAddress();
   return (
-    <div className="mx-auto max-w-3xl space-y-6 px-4 py-12 sm:px-6">
-      <div>
-        <h1 className="text-4xl">Hello, {profile.full_name?.split(" ")[0] ?? "there"}</h1>
-        <p className="mt-1 text-muted">{profile.email}</p>
-      </div>
-      <div className="flex flex-wrap gap-3">
-        <Link href="/account/orders" className="btn-outline">My Orders</Link>
-        <LogoutButton />
-      </div>
-      <section className="card p-5" aria-labelledby="prof">
-        <h2 id="prof" className="mb-4 text-2xl">Your Details</h2>
-        <ProfileForm fullName={profile.full_name ?? ""} phone={profile.phone ?? ""} />
-      </section>
-      <section className="card p-5" aria-labelledby="addr">
-        <h2 id="addr" className="text-2xl">Delivery Address</h2>
-        <p className="mb-4 mt-1 text-sm text-muted">We fill this in at checkout so you don&apos;t have to retype it. You can still change it for any order.</p>
-        <AddressForm address={address} fallbackName={profile.full_name ?? ""} fallbackPhone={profile.phone ?? ""} />
-      </section>
-    </div>
+    <Section title="Delivery Address" hint="We fill this in at checkout so you don't have to retype it. You can still change it for any order.">
+      <AddressForm address={address} fallbackName={name} fallbackPhone={phone} />
+    </Section>
   );
 }

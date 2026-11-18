@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BusinessDocuments } from "@/components/vendor/BusinessDocuments";
 import { requireVendor } from "@/lib/auth/guards";
 import { getAdminStore } from "@/server/queries/admin";
 import { VendorStoreForm } from "@/components/admin/VendorStoreForm";
@@ -11,7 +12,7 @@ import { setStoreImageAction } from "@/server/actions/admin";
 export const metadata: Metadata = { title: "Store info · Vendor" };
 
 export default async function VendorStorePage() {
-  const { store: mine } = await requireVendor("/vendor/store");
+  const { user, store: mine } = await requireVendor("/vendor/store");
   const store = await getAdminStore(mine.id); // RLS: a vendor can only read and change their own store
   if (!store) return null;
 
@@ -41,6 +42,7 @@ export default async function VendorStorePage() {
         <h2 className="mb-4 text-2xl">Details</h2>
         <VendorStoreForm store={store} />
       </section>
+      <BusinessDocuments storeId={mine.id} userId={user.id} />
       <p className="text-sm text-muted">Shipping fee, commission rate and your store&apos;s listing status are managed by LOOKBAN.</p>
     </div>
   );

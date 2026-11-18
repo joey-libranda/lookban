@@ -4,11 +4,13 @@ import { HeroCarousel } from "@/components/home/HeroCarousel";
 import { HERO_PHOTOS } from "@/lib/hero";
 import { ProductCarousel } from "@/components/home/ProductCarousel";
 import { StoreCard } from "@/components/store/StoreCard";
+import { FlashToast } from "@/components/ui/FlashToast";
 import { PahiyasStrip } from "@/components/ui/PahiyasStrip";
 import { isSupabaseConfigured } from "@/lib/env";
 import { getFeaturedProducts, getHeroPhotos, getStores } from "@/server/queries/catalog";
 
-export default async function HomePage() {
+export default async function HomePage({ searchParams }: { searchParams: Promise<{ account?: string }> }) {
+  const { account } = await searchParams;
   if (!isSupabaseConfigured()) {
     return (
       <div className="mx-auto max-w-xl px-4 py-24 text-center">
@@ -22,6 +24,7 @@ export default async function HomePage() {
 
   return (
     <>
+      {account === "deleted" && <FlashToast text="Your account has been deleted. We're sorry to see you go." />}
       {/* HERO: photos slide in the background; the headline and buttons stay still. */}
       <section className="relative">
         <HeroCarousel photos={heroPhotos.length ? heroPhotos : HERO_PHOTOS}>

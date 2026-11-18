@@ -14,9 +14,9 @@ export function ResetForm() {
 
   return (
     <form onSubmit={handleSubmit((v) => submit(() => resetPasswordAction(v)))} className="space-y-4" noValidate>
-      <Field label="New password" type="password" autoComplete="new-password"
+      <Field placeholder="Create a new password" label="New password" type="password" autoComplete="new-password"
              hint="At least 8 characters, with a letter and a number." error={errors.password} {...register("password")} />
-      <Field label="Confirm new password" type="password" autoComplete="new-password"
+      <Field placeholder="Type the new password again" label="Confirm new password" type="password" autoComplete="new-password"
              error={errors.confirm_password} {...register("confirm_password")} />
       {result && !result.ok && <FormNotice kind="error">{result.error}</FormNotice>}
       <button type="submit" disabled={pending} className="btn-primary w-full">

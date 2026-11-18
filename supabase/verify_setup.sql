@@ -54,6 +54,24 @@ union all
 select 'bucket', 'vendor-documents (private)', '0015',
        case when exists (select 1 from storage.buckets where id='vendor-documents' and public = false) then 'ok' else 'MISSING - run 0015' end
 union all
+select 'column', 'profiles.avatar_path', '0016',
+       case when exists (select 1 from information_schema.columns where table_schema='public' and table_name='profiles' and column_name='avatar_path') then 'ok' else 'MISSING - run 0016' end
+union all
+select 'bucket', 'avatars (public)', '0016',
+       case when exists (select 1 from storage.buckets where id='avatars' and public = true) then 'ok' else 'MISSING - run 0016' end
+union all
+select 'function', 'delete_my_account', '0016',
+       case when exists (select 1 from pg_proc where proname='delete_my_account') then 'ok' else 'MISSING - run 0016' end
+union all
+select 'table', 'store_documents', '0017',
+       case when to_regclass('public.store_documents') is not null then 'ok' else 'MISSING - run 0017' end
+union all
+select 'table', 'store_document_requests', '0017',
+       case when to_regclass('public.store_document_requests') is not null then 'ok' else 'MISSING - run 0017' end
+union all
+select 'function', 'approve_document_request', '0017',
+       case when exists (select 1 from pg_proc where proname='approve_document_request') then 'ok' else 'MISSING - run 0017' end
+union all
 select 'row security', c.relname, '0002',
        case when c.relrowsecurity then 'ok' else 'MISSING - run 0002' end
   from pg_class c join pg_namespace n on n.oid=c.relnamespace

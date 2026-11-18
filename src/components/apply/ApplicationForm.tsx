@@ -115,7 +115,7 @@ export function ApplicationForm({ userId, defaults = {} }: { userId: string; def
       <fieldset className="space-y-4">
         <legend className="mb-1 text-2xl">Owner and Contact</legend>
         <div className="grid gap-4 sm:grid-cols-2">
-          {field("owner_name", "Owner's Full Name", { autoComplete: "name" })}
+          {field("owner_name", "Owner's Full Name", { placeholder: "e.g. Ana Reyes", autoComplete: "name" })}
           {field("phone", "Contact Number", { type: "tel", placeholder: "09171234567", autoComplete: "tel" })}
         </div>
         {field("contact_email", "Business Email", { type: "email", placeholder: "store@email.com", autoComplete: "email" })}
@@ -128,11 +128,11 @@ export function ApplicationForm({ userId, defaults = {} }: { userId: string; def
           Your documents are stored privately and can only be opened by LOOKBAN administrators. We use them only to verify your business.
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
-          {field("permit_number", "Business / Mayor's Permit No.")}
+          {field("permit_number", "Business / Mayor's Permit No.", { placeholder: "e.g. BP-2026-0042" })}
           {field("permit_expiry", "Permit Valid Until", { type: "date", min: new Date().toISOString().slice(0, 10) })}
         </div>
         {fileField("permit", "Business / Mayor's Permit", true, "PDF or photo, up to 5 MB")}
-        {field("registration_number", "DTI / SEC / CDA Registration No.")}
+        {field("registration_number", "DTI / SEC / CDA Registration No.", { placeholder: "e.g. DTI-4455667" })}
         {fileField("registration", "DTI / SEC / CDA Registration", true, "PDF or photo, up to 5 MB")}
         {fileField("sanitary", "Sanitary Permit or FDA License", false, "Recommended for food products")}
       </fieldset>

@@ -39,21 +39,21 @@ export function ProductForm({ action, product, stores, categories, submitLabel, 
               <option value="">Uncategorised</option>
               {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
             </Select>
-            <TextInput name="name" label="Product Name" defaultValue={s(product?.name)} error={e.name} required maxLength={120} />
-            <TextInput name="variant_label" label="Variant / Size Label" defaultValue={s(product?.variant_label)} error={e.variant_label}
+            <TextInput placeholder="e.g. Longganisang Lucban, Garlic" name="name" label="Product Name" defaultValue={s(product?.name)} error={e.name} required maxLength={120} />
+            <TextInput placeholder="e.g. Garlic, 250g" name="variant_label" label="Variant / Size Label" defaultValue={s(product?.variant_label)} error={e.variant_label}
               hint='e.g. "Garlic, 250g". Lets customers compare variants of the same product.' maxLength={60} />
-            <TextInput name="price" label="Price (₱)" type="number" inputMode="decimal" step="0.01" min="0" defaultValue={s(product?.price)} error={e.price} required />
-            <TextInput name="compare_at_price" label="Original Price (₱), Optional" type="number" inputMode="decimal" step="0.01" min="0" defaultValue={s(product?.compare_at_price)} error={e.compare_at_price} hint="For a promo: enter the higher, original price here and the discounted price above. Customers see it crossed out with a % OFF badge. Leave blank for no promo." />
-            <TextInput name="stock" label="Stock on Hand" type="number" inputMode="numeric" step="1" min="0" defaultValue={s(product?.stock ?? 0)} error={e.stock} required />
+            <TextInput placeholder="e.g. 120.00" name="price" label="Price (₱)" type="number" inputMode="decimal" step="0.01" min="0" defaultValue={s(product?.price)} error={e.price} required />
+            <TextInput placeholder="e.g. 150.00" name="compare_at_price" label="Original Price (₱), Optional" type="number" inputMode="decimal" step="0.01" min="0" defaultValue={s(product?.compare_at_price)} error={e.compare_at_price} hint="For a promo: enter the higher, original price here and the discounted price above. Customers see it crossed out with a % OFF badge. Leave blank for no promo." />
+            <TextInput placeholder="e.g. 50" name="stock" label="Stock on Hand" type="number" inputMode="numeric" step="1" min="0" defaultValue={s(product?.stock ?? 0)} error={e.stock} required />
           </div>
-          <TextArea name="description" label="Description" defaultValue={s(product?.description)} error={e.description} rows={4} maxLength={2000} />
+          <TextArea placeholder="Describe the product: taste, how it is made, what makes it special" name="description" label="Description" defaultValue={s(product?.description)} error={e.description} rows={4} maxLength={2000} />
           <div className="grid gap-4 sm:grid-cols-3">
             <TextInput name="weight" label="Weight" defaultValue={s(product?.weight)} error={e.weight} placeholder="250g" />
             <TextInput name="packaging" label="Packaging" defaultValue={s(product?.packaging)} error={e.packaging} placeholder="Vacuum pack" />
             <TextInput name="quantity_per_pack" label="Quantity per Pack" defaultValue={s(product?.quantity_per_pack)} error={e.quantity_per_pack} placeholder="1 dozen" />
           </div>
-          <TextArea name="ingredients" label="Ingredients" defaultValue={s(product?.ingredients)} error={e.ingredients} />
-          <TextArea name="storage_instructions" label="Storage Instructions" defaultValue={s(product?.storage_instructions)} error={e.storage_instructions} />
+          <TextArea placeholder="e.g. Pork, garlic, vinegar, salt, pepper" name="ingredients" label="Ingredients" defaultValue={s(product?.ingredients)} error={e.ingredients} />
+          <TextArea placeholder="e.g. Keep refrigerated. Best consumed within 7 days after opening." name="storage_instructions" label="Storage Instructions" defaultValue={s(product?.storage_instructions)} error={e.storage_instructions} />
           {approved ? (
             <div className="sm:w-1/2">
               <Select name="status" label="Visibility" defaultValue={s(product?.status ?? "active")} error={e.status}>
@@ -63,7 +63,7 @@ export function ProductForm({ action, product, stores, categories, submitLabel, 
             </div>
           ) : <input type="hidden" name="status" value="archived" />}
           {!vendor && (
-            <TextInput name="slug" label="Web Address (Optional)" defaultValue={s(product?.slug)} error={e.slug}
+            <TextInput placeholder="e.g. longganisang-lucban-garlic" name="slug" label="Web Address (Optional)" defaultValue={s(product?.slug)} error={e.slug}
               hint="Leave blank to generate from the name. Lowercase letters, numbers, dashes." />
           )}
         </>

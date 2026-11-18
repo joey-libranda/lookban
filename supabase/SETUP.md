@@ -43,6 +43,8 @@ in number order, from `migrations/`. What each one adds:
 | `0013_message_replies.sql` | admins can reply to Contact-page messages from the Messages page; replies are saved as simulated email (nothing is really sent) |
 | `0014_vendor_accounts.sql` | vendor logins: a vendor manages their own store, prices, stock, photos and orders; a product a vendor ADDS stays hidden until an admin approves it |
 | `0015_store_applications.sql` | store registration: business info + proof of business (permit and DTI/SEC/CDA registration) uploaded to a private bucket; admin approves or rejects; rejected applicants may re-apply |
+| `0016_account.sql` | My Account: profile photo (public `avatars` bucket, own folder only) and customer self-service account deletion that keeps order receipts |
+| `0017_business_documents.sql` | Business documents on file per store, with vendor update requests that an admin must approve (permit expiry is flagged, never auto-suspended) |
 | `seed.sql` | starter data (safe to re-run) |
 
 ## C. Make yourself admin

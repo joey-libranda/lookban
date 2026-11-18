@@ -681,5 +681,111 @@ select t.fails($$ insert into vendor_applications (applicant_id, store_name, des
           '00000000-0000-0000-0000-00000000000a/permit.pdf', '00000000-0000-0000-0000-00000000000a/dti.pdf') $$, 'Only customer accounts', 'a vendor cannot apply for another store');
 reset role;
 
+-- ---------- 0017 · business documents ----------
+reset role;
+create temp table req_ids (id uuid);
+grant select, insert, delete on req_ids to anon, authenticated;
+select t.as_user('00000000-0000-0000-0000-0000000000c1');
+select t.ok((select count(*) from store_documents where store_id = (select id from stores where owner_id = auth.uid())) = 0, 'vendor with no documents on file sees an empty record');
+-- first submission must be complete
+select t.fails($$ insert into store_document_requests (store_id, permit_number) select id, 'BP-123' from stores where owner_id = auth.uid() $$, 'no documents on file', 'first request must include everything');
+select t.fails($$ insert into store_document_requests (store_id) select id from stores where owner_id = auth.uid() $$, 'at least one', 'an empty request is refused');
+select t.fails($$ insert into store_document_requests (store_id, permit_number, permit_expiry, registration_number, permit_path, registration_path)
+   select id, 'BP-123', current_date - 5, 'DTI-9', '00000000-0000-0000-0000-0000000000c1/a.pdf', '00000000-0000-0000-0000-0000000000c1/b.pdf' from stores where owner_id = auth.uid() $$, 'future', 'an expired permit date is refused');
+select t.fails($$ insert into store_document_requests (store_id, permit_number, permit_expiry, registration_number, permit_path, registration_path)
+   select id, 'BP-123', current_date + 200, 'DTI-9', '00000000-0000-0000-0000-0000000000c2/a.pdf', '00000000-0000-0000-0000-0000000000c1/b.pdf' from stores where owner_id = auth.uid() $$, 'Invalid file', 'files must be in the vendor''s own folder');
+select t.fails($$ insert into store_document_requests (store_id, permit_number, permit_expiry, registration_number, permit_path, registration_path)
+   select id, 'BP-123', current_date + 200, 'DTI-9', '00000000-0000-0000-0000-0000000000c1/a.pdf', '00000000-0000-0000-0000-0000000000c1/b.pdf' from stores where owner_id = '00000000-0000-0000-0000-0000000000c2' $$, 'not your store', 'cannot file for another vendor''s store');
+with ins as (
+  insert into store_document_requests (store_id, permit_number, permit_expiry, registration_number, permit_path, registration_path, status, admin_note)
+  select id, 'BP-123', current_date + 200, 'DTI-9', '00000000-0000-0000-0000-0000000000c1/a.pdf', '00000000-0000-0000-0000-0000000000c1/b.pdf', 'approved', 'self' from stores where owner_id = auth.uid()
+  returning id)
+insert into req_ids select id from ins;
+select t.ok((select status = 'pending' and admin_note is null from store_document_requests where id = (select id from req_ids)), 'a complete request is accepted but always starts pending');
+select t.ok((select count(*) from store_documents where store_id = (select id from stores where owner_id = auth.uid())) = 0, 'a pending request does not change the record on file');
+select t.fails($$ insert into store_document_requests (store_id, permit_number, permit_expiry, registration_number, permit_path, registration_path) select id, 'BP-999', current_date + 200, 'DTI-9', '00000000-0000-0000-0000-0000000000c1/a.pdf', '00000000-0000-0000-0000-0000000000c1/b.pdf' from stores where owner_id = auth.uid() $$, 'unique constraint', 'only one pending request per store');
+select t.fails($$ update store_document_requests set status = 'approved' $$, 'permission denied', 'vendor cannot approve their own request');
+select t.fails($$ insert into store_documents (store_id, permit_number) select id, 'X' from stores where owner_id = auth.uid() $$, 'permission denied', 'vendor cannot write the record on file directly');
+select t.fails($$ select approve_document_request((select id from req_ids)) $$, 'Admins only', 'vendor cannot call approve');
+reset role;
+select t.as_user('00000000-0000-0000-0000-0000000000c2');
+select t.ok((select count(*) from store_document_requests) = 0, 'another vendor cannot see the request');
+reset role;
+select t.as_user('00000000-0000-0000-0000-00000000000b');
+select t.ok((select count(*) from store_document_requests) = 0 and (select count(*) from store_documents) = 0, 'customers cannot see any business documents');
+reset role;
+select t.as_user('00000000-0000-0000-0000-0000000000ad');
+select t.fails($$ select reject_document_request((select id from req_ids), 'no') $$, 'short reason', 'rejecting needs a reason');
+select approve_document_request((select id from req_ids), 'Looks good');
+reset role;
+select t.ok((select permit_number = 'BP-123' and verified_at is not null from store_documents where store_id = (select id from stores where owner_id = '00000000-0000-0000-0000-0000000000c1')), 'approval puts the new values on file');
+select t.ok((select status = 'approved' and admin_note = 'Looks good' from store_document_requests where id = (select id from req_ids)), 'request is marked approved with the admin note');
+-- partial update keeps the other values
+select t.as_user('00000000-0000-0000-0000-0000000000c1');
+with ins as (
+  insert into store_document_requests (store_id, permit_expiry, permit_path)
+  select id, current_date + 400, '00000000-0000-0000-0000-0000000000c1/renewed.pdf' from stores where owner_id = auth.uid() returning id)
+insert into req_ids select id from ins;
+select t.ok(t.affected($$ delete from store_document_requests where status = 'pending' $$) = 1, 'vendor can withdraw a pending request');
+with ins as (
+  insert into store_document_requests (store_id, permit_expiry, permit_path)
+  select id, current_date + 400, '00000000-0000-0000-0000-0000000000c1/renewed.pdf' from stores where owner_id = auth.uid() returning id)
+insert into req_ids select id from ins;
+reset role;
+select t.as_user('00000000-0000-0000-0000-0000000000ad');
+select approve_document_request(id) from store_document_requests where status = 'pending';
+reset role;
+select t.ok((select permit_number = 'BP-123' and registration_number = 'DTI-9' and permit_path = '00000000-0000-0000-0000-0000000000c1/renewed.pdf' and permit_expiry > current_date + 300 from store_documents where store_id = (select id from stores where owner_id = '00000000-0000-0000-0000-0000000000c1')), 'a partial update changes only the supplied fields');
+select t.as_user('00000000-0000-0000-0000-0000000000c1');
+select t.ok(t.affected($$ delete from storage.objects where name = '00000000-0000-0000-0000-0000000000c1/renewed.pdf' $$) = 0, 'a file that is on record cannot be deleted by the vendor');
+reset role;
+-- an expired record on file blocks an update that does not renew it
+update store_documents set permit_expiry = current_date - 1 where store_id = (select id from stores where owner_id = '00000000-0000-0000-0000-0000000000c1');
+select t.as_user('00000000-0000-0000-0000-0000000000c1');
+select t.fails($$ insert into store_document_requests (store_id, registration_number) select id, 'DTI-10' from stores where owner_id = auth.uid() $$, 'still be expired', 'cannot send an update that leaves the permit expired');
+reset role;
+
+-- ---------- 0016 · My Account ----------
+reset role;
+insert into auth.users (id, email, raw_user_meta_data) values
+  ('00000000-0000-0000-0000-0000000000d1', 'dana@test.dev', '{"full_name":"Dana Customer"}');
+select t.as_user('00000000-0000-0000-0000-0000000000d1');
+select t.ok(t.affected($$ insert into storage.objects (bucket_id, name) values ('avatars', '00000000-0000-0000-0000-0000000000d1/me.png') $$) = 1, 'user can upload an avatar into their own folder');
+select t.fails($$ insert into storage.objects (bucket_id, name) values ('avatars', '00000000-0000-0000-0000-00000000000b/me.png') $$, 'row-level security', 'user cannot upload into someone else''s avatar folder');
+select t.ok(t.affected($$ update profiles set avatar_path = '00000000-0000-0000-0000-0000000000d1/me.png' where id = auth.uid() $$) = 1, 'user can set their own avatar path');
+select t.fails($$ update profiles set avatar_path = '00000000-0000-0000-0000-00000000000b/me.png' where id = auth.uid() $$, 'own folder', 'avatar path must be in the user''s own folder');
+reset role;
+-- vendor and admin cannot self-delete
+select t.as_user('00000000-0000-0000-0000-0000000000c1');
+select t.fails($$ select delete_my_account() $$, 'Only customer', 'a vendor cannot delete their account here');
+reset role;
+select t.as_user('00000000-0000-0000-0000-0000000000ad');
+select t.fails($$ select delete_my_account() $$, 'Only customer', 'an admin cannot delete their account here');
+reset role;
+-- a customer with orders in progress is blocked
+update store_orders set fulfillment_status = 'preparing'
+ where id = (select so.id from store_orders so join orders o on o.id = so.order_id
+              where o.customer_id = '00000000-0000-0000-0000-00000000000b' limit 1);
+select t.as_user('00000000-0000-0000-0000-00000000000b');
+select t.fails($$ select delete_my_account() $$, 'in progress', 'a customer with active orders cannot delete the account');
+reset role;
+-- once everything is finished, deletion works and the receipts stay
+create temp table bob_orders as select id from orders where customer_id = '00000000-0000-0000-0000-00000000000b';
+update store_orders set fulfillment_status = 'delivered'
+ where order_id in (select id from bob_orders) and fulfillment_status not in ('delivered','cancelled');
+select t.as_user('00000000-0000-0000-0000-00000000000b');
+select delete_my_account();
+reset role;
+select t.ok(not exists (select 1 from auth.users where id = '00000000-0000-0000-0000-00000000000b'), 'delete removes the login');
+select t.ok(not exists (select 1 from profiles where id = '00000000-0000-0000-0000-00000000000b'), 'delete removes the profile');
+select t.ok((select count(*) from orders where id in (select id from bob_orders) and customer_id is null) = (select count(*) from bob_orders)
+            and (select count(*) from bob_orders) > 0, 'orders are kept with no customer attached');
+select t.ok((select count(*) from order_items oi join store_orders so on so.id = oi.store_order_id where so.order_id in (select id from bob_orders)) > 0, 'receipt lines are kept');
+-- a brand-new customer with no orders can delete straight away
+select t.as_user('00000000-0000-0000-0000-0000000000d1');
+select delete_my_account();
+reset role;
+select t.ok(not exists (select 1 from auth.users where id = '00000000-0000-0000-0000-0000000000d1'), 'customer without orders can delete');
+
 select 'ALL DATABASE TESTS PASSED' as result;
 rollback;

@@ -15,7 +15,7 @@ export function Footer() {
           <p className="mt-2 max-w-xs text-sm text-white/70">Lucban&apos;s pasalubong stores and local delicacies, together in one online marketplace.</p>
           <SocialLinks className="mt-4" />
         </div>
-        <FooterCol title="Quick links" links={[["/", "Home"], ["/about", "About Us"], ["/shop", "Shop"], ["/stores", "Stores"], ["/contact", "Contact Us"]]} />
+        <FooterCol title="Quick links" links={[["/", "Home"], ["/about", "About Us"], ["/shop", "Products"], ["/stores", "Stores"], ["/contact", "Contact Us"]]} />
         <div>
           <h2 className="!font-sans text-sm font-bold uppercase tracking-wide !text-yellow">Customer service</h2>
           <ul className="mt-3 space-y-2 text-sm">

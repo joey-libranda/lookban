@@ -55,7 +55,7 @@ Key guarantees (all enforced in Postgres, not in the UI):
 `npm test` runs the cart-maths unit tests (`tests/logic.test.ts`).
 
 ### Database tests
-`supabase/tests/rls_and_orders.sql` (208 checks: privilege escalation, RLS isolation, order creation, overselling,
+`supabase/tests/rls_and_orders.sql` (241 checks: privilege escalation, RLS isolation, order creation, overselling,
 atomic rollback, price snapshots, vendor boundaries, status flow, restock on cancel). It runs inside a transaction that is rolled back.
 Local run against a throwaway Postgres: apply `supabase/tests/00_local_supabase_stub.sql` (stand-ins for Supabase's `auth`/`storage`
 schemas), then the migrations, `seed.sql`, then the test file with `psql -v ON_ERROR_STOP=1 -f ...`.
@@ -128,3 +128,7 @@ customers get the access-denied page on `/admin`; the production client bundle c
 - **Admins:** no cart, no add-to-cart, cannot place orders (enforced in the database, not just hidden). They see *Edit in admin* instead.
 - Order progress shown to customers: Order placed -> Confirmed -> Preparing -> Out for delivery -> Delivered (set by the admin, per store).
 - Migration `0005` adds `place_guest_order`, `get_order_by_token`, `track_order`; guests still have **no direct read access** to any order table.
+
+## Future improvements
+
+What was deliberately left out of this version (email change with confirmation, rate limiting, real payments and email, and more) is listed in [`FUTURE_IMPROVEMENTS.md`](FUTURE_IMPROVEMENTS.md).
