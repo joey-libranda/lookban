@@ -17,7 +17,7 @@ export function MobileMenu() {
   }, [open]);
   return (
     <div ref={box} className="relative lg:hidden">
-      <button type="button" aria-label="Menu" aria-expanded={open} onClick={() => setOpen((o) => !o)} className="rounded-lg p-2.5 text-blue hover:bg-blue-50">
+      <button type="button" aria-label="Menu" aria-expanded={open} onClick={() => setOpen((o) => !o)} className="rounded-lg p-2.5 text-brand hover:bg-blue-50">
         <Menu className="size-6" aria-hidden />
       </button>
       {open && <div className="card absolute right-0 z-50 mt-2 w-56 p-1.5 shadow-lg" onClick={() => setOpen(false)}><NavLinks variant="menu" /></div>}

@@ -1,3 +1,4 @@
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import Image from "next/image";
 import Link from "next/link";
 import { Search } from "lucide-react";
@@ -17,7 +18,7 @@ export async function Header() {
   const role = current?.profile.role;
 
   return (
-    <header className="no-print sticky top-0 z-40 border-b border-line bg-white/95 backdrop-blur">
+    <header className="no-print sticky top-0 z-40 border-b border-line bg-surface/95 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3 sm:px-6">
         <Link href="/" aria-label="LOOKBAN home" className="shrink-0">
           <Image src="/brand/lookban-wordmark.png" alt="LOOKBAN" width={132} height={40} priority />
@@ -36,6 +37,7 @@ export async function Header() {
         </form>
 
         <div className="ml-auto flex items-center gap-1 md:ml-0">
+          <ThemeToggle />
           <CartLink serverCount={cartCount} />
 
           {current ? (

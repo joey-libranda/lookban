@@ -21,8 +21,8 @@ export function NavLinks({ variant }: { variant: "bar" | "menu" }) {
       {NAV.map((n) => {
         const on = isActive(path, n.href);
         const cls = variant === "bar"
-          ? `pop text-[15px] font-semibold ${on ? "text-orange" : "text-blue hover:text-orange"}`
-          : `block rounded-md px-3 py-2 text-sm font-semibold ${on ? "bg-orange/10 text-orange" : "text-blue hover:bg-blue-50"}`;
+          ? `pop text-[15px] font-semibold ${on ? "text-orange" : "text-brand hover:text-orange"}`
+          : `block rounded-md px-3 py-2 text-sm font-semibold ${on ? "bg-orange/10 text-orange" : "text-brand hover:bg-blue-50"}`;
         return <Link key={n.href} href={n.href} aria-current={on ? "page" : undefined} className={cls}>{n.label}</Link>;
       })}
     </>

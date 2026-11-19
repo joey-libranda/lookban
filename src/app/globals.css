@@ -9,27 +9,80 @@
   font-display: swap;
 }
 
-:root {
-  /* LOOKBAN brand palette (from the Brand Identity PDF) */
+/* ---- Theme tokens ------------------------------------------------------------------
+   Light values live on :root (and on any [data-theme="light"] block, used to keep receipts
+   looking like white paper in dark mode). Dark values apply on screen only, so printing is
+   always light. The theme is set on <html data-theme> by the script in the root layout. */
+:root,
+[data-theme="light"] {
   --lb-orange: #fc4c00;
-  --lb-blue: #00167a;
+  --lb-blue: #00167a;       /* brand blue as a BACKGROUND (buttons, footer, active menu) */
+  --lb-blue-700: #000f57;
+  --lb-brand: #00167a;      /* brand blue as TEXT / border on the page surface */
   --lb-yellow: #fff399;
+  --lb-sun: #fff399;        /* translucent yellow panels (notices, photo tiles) */
   --lb-ink: #1f2122;
+  --lb-page: #ffffff;
+  --lb-surface: #ffffff;
   --lb-cream: #fffaf0;
+  --lb-line: #e7e2d6;
+  --lb-muted: #5f6368;
+  --lb-blue-50: #eaedf8;
+  --lb-orange-50: #fff0e8;
+  --color-red-50: #fef2f2; --color-red-100: #fee2e2; --color-red-200: #fecaca;
+  --color-red-700: #b91c1c; --color-red-800: #991b1b; --color-red-900: #7f1d1d;
+  --color-green-50: #f0fdf4; --color-green-100: #dcfce7;
+  --color-green-700: #15803d; --color-green-800: #166534; --color-green-900: #14532d;
+  color-scheme: light;
 }
+[data-theme="light"] { color: var(--lb-ink); }
+
+@media screen {
+  :root[data-theme="dark"] {
+    --lb-blue: #1b2f9e;
+    --lb-blue-700: #142377;
+    --lb-brand: #9db0ff;
+    --lb-sun: #6b5d0c;
+    --lb-ink: #e9ebf5;
+    --lb-page: #0e1120;
+    --lb-surface: #161a2e;
+    --lb-cream: #1b2038;
+    --lb-line: #2c3252;
+    --lb-muted: #a4abc6;
+    --lb-blue-50: #1d2547;
+    --lb-orange-50: #3a1d10;
+    --color-red-50: #3b1519; --color-red-100: #4a1c20; --color-red-200: #7a2b30;
+    --color-red-700: #ff8f87; --color-red-800: #ffa8a1; --color-red-900: #ffc2bd;
+    --color-green-50: #12301f; --color-green-100: #174029;
+    --color-green-700: #6fdc9a; --color-green-800: #8fe6b2; --color-green-900: #b4f0cb;
+    color-scheme: dark;
+  }
+}
+
+/* `dark:` utilities follow the toggle, not the OS setting. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
 @theme inline {
   --color-orange: var(--lb-orange);
   --color-orange-600: #d93f00;
-  --color-orange-50: #fff0e8;
+  --color-orange-50: var(--lb-orange-50);
   --color-blue: var(--lb-blue);
-  --color-blue-700: #000f57;
-  --color-blue-50: #eaedf8;
+  --color-blue-700: var(--lb-blue-700);
+  --color-blue-50: var(--lb-blue-50);
+  --color-brand: var(--lb-brand);
+  --color-navy: #00167a;          /* fixed navy, for text sitting on always-light colours */
   --color-yellow: var(--lb-yellow);
+  --color-sun: var(--lb-sun);
   --color-ink: var(--lb-ink);
+  --color-dark: #1f2122;          /* fixed dark text, for always-light chips */
   --color-cream: var(--lb-cream);
-  --color-line: #e7e2d6;
-  --color-muted: #5f6368;
+  --color-surface: var(--lb-surface);
+  --color-page: var(--lb-page);
+  --color-line: var(--lb-line);
+  --color-muted: var(--lb-muted);
+  --color-danger: #b91c1c;
+  --color-danger-700: #991b1b;
+  --color-success: #15803d;
 
   --font-display: "Tropika", "Inter Variable", system-ui, sans-serif;
   --font-heading: "Helvetica Neue", Helvetica, Arial, "Liberation Sans", sans-serif;
@@ -41,7 +94,7 @@ html {
 }
 
 body {
-  background: #ffffff;
+  background: var(--lb-page);
   color: var(--lb-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
@@ -53,14 +106,14 @@ body {
   h1, h2, h3 {
     font-family: var(--font-heading);
     font-weight: 700;
-    color: var(--lb-blue);
+    color: var(--lb-brand);
     letter-spacing: -0.04em;
     line-height: 1.05;
   }
 }
 
 :focus-visible {
-  outline: 3px solid var(--lb-blue);
+  outline: 3px solid var(--lb-brand);
   outline-offset: 2px;
 }
 
@@ -73,14 +126,16 @@ body {
 @layer components {
   .btn-primary { @apply btn bg-orange text-white hover:bg-orange-600; }
   .btn-secondary { @apply btn bg-blue text-white hover:bg-blue-700; }
-  .btn-outline { @apply btn border-2 border-blue text-blue hover:bg-blue-50; }
+  .btn-outline { @apply btn border-2 border-brand text-brand hover:bg-blue-50; }
   .input {
-    @apply w-full min-w-0 rounded-lg border border-line bg-white px-3.5 py-2.5 text-base text-ink placeholder:text-muted/70 focus:border-blue focus:outline-none focus:ring-2 focus:ring-blue/20;
+    @apply w-full min-w-0 rounded-lg border border-line bg-surface px-3.5 py-2.5 text-base text-ink placeholder:text-muted/70 focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30;
   }
   .label { @apply mb-1.5 block text-sm font-semibold text-ink; }
   .field-error { @apply mt-1 text-sm text-red-700; }
-  .card { @apply rounded-xl border border-line bg-white; }
+  .card { @apply rounded-xl border border-line bg-surface; }
 }
+
+dialog { background: var(--lb-surface); color: var(--lb-ink); }
 
 /* Receipt printing */
 @media print {
@@ -93,7 +148,7 @@ body {
 .kiping-strip {
   height: 6px;
   background: repeating-linear-gradient(90deg,
-    var(--lb-orange) 0 28px, var(--lb-yellow) 28px 56px, var(--lb-blue) 56px 84px, #fff 84px 90px);
+    var(--lb-orange) 0 28px, var(--lb-yellow) 28px 56px, var(--lb-blue) 56px 84px, var(--lb-page) 84px 90px);
 }
 
 /* Links/buttons grow slightly on hover instead of being underlined. */

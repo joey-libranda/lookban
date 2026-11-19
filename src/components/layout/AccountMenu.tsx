@@ -24,7 +24,7 @@ export function AccountMenu({ name, role }: { name: string; role: "customer" | "
   return (
     <div ref={box} className="relative">
       <button type="button" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-2 rounded-lg border-2 border-blue px-3 py-1.5 text-blue transition hover:bg-blue-50">
+        className="flex items-center gap-2 rounded-lg border-2 border-brand px-3 py-1.5 text-brand transition hover:bg-blue-50">
         <UserRound className="size-5" aria-hidden />
         <span className="hidden text-sm font-semibold sm:inline">{name}</span>
       </button>

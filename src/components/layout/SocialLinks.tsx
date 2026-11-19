@@ -12,7 +12,7 @@ export function SocialLinks({ className = "" }: { className?: string }) {
       {SOCIALS.map((s) => (
         <li key={s.key}>
           <a href={s.href} target="_blank" rel="noopener noreferrer" aria-label={`LOOKBAN on ${s.label}`}
-             className="pop flex size-9 items-center justify-center rounded-full bg-white/15 text-white hover:bg-yellow hover:text-blue">
+             className="pop flex size-9 items-center justify-center rounded-full bg-white/15 text-white hover:bg-yellow hover:text-navy">
             <svg viewBox="0 0 24 24" className="size-[18px]" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
               {PATHS[s.key]}
             </svg>

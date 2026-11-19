@@ -20,7 +20,7 @@ export function LegalLinks() {
       ))}
       <dialog ref={ref} aria-labelledby="legal-title"
               onClick={(e) => { if (e.target === ref.current) ref.current?.close(); }}
-              className="m-auto max-h-[85vh] w-[min(42rem,calc(100vw-2rem))] overflow-hidden rounded-2xl bg-white p-0 text-ink shadow-2xl backdrop:bg-gray-900/55">
+              className="m-auto max-h-[85vh] w-[min(42rem,calc(100vw-2rem))] overflow-hidden rounded-2xl bg-surface p-0 text-ink shadow-2xl backdrop:bg-gray-900/55">
         <div className="flex max-h-[85vh] flex-col">
           <header className="flex items-start justify-between gap-4 border-b border-line px-6 py-4">
             <div>
