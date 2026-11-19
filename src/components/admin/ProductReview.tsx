@@ -25,7 +25,7 @@ export function ProductReview({ id, name, storeName }: { id: string; name: strin
   });
 
   return (
-    <section className="rounded-xl border-2 border-orange bg-yellow/30 p-5" aria-labelledby="review-h">
+    <section className="rounded-xl border-2 border-orange bg-sun/30 p-5" aria-labelledby="review-h">
       <h2 id="review-h" className="text-2xl">Needs Your Approval</h2>
       <p className="mt-1 text-sm">{storeName} added this product. It stays hidden from the shop until you approve it. Check the photos, price and details below first.</p>
       <div className="mt-3">
@@ -36,7 +36,7 @@ export function ProductReview({ id, name, storeName }: { id: string; name: strin
       </div>
       <div className="mt-4 flex flex-wrap gap-3">
         <button type="button" disabled={pending} onClick={() => setConfirm(true)} className="btn-primary">Approve Product</button>
-        <button type="button" disabled={pending} onClick={() => run("reject")} className="btn border-2 border-red-700 bg-white text-red-700 hover:bg-red-50">Send Back With Note</button>
+        <button type="button" disabled={pending} onClick={() => run("reject")} className="btn border-2 border-red-700 bg-surface text-red-700 hover:bg-red-50">Send Back With Note</button>
       </div>
       <ConfirmModal open={confirm} busy={pending} title="Approve this product?" confirmLabel="Approve" confirmClass="bg-blue hover:bg-blue-700"
         text={`“${name}” will go live in the shop right away.`} onConfirm={() => run("approve")} onClose={() => setConfirm(false)} />

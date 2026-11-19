@@ -22,7 +22,7 @@ export function LoginForm({ next }: { next?: string }) {
         {pending ? "Logging In…" : "Log In"}
       </button>
       <p className="text-center text-sm">
-        <Link href="/forgot-password" className="font-medium text-blue pop hover:text-orange">Forgot your password?</Link>
+        <Link href="/forgot-password" className="font-medium text-brand pop hover:text-orange">Forgot your password?</Link>
       </p>
     </form>
   );

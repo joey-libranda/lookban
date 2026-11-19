@@ -20,7 +20,7 @@ export default async function LoginPage({
       <LoginForm next={safeNext(next, "/account")} />
       <p className="mt-6 text-center text-sm">
         New to LOOKBAN?{" "}
-        <Link href="/register" className="font-semibold text-blue pop hover:text-orange">Create an account</Link>
+        <Link href="/register" className="font-semibold text-brand pop hover:text-orange">Create an account</Link>
       </p>
     </>
   );

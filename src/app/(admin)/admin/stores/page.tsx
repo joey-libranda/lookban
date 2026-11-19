@@ -26,7 +26,7 @@ export default async function AdminStores({ searchParams }: { searchParams: Prom
             {stores.length === 0 && <tr><td colSpan={4} className="p-6 text-center text-muted">No stores yet.</td></tr>}
             {stores.map((s) => (
               <ClickableRow key={s.id} href={`/admin/stores/${s.id}`}>
-                <td className="p-3"><Link href={`/admin/stores/${s.id}`} className="font-semibold text-blue">{s.name}</Link>
+                <td className="p-3"><Link href={`/admin/stores/${s.id}`} className="font-semibold text-brand">{s.name}</Link>
                   {s.address && <span className="block text-muted">{s.address}</span>}</td>
                 <td className="p-3 text-center">
                   <span className={`rounded-full px-2 py-0.5 text-xs font-semibold capitalize ${s.status === "approved" ? "bg-green-50 text-green-800" : "bg-line text-muted"}`}>{s.status}</span>

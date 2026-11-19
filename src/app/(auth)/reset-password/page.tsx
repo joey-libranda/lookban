@@ -14,7 +14,7 @@ export default async function ResetPasswordPage() {
       <>
         <FormNotice kind="error">This reset link is invalid or has expired.</FormNotice>
         <p className="mt-4 text-center text-sm">
-          <Link href="/forgot-password" className="font-semibold text-blue pop hover:text-orange">Request a new link</Link>
+          <Link href="/forgot-password" className="font-semibold text-brand pop hover:text-orange">Request a new link</Link>
         </p>
       </>
     );

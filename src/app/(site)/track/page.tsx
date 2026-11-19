@@ -10,7 +10,7 @@ export default function TrackPage() {
       <h1 className="text-4xl">Track your order</h1>
       <p className="mb-6 mt-2 text-muted">Ordered without an account? Enter the receipt number on your confirmation and the mobile number you used at checkout.</p>
       <div className="card p-5"><TrackForm /></div>
-      <p className="mt-5 text-sm text-muted">Have an account? <Link href="/account/orders" className="font-semibold text-blue pop hover:text-orange">See all your orders</Link>.</p>
+      <p className="mt-5 text-sm text-muted">Have an account? <Link href="/account/orders" className="font-semibold text-brand pop hover:text-orange">See all your orders</Link>.</p>
     </div>
   );
 }

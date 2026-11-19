@@ -28,7 +28,7 @@ async function AdminStoreDocuments({ storeId }: { storeId: string }) {
       {doc ? (
         <>
           <p className="text-sm">Permit {doc.permit_number} · valid until {doc.permit_expiry} · Registration {doc.registration_number}</p>
-          <ul className="space-y-1">{files.map((f) => <li key={f.label} className="text-sm">{f.url ? <a href={f.url} target="_blank" rel="noopener noreferrer" className="font-semibold text-blue hover:text-orange">{f.label}</a> : f.label}</li>)}</ul>
+          <ul className="space-y-1">{files.map((f) => <li key={f.label} className="text-sm">{f.url ? <a href={f.url} target="_blank" rel="noopener noreferrer" className="font-semibold text-brand hover:text-orange">{f.label}</a> : f.label}</li>)}</ul>
         </>
       ) : <p className="text-sm text-muted">No documents on file yet. The vendor can send them from their Store Info page.</p>}
       {st === "expired" && <p className="text-sm font-semibold text-red-700">The permit has expired. The store is still listed. Set it to Suspended below if you want to hide it.</p>}
@@ -52,22 +52,27 @@ export default async function EditStore({ params, searchParams }: { params: Prom
     <div>
       <p className="label">{label}</p>
       <div className={`relative overflow-hidden rounded-lg bg-cream ${box}`}><SafeImage src={url} alt={`${store.name} ${kind}`} sizes="320px" compact={kind === "logo"} /></div>
-      <div className="mt-2 flex flex-wrap items-start gap-3">
-        <StoreImageUploader storeId={id} kind={kind} />
-        {url && <ConfirmButton className="text-sm font-semibold text-red-700 pop hover:text-red-900" confirm={`Remove the ${kind}?`} action={setStoreImageAction.bind(null, id, kind, null)}>Remove</ConfirmButton>}
+      <div className="mt-3">
+        <StoreImageUploader storeId={id} kind={kind}>
+          {url && <ConfirmButton className="btn border-2 border-red-700 text-red-700 hover:bg-red-50" confirm={`Remove the ${kind}?`} action={setStoreImageAction.bind(null, id, kind, null)}>Remove</ConfirmButton>}
+        </StoreImageUploader>
       </div>
     </div>
   );
 
   return (
-    <div className="max-w-3xl space-y-6">
-      <Link href="/admin/stores" className="text-sm font-semibold text-blue pop hover:text-orange">← Stores</Link>
+    <div className="space-y-6">
+      <Link href="/admin/stores" className="text-sm font-semibold text-brand pop hover:text-orange">← Stores</Link>
       <h1 className="text-4xl">{store.name}</h1>
       {created && <FlashToast text="Store created. Add its photos below, then add products." />}
       <section className="card grid gap-6 p-5 sm:grid-cols-2" aria-label="Store Images">
         {imageBlock("logo", store.logo_url, "Logo", "size-32")}
-        {imageBlock("cover", store.cover_url, "Cover photo", "aspect-[16/7] w-full")}
+        {imageBlock("cover", store.cover_url, "Cover Photo", "aspect-[16/7] w-full")}
       </section>
+      <div className="grid items-start gap-6 xl:grid-cols-2">
+      <section className="card p-5"><h2 className="mb-4 text-2xl">Details</h2>
+        <StoreForm action={saveStoreAction.bind(null, id)} store={store} submitLabel="Save Changes" /></section>
+        <div className="space-y-6">
       <section className="card p-5" aria-label="Vendor Login">
         <h2 className="text-2xl">Vendor Login</h2>
         {owner ? (
@@ -77,12 +82,12 @@ export default async function EditStore({ params, searchParams }: { params: Prom
         )}
       </section>
       <AdminStoreDocuments storeId={id} />
-      <section className="card p-5"><h2 className="mb-4 text-2xl">Details</h2>
-        <StoreForm action={saveStoreAction.bind(null, id)} store={store} submitLabel="Save Changes" /></section>
       <section className="card flex flex-wrap items-center justify-between gap-3 p-5">
         <div><h2 className="text-xl">Delete Store</h2><p className="text-sm text-muted">Only possible when it has no products. Otherwise set it to Suspended.</p></div>
         <ConfirmButton action={deleteStoreAction.bind(null, id)} confirm="Permanently delete this store?" className="btn border-2 border-red-700 text-red-700 hover:bg-red-50">Delete Store</ConfirmButton>
       </section>
+        </div>
+      </div>
     </div>
   );
 }

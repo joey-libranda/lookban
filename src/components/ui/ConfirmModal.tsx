@@ -8,7 +8,7 @@ type Props = {
 };
 
 /** Small "are you sure?" dialog (native <dialog>: focus trap, Esc to close). Controlled by the parent. */
-export function ConfirmModal({ open, title, text, confirmLabel, cancelLabel = "Cancel", onConfirm, onClose, busy, confirmClass = "bg-red-700 hover:bg-red-800" }: Props) {
+export function ConfirmModal({ open, title, text, confirmLabel, cancelLabel = "Cancel", onConfirm, onClose, busy, confirmClass = "bg-danger hover:bg-danger-700" }: Props) {
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const d = ref.current; if (!d) return;

@@ -35,14 +35,14 @@ export function ProductCarousel({ id, title, items, href }: { id: string; title:
   const go = (to: number) => setI(Math.max(0, Math.min(max, to)));
   const offset = offsets[at] ?? 0;
 
-  const btn = "flex size-9 items-center justify-center rounded-full border-2 border-blue text-blue transition hover:scale-110 hover:bg-blue hover:text-white disabled:pointer-events-none disabled:opacity-30";
+  const btn = "flex size-9 items-center justify-center rounded-full border-2 border-brand text-brand transition hover:scale-110 hover:bg-blue hover:text-white disabled:pointer-events-none disabled:opacity-30";
 
   return (
     <section className="mx-auto max-w-7xl px-4 pb-14 pt-16 sm:px-6" aria-labelledby={id} aria-roledescription="carousel">
       <div className="mb-6 flex items-end justify-between gap-4">
         <h2 id={id} className="text-3xl sm:text-4xl">{title}</h2>
         <div className="flex shrink-0 items-center gap-3">
-          <Link href={href} className="mr-1 font-semibold text-blue pop hover:text-orange">View all</Link>
+          <Link href={href} className="mr-1 font-semibold text-brand pop hover:text-orange">View all</Link>
           <button type="button" aria-label="Previous products" disabled={at === 0} onClick={() => go(at - 1)} className={btn}><ChevronLeft className="size-5" aria-hidden /></button>
           <button type="button" aria-label="Next products" disabled={at >= max} onClick={() => go(at + 1)} className={btn}><ChevronRight className="size-5" aria-hidden /></button>
         </div>

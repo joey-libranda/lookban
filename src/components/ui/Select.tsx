@@ -83,7 +83,7 @@ export function Select({ id, name, children, defaultValue, value, onChange, disa
             <li key={o.value + n} role="option" aria-selected={o.value === cur} aria-disabled={o.disabled}
                 onMouseEnter={() => !o.disabled && setHi(n)} onMouseDown={(e) => e.preventDefault()} onClick={() => choose(o)}
                 className={`flex cursor-pointer items-center justify-between gap-2 rounded-md px-3 ${compact ? "py-1.5" : "py-2"} text-sm
-                  ${o.disabled ? "cursor-default text-muted/70" : n === hi ? "bg-blue-50" : ""} ${o.value === cur && !o.disabled ? "font-semibold text-blue" : ""}`}>
+                  ${o.disabled ? "cursor-default text-muted/70" : n === hi ? "bg-blue-50" : ""} ${o.value === cur && !o.disabled ? "font-semibold text-brand" : ""}`}>
               <span className="truncate">{o.label}</span>
               {o.value === cur && !o.disabled && <Check className="size-4 shrink-0" aria-hidden />}
             </li>

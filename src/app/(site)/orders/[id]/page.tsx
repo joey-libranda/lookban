@@ -9,7 +9,9 @@ import { Star } from "lucide-react";
 import { getCurrentUser, requireUser } from "@/lib/auth/guards";
 import { formatPeso } from "@/lib/utils/format";
 import { formatDateTime, paymentMethodLabel } from "@/lib/utils/labels";
+import { ReturnStatusBadge } from "@/components/returns/ReturnParts";
 import { getOrder, getOrderByToken } from "@/server/queries/orders";
+import { getReturnDeadline, getReturnsForStoreOrders } from "@/server/queries/returns";
 
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<{ placed?: string; t?: string }> };
 export const metadata: Metadata = { title: "Order details" };
@@ -32,15 +34,20 @@ export default async function OrderPage({ params, searchParams }: Props) {
   const canAct = viaToken || (!!current && current.profile.role === "customer");
   const canRate = !!current && current.profile.role === "customer";
   const isCod = order.payment_method === "cod";
+  // Returns are for signed-in customers only (guest returns are not supported yet).
+  const delivered = canRate ? order.store_orders.filter((so) => so.fulfillment_status === "delivered") : [];
+  const returns = await getReturnsForStoreOrders(delivered.map((so) => so.id));
+  const deadlines = new Map(await Promise.all(delivered.map(async (so) => [so.id, await getReturnDeadline(so.id)] as const)));
+  const refundedTotal = order.store_orders.reduce((n, so) => n + so.refunded_amount, 0);
   // Cancelled stores are left out of the total; their amount is what may be refunded.
   const cancelledTotal = order.store_orders.filter((so) => so.fulfillment_status === "cancelled").reduce((n, so) => n + so.total, 0);
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
       <p className="mb-6">{current && current.profile.role === "customer"
-        ? <Link href="/account/orders" className="inline-flex items-center gap-1.5 font-semibold text-blue pop hover:text-orange"><ArrowLeft className="size-4" aria-hidden /> All My Orders</Link>
-        : current ? <Link href="/admin/orders" className="inline-flex items-center gap-1.5 font-semibold text-blue pop hover:text-orange"><ArrowLeft className="size-4" aria-hidden /> Back to Admin Orders</Link>
-        : <Link href="/track" className="inline-flex items-center gap-1.5 font-semibold text-blue pop hover:text-orange"><ArrowLeft className="size-4" aria-hidden /> Track Another Order</Link>}</p>
+        ? <Link href="/account/orders" className="inline-flex items-center gap-1.5 font-semibold text-brand pop hover:text-orange"><ArrowLeft className="size-4" aria-hidden /> All My Orders</Link>
+        : current ? <Link href="/admin/orders" className="inline-flex items-center gap-1.5 font-semibold text-brand pop hover:text-orange"><ArrowLeft className="size-4" aria-hidden /> Back to Admin Orders</Link>
+        : <Link href="/track" className="inline-flex items-center gap-1.5 font-semibold text-brand pop hover:text-orange"><ArrowLeft className="size-4" aria-hidden /> Track Another Order</Link>}</p>
       {placed && (
         <div role="status" className="mb-8 flex gap-3 rounded-xl bg-green-50 p-5 text-green-900">
           <CheckCircle2 className="mt-0.5 size-6 shrink-0" aria-hidden />
@@ -105,6 +112,24 @@ export default async function OrderPage({ params, searchParams }: Props) {
                 {so.rating_comment && <span className="basis-full text-muted">&ldquo;{so.rating_comment}&rdquo;</span>}
               </p>
             )}
+            {so.refunded_amount > 0 && <p className="mt-3 rounded-lg bg-cream px-3 py-2 text-sm">Refunded: <strong>{formatPeso(so.refunded_amount)}</strong></p>}
+            {so.fulfillment_status === "delivered" && canRate && (() => {
+              const ret = returns.get(so.id);
+              const dl = deadlines.get(so.id);
+              if (ret) return (
+                <p className="mt-3 flex flex-wrap items-center gap-3 border-t border-line pt-3 text-sm">
+                  <span className="font-semibold">Return request:</span> <ReturnStatusBadge status={ret.status} />
+                  <Link href={`/account/returns/${ret.id}`} className="font-semibold text-brand pop hover:text-orange">View</Link>
+                </p>
+              );
+              if (dl && new Date(dl) > new Date()) return (
+                <p className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-line pt-3 text-sm">
+                  <span className="text-muted">Something wrong? Ask until {formatDateTime(dl)}.</span>
+                  <Link href={`/orders/${order.id}/return/${so.id}`} className="btn-outline !py-2">Request Return or Refund</Link>
+                </p>
+              );
+              return null;
+            })()}
             {canAct && (
               <StoreOrderActions orderId={order.id} storeOrderId={so.id} storeName={so.store_name}
                 status={so.fulfillment_status} rating={so.rating} canRate={canRate} token={viaToken ? t : undefined}
@@ -128,8 +153,9 @@ export default async function OrderPage({ params, searchParams }: Props) {
           <dl className="mt-3 space-y-1 border-t border-line pt-3">
             <div className="flex justify-between"><dt>Items</dt><dd>{formatPeso(order.subtotal)}</dd></div>
             <div className="flex justify-between"><dt>Shipping</dt><dd>{formatPeso(order.shipping_total)}</dd></div>
-            <div className="flex justify-between text-lg font-bold text-blue"><dt>{cancelledTotal > 0 ? "Total to Pay" : "Total"}</dt><dd>{formatPeso(order.total)}</dd></div>
+            <div className="flex justify-between text-lg font-bold text-brand"><dt>{cancelledTotal > 0 ? "Total to Pay" : "Total"}</dt><dd>{formatPeso(order.total)}</dd></div>
           </dl>
+          {refundedTotal > 0 && <p className="mt-3 flex justify-between rounded-lg bg-cream px-3 py-2"><span>Refunded after delivery</span><strong>{formatPeso(refundedTotal)}</strong></p>}
           {cancelledTotal > 0 && (
             <p className="mt-3 rounded-lg bg-cream px-3 py-2 text-muted">
               {isCod

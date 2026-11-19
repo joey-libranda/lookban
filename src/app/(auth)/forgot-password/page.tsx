@@ -11,7 +11,7 @@ export default function ForgotPasswordPage() {
       <p className="mb-6 text-muted">Enter your email and we&apos;ll send you a reset link.</p>
       <ForgotForm />
       <p className="mt-6 text-center text-sm">
-        <Link href="/login" className="font-semibold text-blue pop hover:text-orange">Back to log in</Link>
+        <Link href="/login" className="font-semibold text-brand pop hover:text-orange">Back to log in</Link>
       </p>
     </>
   );

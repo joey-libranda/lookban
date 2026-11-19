@@ -11,7 +11,7 @@ export function CommissionPeriodPicker({ period }: { period: Period }) {
   const [from, setFrom] = useState(period.view === "range" ? period.fromDate : "");
   const [to, setTo] = useState(period.view === "range" ? period.toDate : "");
   const can = !!from && !!to;
-  const pill = (on: boolean) => `whitespace-nowrap rounded-full border px-3.5 py-1.5 text-sm font-semibold ${on ? "border-blue bg-blue text-white" : "border-line bg-white text-ink hover:bg-blue-50"}`;
+  const pill = (on: boolean) => `whitespace-nowrap rounded-full border px-3.5 py-1.5 text-sm font-semibold ${on ? "border-blue bg-blue text-white" : "border-line bg-surface text-ink hover:bg-blue-50"}`;
 
   return (
     <section aria-label="Report Period" className="card space-y-3 p-4">

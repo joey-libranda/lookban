@@ -62,7 +62,7 @@ export function ShopFilters({ action, sale, q = "", category = "", store = "", s
         <div className="flex items-baseline justify-between">
           <label htmlFor="f-q" className="label">Search</label>
           {active && (
-            <button type="button" className="mb-1.5 text-sm font-semibold text-blue pop hover:text-orange"
+            <button type="button" className="mb-1.5 text-sm font-semibold text-brand pop hover:text-orange"
                     onClick={() => { const next = { q: "", category: "", store: "", sort: f.sort }; setF(next); go(next); }}>
               Clear Filters
             </button>

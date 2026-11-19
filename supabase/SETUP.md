@@ -45,6 +45,7 @@ in number order, from `migrations/`. What each one adds:
 | `0015_store_applications.sql` | store registration: business info + proof of business (permit and DTI/SEC/CDA registration) uploaded to a private bucket; admin approves or rejects; rejected applicants may re-apply |
 | `0016_account.sql` | My Account: profile photo (public `avatars` bucket, own folder only) and customer self-service account deletion that keeps order receipts |
 | `0017_business_documents.sql` | Business documents on file per store, with vendor update requests that an admin must approve (permit expiry is flagged, never auto-suspended) |
+| `0018_returns.sql` | Return & refund requests after delivery (3-day window, store review, one escalation to LOOKBAN, private photo evidence, refund records that adjust commission) |
 | `seed.sql` | starter data (safe to re-run) |
 
 ## C. Make yourself admin

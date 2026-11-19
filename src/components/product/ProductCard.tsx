@@ -42,7 +42,7 @@ export function ProductCard({ l, priority }: { l: ProductListing; priority?: boo
         </div>
         {promo && <DiscountBadge price={promo.price} compareAt={promo.compare} className="absolute right-3 top-3 z-10" />}
         <span className="absolute inset-0 flex items-center justify-center bg-gray-900/0 transition-colors duration-200 group-hover:bg-gray-900/40 group-focus-within:bg-gray-900/40">
-          <span className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-ink opacity-0 shadow transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100">
+          <span className="rounded-full bg-surface px-4 py-2 text-sm font-semibold text-ink opacity-0 shadow transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100">
             View details
           </span>
         </span>

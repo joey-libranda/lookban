@@ -38,7 +38,7 @@ export default async function AdminOrders({ searchParams }: { searchParams: Prom
             {rows.length === 0 && <tr><td colSpan={6} className="p-6 text-center text-muted">No orders match.</td></tr>}
             {rows.map((o) => (
               <ClickableRow key={o.id} href={`/admin/orders/${o.id}`}>
-                <td className="p-3"><Link href={`/admin/orders/${o.id}`} className="font-semibold text-blue pop hover:text-orange">{o.receipt_no}</Link>
+                <td className="p-3"><Link href={`/admin/orders/${o.id}`} className="font-semibold text-brand pop hover:text-orange">{o.receipt_no}</Link>
                   <span className="block text-muted">{o.store_count} store{o.store_count === 1 ? "" : "s"}</span></td>
                 <td className="p-3">{o.customer_name}<span className="block text-muted">{o.customer_phone}</span></td>
                 <td className="p-3">{formatDateTime(o.created_at)}</td>

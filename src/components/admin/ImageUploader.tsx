@@ -17,6 +17,8 @@ type Props = {
   onUploaded: (path: string) => Promise<FormState>;
   label: string;
   multiple?: boolean;
+  /** Extra buttons shown on the same row as the upload button (e.g. Remove). */
+  actions?: React.ReactNode;
 };
 
 /**
@@ -24,7 +26,7 @@ type Props = {
  * after checking type and size client-side. The bucket itself enforces the same limits and the
  * server action verifies the path - client checks are only for friendly feedback.
  */
-export function ImageUploader({ bucket, folder, onUploaded, label, multiple }: Props) {
+export function ImageUploader({ bucket, folder, onUploaded, label, multiple, actions }: Props) {
   const ref = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const [busy, setBusy] = useState(false);
@@ -58,11 +60,14 @@ export function ImageUploader({ bucket, folder, onUploaded, label, multiple }: P
 
   return (
     <div>
-      <label className="btn-outline cursor-pointer">
-        {busy ? "Uploading…" : label}
-        <input ref={ref} type="file" accept="image/jpeg,image/png,image/webp" multiple={multiple} className="sr-only"
-               disabled={busy} onChange={(e) => handle(e.target.files)} />
-      </label>
+      <div className="flex flex-wrap items-center gap-3">
+        <label className="btn-outline cursor-pointer">
+          {busy ? "Uploading…" : label}
+          <input ref={ref} type="file" accept="image/jpeg,image/png,image/webp" multiple={multiple} className="sr-only"
+                 disabled={busy} onChange={(e) => handle(e.target.files)} />
+        </label>
+        {actions}
+      </div>
       <p className="mt-1 text-xs text-muted">JPG, PNG or WebP, up to 5 MB.</p>
     </div>
   );

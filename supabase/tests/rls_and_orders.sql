@@ -745,6 +745,102 @@ select t.as_user('00000000-0000-0000-0000-0000000000c1');
 select t.fails($$ insert into store_document_requests (store_id, registration_number) select id, 'DTI-10' from stores where owner_id = auth.uid() $$, 'still be expired', 'cannot send an update that leaves the permit expired');
 reset role;
 
+-- ---------- 0018 · returns & refunds ----------
+reset role;
+create temp table rt (k text primary key, v uuid);
+grant select, insert, update, delete on rt to anon, authenticated;
+insert into auth.users (id, email, raw_user_meta_data) values ('00000000-0000-0000-0000-0000000000e1', 'store.owner@test.dev', '{"full_name":"Store Owner"}');
+update profiles set role = 'vendor' where id = '00000000-0000-0000-0000-0000000000e1';
+-- two delivered store orders of Bob; X is owned by our test store owner
+insert into rt select 'x', so.id from store_orders so join orders o on o.id = so.order_id where o.customer_id = '00000000-0000-0000-0000-00000000000b' order by so.created_at limit 1;
+insert into rt select 'y', so.id from store_orders so join orders o on o.id = so.order_id where o.customer_id = '00000000-0000-0000-0000-00000000000b' and so.id <> (select v from rt where k = 'x') order by so.created_at limit 1;
+insert into rt select 'pending', so.id from store_orders so join orders o on o.id = so.order_id where o.customer_id = '00000000-0000-0000-0000-00000000000b' and so.id not in (select v from rt) limit 1;
+update stores set owner_id = '00000000-0000-0000-0000-0000000000e1' where id = (select store_id from store_orders where id = (select v from rt where k = 'x'));
+update store_orders set fulfillment_status = 'delivered' where id in (select v from rt where k in ('x','y'));
+update store_orders set fulfillment_status = 'preparing' where id in (select v from rt where k = 'pending');
+create temp table x_items as select oi.id, oi.quantity, oi.price_at_purchase from order_items oi where oi.store_order_id = (select v from rt where k = 'x') order by oi.id limit 1;
+grant select on x_items to anon, authenticated;
+
+select t.as_user('00000000-0000-0000-0000-00000000000a');
+select t.fails($$ select create_return_request((select v from rt where k='x'), 'missing_item', 'One item was missing', 'refund',
+   jsonb_build_array(jsonb_build_object('order_item_id', (select id from x_items), 'quantity', 1)), '{}') $$, 'not your order', 'another customer cannot file a return on my order');
+reset role;
+select t.as_user('00000000-0000-0000-0000-00000000000b');
+select t.fails($$ select create_return_request((select v from rt where k='pending'), 'missing_item', 'One item was missing', 'refund', '[]'::jsonb, '{}') $$, 'after the order is delivered', 'returns are only possible after delivery');
+select t.fails($$ select create_return_request((select v from rt where k='x'), 'damaged', 'Box was crushed', 'refund',
+   jsonb_build_array(jsonb_build_object('order_item_id', (select id from x_items), 'quantity', 1)), '{}') $$, 'attach at least one photo', 'damaged items need a photo');
+select t.fails($$ select create_return_request((select v from rt where k='x'), 'missing_item', 'One item was missing', 'refund',
+   jsonb_build_array(jsonb_build_object('order_item_id', (select id from x_items), 'quantity', (select quantity + 1 from x_items))), '{}') $$, 'not valid', 'cannot return more than was bought');
+select t.fails($$ select create_return_request((select v from rt where k='x'), 'damaged', 'Box was crushed', 'refund',
+   jsonb_build_array(jsonb_build_object('order_item_id', (select id from x_items), 'quantity', 1)), array['00000000-0000-0000-0000-00000000000a/p.png']) $$, 'Invalid photo', 'photos must be in the customer''s own folder');
+select t.ok(t.affected($$ insert into storage.objects (bucket_id, name) values ('return-evidence', '00000000-0000-0000-0000-00000000000b/evidence1.png') $$) = 1, 'customer can upload evidence into their own folder');
+select t.fails($$ insert into storage.objects (bucket_id, name) values ('return-evidence', '00000000-0000-0000-0000-00000000000a/evidence1.png') $$, 'row-level security', 'customer cannot upload into another folder');
+insert into rt values ('req', create_return_request((select v from rt where k='x'), 'damaged', 'Box was crushed', 'refund',
+   jsonb_build_array(jsonb_build_object('order_item_id', (select id from x_items), 'quantity', 1)), array['00000000-0000-0000-0000-00000000000b/evidence1.png']));
+select t.ok((select status = 'requested' and items_refund = (select price_at_purchase from x_items) and store_id is not null from return_requests where id = (select v from rt where k='req')), 'request is saved as requested with the refund taken from the order price');
+select t.ok((select count(*) from return_request_events where request_id = (select v from rt where k='req')) = 1, 'a timeline event is recorded');
+select t.fails($$ select create_return_request((select v from rt where k='x'), 'missing_item', 'Another problem here', 'refund',
+   jsonb_build_array(jsonb_build_object('order_item_id', (select id from x_items), 'quantity', 1)), '{}') $$, 'unique', 'only one live request per store order');
+select t.fails($$ update return_requests set status = 'completed' $$, 'permission denied', 'customers cannot edit requests directly');
+select t.fails($$ select respond_return_request((select v from rt where k='req'), 'approve') $$, 'Not allowed', 'a customer cannot approve their own request');
+reset role;
+select t.as_user('00000000-0000-0000-0000-00000000000a');
+select t.ok((select count(*) from return_requests) = 0 and (select count(*) from return_request_items) = 0, 'other customers cannot see the request');
+select t.ok((select count(*) from storage.objects where bucket_id = 'return-evidence') = 0, 'other customers cannot see the evidence photo');
+reset role;
+select t.as_user('00000000-0000-0000-0000-0000000000e1');
+select t.ok((select count(*) from return_requests) = 1 and (select count(*) from return_request_photos) = 1, 'the store sees the request and its photos');
+select t.ok((select count(*) from storage.objects where name = '00000000-0000-0000-0000-00000000000b/evidence1.png') = 1, 'the store can open the evidence photo');
+select t.fails($$ select respond_return_request((select v from rt where k='req'), 'reject', 'no') $$, 'short reason', 'rejecting needs a reason');
+select respond_return_request((select v from rt where k='req'), 'reject', 'The photo shows normal packaging.');
+select t.ok((select status = 'rejected' and store_note is not null from return_requests where id = (select v from rt where k='req')), 'store can reject with a reason');
+reset role;
+select t.as_user('00000000-0000-0000-0000-00000000000b');
+select t.fails($$ select create_return_request((select v from rt where k='x'), 'missing_item', 'Another problem here', 'refund',
+   jsonb_build_array(jsonb_build_object('order_item_id', (select id from x_items), 'quantity', 1)), '{}') $$, 'escalate it', 'after a rejection the customer must escalate instead of re-filing');
+select escalate_return_request((select v from rt where k='req'), 'Please review the photo again.');
+select t.ok((select status = 'escalated' from return_requests where id = (select v from rt where k='req')), 'customer can escalate a rejection');
+select t.fails($$ select escalate_return_request((select v from rt where k='req')) $$, 'Only a request declined', 'escalation happens only once');
+reset role;
+select t.as_user('00000000-0000-0000-0000-0000000000e1');
+select t.fails($$ select respond_return_request((select v from rt where k='req'), 'approve') $$, 'LOOKBAN is reviewing', 'the store cannot decide once it is escalated');
+reset role;
+select t.as_user('00000000-0000-0000-0000-0000000000ad');
+select respond_return_request((select v from rt where k='req'), 'approve', 'Photo confirms damage.', 'refund', true);
+select t.ok((select status = 'approved' and resolution = 'refund'
+              and shipping_refund = (select shipping_fee from store_orders where id = (select v from rt where k='x'))
+              and refund_amount = items_refund + shipping_refund from return_requests where id = (select v from rt where k='req')), 'admin decides an escalated request; refund = items + shipping from the order');
+reset role;
+select t.as_user('00000000-0000-0000-0000-0000000000e1');
+select t.fails($$ select complete_return_request((select v from rt where k='req')) $$, 'refund reference', 'completing a refund needs a reference');
+select complete_return_request((select v from rt where k='req'), 'GCASH-123456');
+reset role;
+select t.ok((select status = 'completed' and refund_reference = 'GCASH-123456' from return_requests where id = (select v from rt where k='req')), 'request is completed with the reference');
+select t.ok((select refunded_amount = (select refund_amount from return_requests where id = (select v from rt where k='req')) from store_orders where id = (select v from rt where k='x')), 'refunded amount is added to the store order');
+select t.ok((select c.amount = round(greatest(so.subtotal - (select items_refund from return_requests where id = (select v from rt where k='req')), 0) * c.rate / 100, 2)
+               from store_order_commissions c join store_orders so on so.id = c.store_order_id where so.id = (select v from rt where k='x')), 'commission is recalculated on what stayed sold');
+select t.as_user('00000000-0000-0000-0000-00000000000b');
+select t.ok(return_deadline((select v from rt where k='x')) > now() - interval '1 minute', 'customer can read the return deadline of their delivered order');
+reset role;
+select t.as_user('00000000-0000-0000-0000-00000000000a');
+select t.ok(return_deadline((select v from rt where k='x')) is null, 'another customer gets no deadline');
+reset role;
+-- window and withdraw
+update store_order_commissions set earned_at = now() - interval '10 days' where store_order_id = (select v from rt where k='y');
+select t.as_user('00000000-0000-0000-0000-00000000000b');
+select t.fails($$ select create_return_request((select v from rt where k='y'), 'other', 'Changed my mind later', 'refund',
+   (select jsonb_build_array(jsonb_build_object('order_item_id', oi.id, 'quantity', 1)) from order_items oi where oi.store_order_id = (select v from rt where k='y') limit 1), '{}') $$, 'return window', 'requests after the return window are refused');
+reset role;
+update store_order_commissions set earned_at = now() where store_order_id = (select v from rt where k='y');
+select t.as_user('00000000-0000-0000-0000-00000000000b');
+insert into rt values ('req2', create_return_request((select v from rt where k='y'), 'other', 'Changed my mind later', 'replacement',
+   (select jsonb_build_array(jsonb_build_object('order_item_id', oi.id, 'quantity', 1)) from order_items oi where oi.store_order_id = (select v from rt where k='y') limit 1), '{}'));
+select cancel_return_request((select v from rt where k='req2'));
+select t.ok((select status = 'cancelled' from return_requests where id = (select v from rt where k='req2')), 'customer can withdraw a waiting request');
+select t.ok(create_return_request((select v from rt where k='y'), 'other', 'Changed my mind again', 'replacement',
+   (select jsonb_build_array(jsonb_build_object('order_item_id', oi.id, 'quantity', 1)) from order_items oi where oi.store_order_id = (select v from rt where k='y') limit 1), '{}') is not null, 'after withdrawing, a new request is allowed');
+reset role;
+
 -- ---------- 0016 · My Account ----------
 reset role;
 insert into auth.users (id, email, raw_user_meta_data) values

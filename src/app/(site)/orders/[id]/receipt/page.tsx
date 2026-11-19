@@ -32,17 +32,17 @@ export default async function ReceiptPage({ params, searchParams }: Props) {
   return (
     <div className="mx-auto max-w-3xl px-4 py-8 print:max-w-none print:p-0">
       <div className="no-print mb-6 flex flex-wrap items-center justify-between gap-3">
-        <Link href={`/orders/${order.id}${viaToken ? `?t=${t}` : ""}`} className="inline-flex items-center gap-1.5 font-semibold text-blue pop hover:text-orange"><ArrowLeft className="size-4" aria-hidden /> Back to Order</Link>
+        <Link href={`/orders/${order.id}${viaToken ? `?t=${t}` : ""}`} className="inline-flex items-center gap-1.5 font-semibold text-brand pop hover:text-orange"><ArrowLeft className="size-4" aria-hidden /> Back to Order</Link>
         <PrintButton />
       </div>
 
-      <article className="rounded-xl border border-line bg-white p-8 print:rounded-none print:border-0 print:p-0" aria-label={`Receipt ${order.receipt_no}`}>
+      <article data-theme="light" className="rounded-xl border border-line bg-surface p-8 print:rounded-none print:border-0 print:p-0" aria-label={`Receipt ${order.receipt_no}`}>
         <header className="flex flex-wrap items-start justify-between gap-4 border-b-2 border-blue pb-5 print:pb-3">
           <div>
             <Image src="/brand/lookban-logo.png" alt="LOOKBAN - local finds, lucban pride" width={170} height={74} />
           </div>
           <div className="text-right text-sm">
-            <p className="font-heading text-2xl font-bold tracking-tighter text-blue">Official receipt</p>
+            <p className="font-heading text-2xl font-bold tracking-tighter text-brand">Official receipt</p>
             <p><span className="text-muted">Receipt no.</span> <strong>{order.receipt_no}</strong></p>
             <p className="break-all"><span className="text-muted">Order ID</span> {order.id}</p>
             <p><span className="text-muted">Date</span> {formatDateTime(order.created_at)}</p>
@@ -65,7 +65,7 @@ export default async function ReceiptPage({ params, searchParams }: Props) {
         {order.store_orders.map((so) => (
           <section key={so.id} className="mt-6 break-inside-avoid print:mt-4">
             <div className="flex flex-wrap items-baseline justify-between gap-2 rounded-t-lg bg-blue-50 px-3 py-2">
-              <h2 className="!font-sans text-base font-bold text-blue">{so.store_name}{so.fulfillment_status === "cancelled" && <span className="ml-2 text-sm font-semibold text-red-700">(Cancelled)</span>}</h2>
+              <h2 className="!font-sans text-base font-bold text-brand">{so.store_name}{so.fulfillment_status === "cancelled" && <span className="ml-2 text-sm font-semibold text-red-700">(Cancelled)</span>}</h2>
               <p className="text-xs text-muted">{[so.store_address, so.store_phone].filter(Boolean).join(" · ")}</p>
             </div>
             <table className="w-full table-fixed text-sm">
@@ -106,7 +106,7 @@ export default async function ReceiptPage({ params, searchParams }: Props) {
           <dl className="space-y-1">
             <div className="flex justify-between"><dt>Items subtotal{hasCancelled && " (cancelled stores excluded)"}</dt><dd>{formatPeso(order.subtotal)}</dd></div>
             <div className="flex justify-between"><dt>Shipping fees</dt><dd>{formatPeso(order.shipping_total)}</dd></div>
-            <div className="flex justify-between border-t border-line pt-2 text-xl font-bold text-blue"><dt>Total</dt><dd>{formatPeso(order.total)}</dd></div>
+            <div className="flex justify-between border-t border-line pt-2 text-xl font-bold text-brand"><dt>Total</dt><dd>{formatPeso(order.total)}</dd></div>
           </dl>
         </section>
 

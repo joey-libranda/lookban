@@ -20,7 +20,7 @@ export default async function VendorAccount({ searchParams }: { searchParams: Pr
   const storeState = store.status === "approved" ? "Open to customers" : store.status === "pending" ? "Waiting for approval" : "Suspended";
 
   return (
-    <div className="max-w-4xl">
+    <div className="w-full">
       <AccountShell profile={profile} base="/vendor/account" tabs={TABS} active={active} horizontal>
         {active === "overview" && d && (
           <>

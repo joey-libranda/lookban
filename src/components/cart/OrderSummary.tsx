@@ -12,7 +12,7 @@ export function OrderSummary({ cart, children }: { cart: CartTotals; children?: 
           <dt>Shipping ({cart.groups.length} {cart.groups.length === 1 ? "store" : "stores"})</dt>
           <dd>{formatPeso(cart.shipping)}</dd>
         </div>
-        <div className="flex justify-between border-t border-line pt-3 text-lg font-bold text-blue">
+        <div className="flex justify-between border-t border-line pt-3 text-lg font-bold text-brand">
           <dt>Total</dt><dd>{formatPeso(cart.total)}</dd>
         </div>
       </dl>

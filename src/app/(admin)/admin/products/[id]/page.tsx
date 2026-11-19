@@ -30,8 +30,8 @@ export default async function EditProduct({ params, searchParams }: { params: Pr
   }
 
   return (
-    <div className="max-w-3xl space-y-6">
-      <Link href="/admin/products" className="text-sm font-semibold text-blue pop hover:text-orange">← Products</Link>
+    <div className="space-y-6">
+      <Link href="/admin/products" className="text-sm font-semibold text-brand pop hover:text-orange">← Products</Link>
       {(() => {
         const approval = (product.approval_status ?? "approved") as "approved" | "pending" | "rejected";
         const storeName = stores.find((s) => s.id === product.store_id)?.name ?? "The store";
@@ -50,6 +50,8 @@ export default async function EditProduct({ params, searchParams }: { params: Pr
       })()}
       {created && <FlashToast text="Product created. Add its photos below." />}
 
+      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+        <div className="space-y-6">
       <section className="card p-5" aria-labelledby="photos">
         <h2 id="photos" className="text-2xl">Photos</h2>
         <p className="mt-1 text-sm text-muted">The first (cover) photo appears in the shop. Without a photo, customers see a Photo coming soon tile.</p>
@@ -61,11 +63,11 @@ export default async function EditProduct({ params, searchParams }: { params: Pr
                   <SafeImage src={img.url} alt={img.alt ?? product.name} sizes="200px" />
                   {img.is_primary && <span className="absolute left-2 top-2 rounded-full bg-blue px-2 py-0.5 text-xs font-semibold text-white">Cover</span>}
                 </div>
-                <div className="flex flex-wrap gap-2 text-sm">
+                <div className="flex flex-wrap items-center gap-2">
                   {!img.is_primary && (
-                    <form action={setPrimaryImageAction.bind(null, id, img.id)}><button className="font-semibold text-blue pop hover:text-orange">Make Cover</button></form>
+                    <form action={setPrimaryImageAction.bind(null, id, img.id)}><button className="btn-outline !px-3 !py-1.5 text-sm">Make Cover</button></form>
                   )}
-                  <ConfirmButton className="text-sm font-semibold text-red-700 pop hover:text-red-900" confirm="Delete this photo?" action={deleteProductImageAction.bind(null, id, img.id)}>Delete</ConfirmButton>
+                  <ConfirmButton className="btn border-2 border-red-700 !px-3 !py-1.5 text-sm text-red-700 hover:bg-red-50" confirm="Remove this photo?" action={deleteProductImageAction.bind(null, id, img.id)}>Remove</ConfirmButton>
                 </div>
               </li>
             ))}
@@ -77,16 +79,18 @@ export default async function EditProduct({ params, searchParams }: { params: Pr
         </div>
       </section>
 
-      <section className="card p-5" aria-labelledby="details">
-        <h2 id="details" className="mb-4 text-2xl">Details</h2>
-        <ProductForm action={saveProductAction.bind(null, id)} product={product} stores={stores} categories={categories} submitLabel="Save Changes" />
-      </section>
-
       <section className="card border-red-200 p-5">
         <h2 className="text-xl">Remove Product</h2>
         <p className="mt-1 text-sm text-muted">Archiving hides it from the shop but keeps order history. Products already ordered can only be archived.</p>
         <div className="mt-3"><ConfirmButton action={remove} confirm="Permanently delete this product and its photos?" className="btn border-2 border-red-700 text-red-700 hover:bg-red-50">Delete Product</ConfirmButton></div>
       </section>
+        </div>
+      <section className="card p-5" aria-labelledby="details">
+        <h2 id="details" className="mb-4 text-2xl">Details</h2>
+        <ProductForm action={saveProductAction.bind(null, id)} product={product} stores={stores} categories={categories} submitLabel="Save Changes" />
+      </section>
+
+      </div>
     </div>
   );
 }

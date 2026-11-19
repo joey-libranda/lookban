@@ -21,10 +21,11 @@ export const LEGAL: Record<LegalKey, LegalDoc> = {
   ] },
   returns: { title: "Return & Refund Policy", updated: "November 2026", sections: [
     ["Food products", ["Most LOOKBAN products are fresh or perishable food, so we cannot accept returns just because of a change of mind. Please check the product details, variant and quantity before ordering."]],
-    ["Problems with your order", ["If your order arrives damaged, spoiled, incorrect or incomplete, contact us as soon as possible, ideally on the day it is delivered, with your receipt number and clear photos of the item and its packaging."]],
-    ["What we can do", ["Depending on the problem, the store may replace the item or refund the amount for the affected item. We will confirm the outcome with you after reviewing your report."]],
+    ["Problems with your order", ["If your order arrives damaged, spoiled, incorrect or incomplete, you can send a return request from your order page within 3 days after it is marked as delivered. You need to be signed in. Choose the items, tell us what went wrong and add clear photos of the item and its packaging (photos are required for damaged, wrong or not-as-described items)."]],
+    ["How a request is reviewed", ["The store reviews your request first and may approve a refund, approve a replacement, or decline with a reason. If the store declines, you can ask LOOKBAN to review it once. LOOKBAN's decision is final."]],
+    ["What we can do", ["Depending on the problem, the store may replace the item or refund the amount for the affected items, and sometimes the shipping fee. Your photos are private and are seen only by you, the store and LOOKBAN."]],
     ["Cancellations", ["You can ask to cancel an order before the store starts preparing it. Contact us with your receipt number. Orders that are already being prepared or are out for delivery may not be cancelled."]],
-    ["Refunds", ["Cash-on-delivery orders that qualify for a refund are refunded through an arrangement agreed with you. Refunds apply only to the affected items, not to the whole order."]],
+    ["Refunds", ["Approved refunds are sent by the store or LOOKBAN outside the website (for example by GCash or bank transfer) and then recorded on your request with a reference. LOOKBAN does not move money automatically. Refunds apply only to the affected items, not to the whole order."]],
     ["How to reach us", ["Use the details on the Contact page. Please include your receipt number and phone number so we can find your order quickly."]],
   ] },
 };

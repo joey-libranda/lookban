@@ -24,8 +24,8 @@ export default async function VendorOrderDetail({ params }: { params: Promise<{ 
   const cod = o.payment_method === "cod";
 
   return (
-    <div className="max-w-3xl space-y-6">
-      <Link href="/vendor/orders" className="text-sm font-semibold text-blue pop hover:text-orange">← Orders</Link>
+    <div className="max-w-5xl space-y-6">
+      <Link href="/vendor/orders" className="text-sm font-semibold text-brand pop hover:text-orange">← Orders</Link>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div><h1 className="text-4xl">{o.receipt_no}</h1><p className="text-muted">Placed {formatDateTime(o.created_at)}</p></div>
         <StatusBadge status={so.fulfillment_status} />

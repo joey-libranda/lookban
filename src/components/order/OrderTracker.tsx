@@ -27,10 +27,10 @@ export function OrderTracker({ status, compact }: { status: FulfillmentStatus; c
         return (
           <li key={s.status} aria-current={now ? "step" : undefined} className="relative flex flex-col items-center text-center">
             {i < STEPS.length - 1 && (
-              <span aria-hidden className={`absolute left-1/2 top-3.5 h-0.5 w-[calc(100%+0.25rem)] -translate-y-1/2 ${i < current ? "bg-green-700" : "bg-line"}`} />
+              <span aria-hidden className={`absolute left-1/2 top-3.5 h-0.5 w-[calc(100%+0.25rem)] -translate-y-1/2 ${i < current ? "bg-success" : "bg-line"}`} />
             )}
             <span className={`relative z-10 flex size-7 items-center justify-center rounded-full border-2 text-xs font-bold
-              ${done || (now && status === "delivered") ? "border-green-700 bg-green-700 text-white" : now ? "border-orange bg-orange text-white" : "border-line bg-white text-muted"}`}>
+              ${done || (now && status === "delivered") ? "border-success bg-success text-white" : now ? "border-orange bg-orange text-white" : "border-line bg-surface text-muted"}`}>
               {done || (now && status === "delivered") ? <Check className="size-4" aria-hidden /> : i + 1}
             </span>
             <span className={`mt-1.5 leading-tight ${now ? "font-bold text-ink" : done ? "text-ink" : "text-muted"}`}>

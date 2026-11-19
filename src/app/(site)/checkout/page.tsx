@@ -38,7 +38,7 @@ export default async function CheckoutPage() {
           <OrderSummary cart={cart} />
           {cart.groups.map((g) => (
             <section key={g.storeId} className="card p-4 text-sm" aria-label={`Items from ${g.storeName}`}>
-              <h3 className="!font-sans text-base font-bold text-blue">{g.storeName}</h3>
+              <h3 className="!font-sans text-base font-bold text-brand">{g.storeName}</h3>
               <ul className="mt-2 space-y-1.5">
                 {g.lines.map((l) => (
                   <li key={l.itemId} className="flex justify-between gap-3">
@@ -50,7 +50,7 @@ export default async function CheckoutPage() {
               <p className="mt-2 flex justify-between border-t border-line pt-2 text-muted"><span>Shipping</span><span>{formatPeso(g.shippingFee)}</span></p>
             </section>
           ))}
-          <p className="text-center text-sm"><Link href="/cart" className="font-semibold text-blue pop hover:text-orange">Edit cart</Link></p>
+          <p className="text-center text-sm"><Link href="/cart" className="font-semibold text-brand pop hover:text-orange">Edit cart</Link></p>
         </div>
       </div>
     </div>

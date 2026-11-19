@@ -9,10 +9,12 @@ export const metadata: Metadata = { title: "Categories · Admin" };
 export default async function AdminCategories() {
   const cats = await getAdminCategoryOptions();
   return (
-    <div className="max-w-3xl space-y-5">
+    <div className="space-y-5">
       <h1 className="text-4xl">Categories</h1>
+      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
       <section className="card p-5"><h2 className="mb-3 text-2xl">Add Category</h2>
         <CategoryForm action={saveCategoryAction.bind(null, null)} submitLabel="Add Category" /></section>
+      <div className="space-y-4">
       {cats.map((c) => (
         <details key={c.id} className="card p-5">
           <summary className="flex cursor-pointer flex-wrap items-center justify-between gap-2 font-semibold">
@@ -25,6 +27,8 @@ export default async function AdminCategories() {
           </div>
         </details>
       ))}
+      </div>
+      </div>
     </div>
   );
 }

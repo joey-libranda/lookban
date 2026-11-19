@@ -38,18 +38,18 @@ export function CompareTable({ group, currentId }: { group: ProductGroup; curren
               const u = units[i];
               const isLowestUnit = comparable && u && Math.abs(u.value - lowestUnit!) < 1e-9;
               return (
-                <tr key={p.id} className={`align-middle ${p.id === currentId ? "bg-yellow/40" : ""}`}>
+                <tr key={p.id} className={`align-middle ${p.id === currentId ? "bg-sun/40" : ""}`}>
                   <td className="px-5 py-3 font-semibold">
-                    <Link href={`/stores/${p.store.slug}`} className="text-blue pop hover:text-orange">{p.store.name}</Link>
+                    <Link href={`/stores/${p.store.slug}`} className="text-brand pop hover:text-orange">{p.store.name}</Link>
                   </td>
                   <td className="px-3 py-3">{p.variant_label || "-"}</td>
                   <td className="px-3 py-3 text-muted">{[p.weight, p.quantity_per_pack].filter(Boolean).join(" - ") || "-"}</td>
                   <td className="px-3 py-3 text-right">
                     {p.price === lowestPrice && group.items.length > 1 && (
-                      <span className="whitespace-nowrap rounded-full bg-yellow px-2 py-0.5 text-[11px] font-bold text-ink">Lowest</span>
+                      <span className="whitespace-nowrap rounded-full bg-yellow px-2 py-0.5 text-[11px] font-bold text-dark">Lowest</span>
                     )}
                   </td>
-                  <td className="px-3 py-3 text-right font-extrabold text-blue">{formatPeso(p.price)}</td>
+                  <td className="px-3 py-3 text-right font-extrabold text-brand">{formatPeso(p.price)}</td>
                   {comparable && (
                     <td className="px-3 py-3 text-right">
                       {isLowestUnit && <span className="whitespace-nowrap rounded-full bg-green-50 px-2 py-0.5 text-[11px] font-bold text-green-800">Best value</span>}

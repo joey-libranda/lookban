@@ -16,8 +16,8 @@ export default async function MessageThread({ params }: { params: Promise<{ id: 
   if (!m) notFound();
 
   return (
-    <div className="max-w-3xl space-y-5">
-      <Link href="/admin/messages" className="text-sm font-semibold text-blue pop hover:text-orange">← Messages</Link>
+    <div className="max-w-4xl space-y-5">
+      <Link href="/admin/messages" className="text-sm font-semibold text-brand pop hover:text-orange">← Messages</Link>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <h1 className="text-3xl">{m.subject}</h1>

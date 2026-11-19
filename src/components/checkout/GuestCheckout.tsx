@@ -34,7 +34,7 @@ export function GuestCheckout() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
       <h1 className="text-4xl">Checkout</h1>
-      <p className="mt-2 rounded-lg bg-yellow/60 p-3 text-sm">
+      <p className="mt-2 rounded-lg bg-sun/60 p-3 text-sm">
         Checking out as a guest. <Link href="/login?next=/checkout" className="font-semibold pop hover:opacity-70">Log in</Link> or <Link href="/register?next=/checkout" className="font-semibold pop hover:opacity-70">register</Link>{" "}
         instead to have your details filled in and your orders saved. After you order you&apos;ll get a tracking link - keep your receipt number.
       </p>
@@ -44,7 +44,7 @@ export function GuestCheckout() {
           <OrderSummary cart={cart} />
           {cart.groups.map((g) => (
             <section key={g.storeId} className="card p-4 text-sm" aria-label={`Items from ${g.storeName}`}>
-              <h3 className="!font-sans text-base font-bold text-blue">{g.storeName}</h3>
+              <h3 className="!font-sans text-base font-bold text-brand">{g.storeName}</h3>
               <ul className="mt-2 space-y-1.5">
                 {g.lines.map((l) => (
                   <li key={l.itemId} className="flex justify-between gap-3">
@@ -56,7 +56,7 @@ export function GuestCheckout() {
               <p className="mt-2 flex justify-between border-t border-line pt-2 text-muted"><span>Shipping</span><span>{formatPeso(g.shippingFee)}</span></p>
             </section>
           ))}
-          <p className="text-center text-sm"><Link href="/cart" className="font-semibold text-blue pop hover:text-orange">Edit cart</Link></p>
+          <p className="text-center text-sm"><Link href="/cart" className="font-semibold text-brand pop hover:text-orange">Edit cart</Link></p>
         </div>
       </div>
     </div>

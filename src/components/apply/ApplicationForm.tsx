@@ -33,8 +33,8 @@ export function ApplicationForm({ userId, defaults = {} }: { userId: string; def
   const fileField = (k: "permit" | "registration" | "sanitary", label: string, required: boolean, hint: string) => (
     <div>
       <p className="label">{label}{required ? "" : " (optional)"}</p>
-      <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-dashed border-line bg-white px-3 py-3 hover:bg-blue-50">
-        <FileCheck2 className="size-5 shrink-0 text-blue" aria-hidden />
+      <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-dashed border-line bg-surface px-3 py-3 hover:bg-blue-50">
+        <FileCheck2 className="size-5 shrink-0 text-brand" aria-hidden />
         <span className="min-w-0 flex-1 truncate text-sm">{names[k] ?? <span className="text-muted">{hint}</span>}</span>
         <span className="btn-outline !px-3 !py-1 !text-sm">{names[k] ? "Change" : "Choose File"}</span>
         <input type="file" accept="application/pdf,image/jpeg,image/png,image/webp" className="sr-only"
@@ -124,7 +124,7 @@ export function ApplicationForm({ userId, defaults = {} }: { userId: string; def
       <fieldset className="space-y-4">
         <legend className="mb-1 text-2xl">Proof of Business</legend>
         <p className="flex items-start gap-2 rounded-lg bg-blue-50 p-3 text-sm text-ink">
-          <ShieldCheck className="mt-0.5 size-4 shrink-0 text-blue" aria-hidden />
+          <ShieldCheck className="mt-0.5 size-4 shrink-0 text-brand" aria-hidden />
           Your documents are stored privately and can only be opened by LOOKBAN administrators. We use them only to verify your business.
         </p>
         <div className="grid gap-4 sm:grid-cols-2">

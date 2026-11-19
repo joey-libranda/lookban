@@ -9,8 +9,8 @@ export const metadata: Metadata = { title: "Add product · Admin" };
 export default async function NewProduct() {
   const [stores, categories] = await Promise.all([getAdminStoreOptions(), getAdminCategoryOptions()]);
   return (
-    <div className="max-w-3xl space-y-5">
-      <Link href="/admin/products" className="text-sm font-semibold text-blue pop hover:text-orange">← Products</Link>
+    <div className="max-w-4xl space-y-5">
+      <Link href="/admin/products" className="text-sm font-semibold text-brand pop hover:text-orange">← Products</Link>
       <h1 className="text-4xl">Add Product</h1>
       <p className="text-muted">Save the product first, then you can upload its photos.</p>
       {stores.length === 0 ? <p className="card p-5">Create a store first under Stores.</p> : (

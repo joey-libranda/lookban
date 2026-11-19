@@ -45,7 +45,7 @@ export default async function CartPage() {
               </div>
               <ul className="divide-y divide-line">{g.lines.map((l) => <CartLineRow key={l.itemId} line={l} />)}</ul>
               <p className="border-t border-line pt-3 text-right text-sm">
-                Store subtotal <span className="font-bold text-blue">{formatPeso(g.subtotal)}</span>
+                Store subtotal <span className="font-bold text-brand">{formatPeso(g.subtotal)}</span>
               </p>
             </section>
           ))}

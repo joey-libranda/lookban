@@ -13,7 +13,7 @@ export default async function MyOrdersPage() {
   await requireUser("/account/orders");
   const orders = await getMyOrders();
   return (
-    <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-4xl">My Orders</h1>
         <Link href="/account" className="btn-outline !py-2"><ArrowLeft className="size-4" aria-hidden /> My Account</Link>
@@ -33,9 +33,9 @@ export default async function MyOrdersPage() {
               </div>
               <div className="flex items-center gap-4">
                 <StatusBadge status={o.status} />
-                <span className="font-bold text-blue">{formatPeso(o.total)}</span>
-                <Link href={`/orders/${o.id}`} className="font-semibold text-blue pop hover:text-orange">Details</Link>
-                <Link href={`/orders/${o.id}/receipt`} className="font-semibold text-blue pop hover:text-orange">Receipt</Link>
+                <span className="font-bold text-brand">{formatPeso(o.total)}</span>
+                <Link href={`/orders/${o.id}`} className="font-semibold text-brand pop hover:text-orange">Details</Link>
+                <Link href={`/orders/${o.id}/receipt`} className="font-semibold text-brand pop hover:text-orange">Receipt</Link>
               </div>
             </li>
           ))}

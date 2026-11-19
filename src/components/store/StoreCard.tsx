@@ -25,7 +25,7 @@ export function StoreCard({ s }: { s: StoreData }) {
       <div className="flex flex-1 flex-col px-4 pb-4">
         <p className="mb-3 line-clamp-2 min-h-10 text-sm text-ink/80">{s.description}</p>
         <div className="mt-auto flex items-center justify-between border-t border-line pt-3 text-sm">
-          <span className="font-semibold text-blue">{s.product_count} {s.product_count === 1 ? "product" : "products"}</span>
+          <span className="font-semibold text-brand">{s.product_count} {s.product_count === 1 ? "product" : "products"}</span>
           <span className="flex items-center gap-2">
             <span className={s.is_open ? "text-green-800" : "text-muted"}>{s.is_open ? "Open" : "Closed"}</span>
           </span>

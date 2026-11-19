@@ -16,5 +16,5 @@ export function docStatus(expiry: string | null | undefined): DocStatus {
 
 export const DOC_STATUS_LABEL: Record<DocStatus, string> = { missing: "Not on File", expired: "Expired", expiring: "Expiring Soon", valid: "Verified" };
 export const DOC_STATUS_TONE: Record<DocStatus, string> = {
-  missing: "bg-red-100 text-red-800", expired: "bg-red-100 text-red-800", expiring: "bg-yellow text-ink", valid: "bg-green-100 text-green-900",
+  missing: "bg-red-100 text-red-800", expired: "bg-red-100 text-red-800", expiring: "bg-yellow text-dark", valid: "bg-green-100 text-green-900",
 };

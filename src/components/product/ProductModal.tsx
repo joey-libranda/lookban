@@ -76,9 +76,9 @@ function ModalShell({ slug, onClose }: { slug: string; onClose: () => void }) {
     <div className="no-print fixed inset-0 z-[60] flex items-end justify-center sm:items-center sm:p-6">
       <div className="absolute inset-0 bg-gray-900/55" onClick={onClose} aria-hidden />
       <div ref={box} role="dialog" aria-modal="true" aria-label={title} tabIndex={-1}
-           className="relative flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-t-2xl bg-white shadow-2xl outline-none sm:rounded-2xl">
+           className="relative flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-t-2xl bg-surface shadow-2xl outline-none sm:rounded-2xl">
         <button type="button" onClick={onClose} aria-label="Close"
-                className="absolute right-3 top-3 z-10 flex size-7 items-center justify-center rounded-full bg-white/95 text-ink shadow transition hover:scale-110 hover:bg-line">
+                className="absolute right-3 top-3 z-10 flex size-7 items-center justify-center rounded-full bg-surface/95 text-ink shadow transition hover:scale-110 hover:bg-line">
           <X className="size-4" aria-hidden />
         </button>
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
@@ -158,7 +158,7 @@ function ModalBody({ data, slug }: { data: ProductModalData; slug: string }) {
                 return (
                   <button key={x.id} type="button" role="radio" aria-checked={on} onClick={() => setSelectedId(x.id)}
                           className={`w-full rounded-md border px-3 py-1.5 text-left text-[13px] font-semibold transition
-                            ${on ? "border-orange bg-orange text-white" : "border-line bg-white text-ink hover:border-orange"} ${out && !on ? "opacity-60" : ""}`}>
+                            ${on ? "border-orange bg-orange text-white" : "border-line bg-surface text-ink hover:border-orange"} ${out && !on ? "opacity-60" : ""}`}>
                     {x.variant_label || "Regular"} - {formatPeso(x.price)}{out ? " (Sold out)" : ""}
                   </button>
                 );
@@ -184,7 +184,7 @@ function ModalBody({ data, slug }: { data: ProductModalData; slug: string }) {
 
         <div className="mt-3">
           <AddToCartButton key={v.id} productId={v.id} stock={v.stock} disabled={!a.canBuy} withQuantity
-            priceSlot={(qty: number) => <Price price={times(v.price, qty)} compareAt={v.compare_at_price ? times(v.compare_at_price, qty) : null} className="text-3xl font-bold text-blue" />} />
+            priceSlot={(qty: number) => <Price price={times(v.price, qty)} compareAt={v.compare_at_price ? times(v.compare_at_price, qty) : null} className="text-3xl font-bold text-brand" />} />
         </div>
 
           </div>

@@ -59,7 +59,7 @@ export function GuestCart() {
     <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
       <h1 className="text-4xl">Your cart</h1>
       <p className="mt-1 text-muted">Items are grouped by store. Each store prepares and ships its own part of your order.</p>
-      <p className="mt-4 rounded-lg bg-yellow/60 p-3 text-sm">
+      <p className="mt-4 rounded-lg bg-sun/60 p-3 text-sm">
         You&apos;re shopping without an account, so this cart is <strong>only kept until you close this tab</strong>.{" "}
         <Link href="/login?next=/cart" className="font-semibold pop hover:opacity-70">Log in</Link> or <Link href="/register?next=/cart" className="font-semibold pop hover:opacity-70">register</Link> to save it,
         fill in your details faster and keep your order history.
@@ -83,7 +83,7 @@ export function GuestCart() {
                     }} />
                   ))}
                 </ul>
-                <p className="border-t border-line pt-3 text-right text-sm">Store subtotal <span className="font-bold text-blue">{formatPeso(g.subtotal)}</span></p>
+                <p className="border-t border-line pt-3 text-right text-sm">Store subtotal <span className="font-bold text-brand">{formatPeso(g.subtotal)}</span></p>
               </section>
             ))}
             {cart.unavailable.length > 0 && (

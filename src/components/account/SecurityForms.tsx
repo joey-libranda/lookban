@@ -66,7 +66,7 @@ export function DeleteAccountForm() {
       <TextInput placeholder="Your password" name="password" label="Your Password" type="password" autoComplete="current-password" error={errors.password} required />
       <TextInput placeholder="DELETE" name="confirm" label="Type DELETE to Confirm" autoComplete="off" error={errors.confirm} required />
       <div className="flex gap-3">
-        <button type="submit" className="btn bg-red-700 text-white hover:bg-red-800" disabled={pending}>{pending ? "Deleting…" : "Delete My Account"}</button>
+        <button type="submit" className="btn bg-danger text-white hover:bg-danger-700" disabled={pending}>{pending ? "Deleting…" : "Delete My Account"}</button>
         <button type="button" className="btn-outline" onClick={() => { setOpen(false); setErrors({}); }}>Keep My Account</button>
       </div>
     </form>

@@ -29,7 +29,7 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
-      <AccountShell profile={profile} base="/account" tabs={TABS} active={active} extraLinks={[{ href: "/account/orders", label: "My Orders" }]}>
+      <AccountShell profile={profile} base="/account" tabs={TABS} active={active} extraLinks={[{ href: "/account/orders", label: "My Orders" }, { href: "/account/returns", label: "My Returns" }]}>
         {active === "overview" && <Overview firstName={profile.full_name?.split(" ")[0] ?? "there"} />}
         {active === "profile" && <ProfileSection profile={profile} />}
         {active === "security" && <SecuritySection profile={profile} lastSignIn={user.last_sign_in_at} />}
@@ -52,7 +52,7 @@ async function Overview({ firstName }: { firstName: string }) {
       </div>
       <Section title="Recent Orders">
         {recent.length === 0 ? (
-          <p className="text-muted">You haven&apos;t placed any orders yet. <Link href="/shop" className="font-semibold text-blue pop hover:text-orange">Start Shopping</Link></p>
+          <p className="text-muted">You haven&apos;t placed any orders yet. <Link href="/shop" className="font-semibold text-brand pop hover:text-orange">Start Shopping</Link></p>
         ) : (
           <ul className="divide-y divide-line">
             {recent.map((r) => (
@@ -63,8 +63,8 @@ async function Overview({ firstName }: { firstName: string }) {
                 </div>
                 <div className="flex items-center gap-4">
                   <StatusBadge status={r.status} />
-                  <span className="font-bold text-blue">{formatPeso(r.total)}</span>
-                  <Link href={`/orders/${r.id}`} className="font-semibold text-blue pop hover:text-orange">Details</Link>
+                  <span className="font-bold text-brand">{formatPeso(r.total)}</span>
+                  <Link href={`/orders/${r.id}`} className="font-semibold text-brand pop hover:text-orange">Details</Link>
                 </div>
               </li>
             ))}

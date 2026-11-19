@@ -24,3 +24,10 @@ Things we deliberately left out of the school-project version. Each one is a rea
 
 10. **Permit expiry reminders.** Expiring and expired permits are flagged on the vendor dashboard and the admin store page, but nobody is emailed and stores are never suspended automatically. Add email reminders (30 and 7 days before) and an optional auto-suspend once real email exists.
 11. **Document history.** Old files replaced by an approved update are kept in storage but not listed anywhere; add a viewable history per store.
+
+## Returns and refunds
+
+12. **Guest returns.** Return requests need a signed-in customer; guest orders (tracking link) cannot send one yet.
+13. **Refund payments and email.** Refunds are recorded with a reference but the money is sent outside LOOKBAN, and nobody is emailed about decisions.
+14. **Automatic restocking and partial offers.** Stock is not restored when a return is approved, and a store cannot approve only some of the items or a different amount.
+15. **Return window setting screen.** The window (`return_window_days`, default 3) lives in the settings table; add a field for it in Admin Settings.

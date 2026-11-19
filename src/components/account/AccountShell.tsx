@@ -5,8 +5,8 @@ import type { Profile } from "@/types/db";
 
 export type AccountTab = { key: string; label: string };
 const ROLE: Record<Profile["role"], { label: string; tone: string }> = {
-  customer: { label: "Customer", tone: "bg-yellow text-ink" },
-  vendor: { label: "Vendor", tone: "bg-blue-50 text-blue" },
+  customer: { label: "Customer", tone: "bg-yellow text-dark" },
+  vendor: { label: "Vendor", tone: "bg-blue-50 text-brand" },
   admin: { label: "Administrator", tone: "bg-blue text-white" },
 };
 
@@ -41,7 +41,7 @@ export function AccountShell({ profile, base, tabs, active, extraLinks = [], hor
           <nav aria-label="My Account" className="flex flex-wrap gap-1 border-b border-line">
             {tabs.map((t) => (
               <Link key={t.key} href={t.key === tabs[0].key ? base : `${base}?tab=${t.key}`} aria-current={active === t.key ? "page" : undefined}
-                className={`-mb-px border-b-2 px-4 py-2.5 text-sm font-semibold pop ${active === t.key ? "border-orange text-blue" : "border-transparent text-muted hover:text-blue"}`}>{t.label}</Link>
+                className={`-mb-px border-b-2 px-4 py-2.5 text-sm font-semibold pop ${active === t.key ? "border-orange text-brand" : "border-transparent text-muted hover:text-brand"}`}>{t.label}</Link>
             ))}
           </nav>
           <div className="min-w-0 space-y-6">{children}</div>
@@ -51,11 +51,11 @@ export function AccountShell({ profile, base, tabs, active, extraLinks = [], hor
         <nav aria-label="My Account" className="flex flex-wrap gap-1 md:flex-col">
           {tabs.map((t) => (
             <Link key={t.key} href={t.key === tabs[0].key ? base : `${base}?tab=${t.key}`} aria-current={active === t.key ? "page" : undefined}
-              className={`${item} ${active === t.key ? "bg-blue text-white" : "text-blue hover:bg-blue-50"}`}>{t.label}</Link>
+              className={`${item} ${active === t.key ? "bg-blue text-white" : "text-brand hover:bg-blue-50"}`}>{t.label}</Link>
           ))}
           {extraLinks.length > 0 && <span className="hidden md:my-2 md:block md:border-t md:border-line" aria-hidden />}
           {extraLinks.map((l) => (
-            <Link key={l.href} href={l.href} className={`${item} flex items-center justify-between gap-2 text-blue hover:bg-blue-50`}>
+            <Link key={l.href} href={l.href} className={`${item} flex items-center justify-between gap-2 text-brand hover:bg-blue-50`}>
               {l.label} <ExternalLink className="size-3.5" aria-hidden />
             </Link>
           ))}

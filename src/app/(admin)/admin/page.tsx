@@ -11,7 +11,7 @@ function Stat({ label, value, note }: { label: string; value: string | number; n
   return (
     <div className="card p-4">
       <p className="text-sm font-semibold text-muted">{label}</p>
-      <p className="mt-1 text-2xl font-bold text-blue">{value}</p>
+      <p className="mt-1 text-2xl font-bold text-brand">{value}</p>
       {note && <p className="mt-0.5 text-xs text-muted">{note}</p>}
     </div>
   );
@@ -51,14 +51,14 @@ export default async function AdminHome() {
         <section aria-labelledby="recent" className="card p-5">
           <div className="flex items-center justify-between">
             <h2 id="recent" className="text-2xl">Recent Orders</h2>
-            <Link href="/admin/orders" className="text-sm font-semibold text-blue pop hover:text-orange">All orders</Link>
+            <Link href="/admin/orders" className="text-sm font-semibold text-brand pop hover:text-orange">All orders</Link>
           </div>
           {d.recent.length === 0 ? <p className="mt-3 text-muted">No orders yet.</p> : (
             <ul className="mt-3 divide-y divide-line">
               {d.recent.map((o) => (
                 <li key={o.id} className="flex flex-wrap items-center justify-between gap-2 py-2.5">
                   <div>
-                    <Link href={`/admin/orders/${o.id}`} className="font-semibold text-blue pop hover:text-orange">{o.receipt_no}</Link>
+                    <Link href={`/admin/orders/${o.id}`} className="font-semibold text-brand pop hover:text-orange">{o.receipt_no}</Link>
                     <p className="text-sm text-muted">{o.customer_name} · {formatDateTime(o.created_at)}</p>
                   </div>
                   <div className="flex items-center gap-3"><span className="font-semibold">{formatPeso(o.total)}</span><StatusBadge status={o.status} /></div>
@@ -74,7 +74,7 @@ export default async function AdminHome() {
             <ul className="mt-3 divide-y divide-line">
               {d.lowStock.map((p) => (
                 <li key={p.id} className="flex items-center justify-between gap-2 py-2.5 text-sm">
-                  <Link href={`/admin/products/${p.id}`} className="min-w-0 font-semibold text-blue pop hover:text-orange">
+                  <Link href={`/admin/products/${p.id}`} className="min-w-0 font-semibold text-brand pop hover:text-orange">
                     {p.name}{p.variant ? ` (${p.variant})` : ""}<span className="block font-normal text-muted">{p.store}</span>
                   </Link>
                   <span className={p.stock === 0 ? "font-bold text-red-700" : "font-bold"}>{p.stock} left</span>

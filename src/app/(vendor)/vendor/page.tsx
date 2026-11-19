@@ -14,11 +14,11 @@ function Stat({ label, value, note, href }: { label: string; value: string | num
   const body = (
     <>
       <p className="text-sm font-semibold text-muted">{label}</p>
-      <p className="mt-1 text-2xl font-bold text-blue">{value}</p>
+      <p className="mt-1 text-2xl font-bold text-brand">{value}</p>
       {note && <p className="mt-0.5 text-xs text-muted">{note}</p>}
     </>
   );
-  return href ? <Link href={href} className="card block p-4 hover:border-blue">{body}</Link> : <div className="card p-4">{body}</div>;
+  return href ? <Link href={href} className="card block p-4 hover:border-brand">{body}</Link> : <div className="card p-4">{body}</div>;
 }
 
 export default async function VendorHome() {
@@ -32,7 +32,7 @@ export default async function VendorHome() {
       </div>
 
       {store.status !== "approved" && (
-        <p role="status" className="rounded-lg bg-yellow/50 px-4 py-3 text-sm font-semibold">
+        <p role="status" className="rounded-lg bg-sun/50 px-4 py-3 text-sm font-semibold">
           Your store is currently {store.status === "pending" ? "waiting for approval" : "suspended"}, so customers can&apos;t see it. Contact LOOKBAN for details.
         </p>
       )}
@@ -40,7 +40,7 @@ export default async function VendorHome() {
       {d.pendingProducts > 0 && (
         <p role="status" className="rounded-lg bg-blue-50 px-4 py-3 text-sm">
           <span className="font-semibold">{d.pendingProducts} new product{d.pendingProducts === 1 ? " is" : "s are"} waiting for LOOKBAN&apos;s approval.</span> They will appear in the shop once approved.{" "}
-          <Link href="/vendor/products?status=pending" className="font-semibold text-blue pop hover:text-orange">View</Link>
+          <Link href="/vendor/products?status=pending" className="font-semibold text-brand pop hover:text-orange">View</Link>
         </p>
       )}
       {d.rejectedProducts > 0 && (
@@ -81,14 +81,14 @@ export default async function VendorHome() {
         <section aria-labelledby="recent" className="card p-5">
           <div className="flex items-center justify-between">
             <h2 id="recent" className="text-2xl">Recent Orders</h2>
-            <Link href="/vendor/orders" className="text-sm font-semibold text-blue pop hover:text-orange">All orders</Link>
+            <Link href="/vendor/orders" className="text-sm font-semibold text-brand pop hover:text-orange">All orders</Link>
           </div>
           {d.recent.length === 0 ? <p className="mt-3 text-muted">No orders yet.</p> : (
             <ul className="mt-3 divide-y divide-line">
               {d.recent.map((o) => (
                 <li key={o.id} className="flex flex-wrap items-center justify-between gap-2 py-2.5">
                   <div>
-                    <Link href={`/vendor/orders/${o.order_id}`} className="font-semibold text-blue pop hover:text-orange">{o.receipt_no}</Link>
+                    <Link href={`/vendor/orders/${o.order_id}`} className="font-semibold text-brand pop hover:text-orange">{o.receipt_no}</Link>
                     <p className="text-sm text-muted">{o.customer_name} · {formatDateTime(o.created_at)}</p>
                   </div>
                   <div className="flex items-center gap-3"><span className="font-semibold">{formatPeso(o.total)}</span><StatusBadge status={o.status} /></div>
@@ -103,7 +103,7 @@ export default async function VendorHome() {
             <ul className="mt-3 divide-y divide-line">
               {d.lowStock.map((p) => (
                 <li key={p.id} className="flex items-center justify-between gap-2 py-2.5 text-sm">
-                  <Link href={`/vendor/products/${p.id}`} className="font-semibold text-blue pop hover:text-orange">{p.name}{p.variant && <span className="font-normal text-muted"> ({p.variant})</span>}</Link>
+                  <Link href={`/vendor/products/${p.id}`} className="font-semibold text-brand pop hover:text-orange">{p.name}{p.variant && <span className="font-normal text-muted"> ({p.variant})</span>}</Link>
                   <span className={`font-bold ${p.stock === 0 ? "text-red-700" : "text-orange-600"}`}>{p.stock === 0 ? "Out" : `${p.stock} left`}</span>
                 </li>
               ))}

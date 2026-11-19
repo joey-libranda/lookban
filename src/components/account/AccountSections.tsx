@@ -21,9 +21,9 @@ export function Section({ title, hint, children, danger }: { title: string; hint
 /** A big number that links somewhere; used on every role's overview. */
 export function Tile({ label, value, note, href }: { label: string; value: number | string; note?: string; href: string }) {
   return (
-    <Link href={href} className="card block p-4 pop hover:border-blue">
+    <Link href={href} className="card block p-4 pop hover:border-brand">
       <p className="text-sm font-semibold text-muted">{label}</p>
-      <p className="mt-1 text-3xl font-bold text-blue">{value}</p>
+      <p className="mt-1 text-3xl font-bold text-brand">{value}</p>
       {note && <p className="mt-1 text-xs text-muted">{note}</p>}
     </Link>
   );
@@ -48,10 +48,11 @@ export function ProfileSection({ profile }: { profile: Profile }) {
 
 export function SecuritySection({ profile, lastSignIn }: { profile: Profile; lastSignIn?: string | null }) {
   return (
-    <>
+    <div className="grid items-start gap-5 lg:grid-cols-2">
       <Section title="Change Password">
         <PasswordForm />
       </Section>
+      <div className="space-y-5">
       <Section title="Where You're Logged In" hint={`Last sign-in: ${when(lastSignIn)}`}>
         <p className="mb-4 text-sm">If you used a shared or public computer, you can log out everywhere at once.</p>
         <SignOutEverywhere />
@@ -61,6 +62,7 @@ export function SecuritySection({ profile, lastSignIn }: { profile: Profile; las
           <DeleteAccountForm />
         </Section>
       )}
-    </>
+      </div>
+    </div>
   );
 }

@@ -16,9 +16,9 @@ export function ExpiryNotice({ expiry }: { expiry: string | null | undefined }) 
     : s === "expired" ? `Your Business / Mayor's Permit expired on ${fmt(expiry!)}.`
     : `Your Business / Mayor's Permit expires in ${daysUntil(expiry!)} day${daysUntil(expiry!) === 1 ? "" : "s"} (${fmt(expiry!)}).`;
   return (
-    <p role="alert" className={`flex items-start gap-2 rounded-lg px-4 py-3 text-sm ${s === "expiring" ? "bg-yellow/50" : "bg-red-50 text-red-900"}`}>
+    <p role="alert" className={`flex items-start gap-2 rounded-lg px-4 py-3 text-sm ${s === "expiring" ? "bg-sun/50" : "bg-red-50 text-red-900"}`}>
       <AlertTriangle className="mt-0.5 size-4 shrink-0" aria-hidden />
-      <span><span className="font-semibold">{msg}</span> {s === "missing" ? "Send them for approval." : "Upload the renewed permit so LOOKBAN can approve it."}{" "}<Link href="/vendor/store#bd-h" className="font-semibold text-blue pop hover:text-orange">Open Business Documents</Link></span>
+      <span><span className="font-semibold">{msg}</span> {s === "missing" ? "Send them for approval." : "Upload the renewed permit so LOOKBAN can approve it."}{" "}<Link href="/vendor/store#bd-h" className="font-semibold text-brand pop hover:text-orange">Open Business Documents</Link></span>
     </p>
   );
 }
@@ -55,7 +55,7 @@ export async function BusinessDocuments({ storeId, userId }: { storeId: string; 
           {files.map((f) => (
             <li key={f.label} className="flex items-center gap-2 text-sm">
               {f.url ? <CheckCircle2 className="size-4 text-green-700" aria-hidden /> : <FileWarning className="size-4 text-red-700" aria-hidden />}
-              {f.url ? <a href={f.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-semibold text-blue hover:text-orange">{f.label} <ExternalLink className="size-3.5" aria-hidden /></a>
+              {f.url ? <a href={f.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-semibold text-brand hover:text-orange">{f.label} <ExternalLink className="size-3.5" aria-hidden /></a>
                      : <span className="text-red-700">{f.label}: could not be opened</span>}
             </li>
           ))}
@@ -84,7 +84,7 @@ export async function BusinessDocuments({ storeId, userId }: { storeId: string; 
         </div>
       ) : (
         <details className="group rounded-lg border border-line p-4" open={status === "expired" || status === "missing" || !!lastRejected}>
-          <summary className="cursor-pointer font-semibold text-blue pop hover:text-orange">{doc ? "Update My Documents" : "Add My Documents"}</summary>
+          <summary className="cursor-pointer font-semibold text-brand pop hover:text-orange">{doc ? "Update My Documents" : "Add My Documents"}</summary>
           <div className="mt-4"><DocumentUpdateForm userId={userId} hasRecord={!!doc} /></div>
         </details>
       )}

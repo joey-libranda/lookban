@@ -72,6 +72,18 @@ union all
 select 'function', 'approve_document_request', '0017',
        case when exists (select 1 from pg_proc where proname='approve_document_request') then 'ok' else 'MISSING - run 0017' end
 union all
+select 'table', 'return_requests', '0018',
+       case when to_regclass('public.return_requests') is not null then 'ok' else 'MISSING - run 0018' end
+union all
+select 'table', 'return_request_items', '0018',
+       case when to_regclass('public.return_request_items') is not null then 'ok' else 'MISSING - run 0018' end
+union all
+select 'bucket', 'return-evidence (private)', '0018',
+       case when exists (select 1 from storage.buckets where id='return-evidence' and public = false) then 'ok' else 'MISSING - run 0018' end
+union all
+select 'function', 'create_return_request', '0018',
+       case when exists (select 1 from pg_proc where proname='create_return_request') then 'ok' else 'MISSING - run 0018' end
+union all
 select 'row security', c.relname, '0002',
        case when c.relrowsecurity then 'ok' else 'MISSING - run 0002' end
   from pg_class c join pg_namespace n on n.oid=c.relnamespace

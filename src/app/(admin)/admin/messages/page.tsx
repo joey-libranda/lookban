@@ -9,7 +9,7 @@ export const metadata: Metadata = { title: "Messages · Admin" };
 export default async function AdminMessages() {
   const rows = await getAdminMessages();
   return (
-    <div className="max-w-4xl space-y-5">
+    <div className="space-y-5">
       <h1 className="text-4xl">Messages</h1>
       <p className="text-sm text-muted">Messages sent from the Contact page. Open one to read it and reply.</p>
       {rows.length === 0 && <p className="card p-8 text-center text-muted">No messages yet.</p>}
@@ -20,7 +20,7 @@ export default async function AdminMessages() {
               <div className="min-w-0 flex-1">
                 <p className="flex flex-wrap items-center gap-2 font-semibold">{m.subject}
                   {m.status === "new" && <span className="rounded-full bg-orange px-2 py-0.5 text-xs font-bold text-white">New</span>}
-                  {m.reply_count > 0 && <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-bold text-blue">Replied</span>}
+                  {m.reply_count > 0 && <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-bold text-brand">Replied</span>}
                 </p>
                 <p className="text-sm text-muted">{m.name} · <span className="break-all">{m.email}</span> · {formatDateTime(m.created_at)}</p>
                 <p className="mt-2 line-clamp-2 break-words text-sm">{m.message}</p>

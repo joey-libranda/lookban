@@ -23,7 +23,7 @@ export default async function AdminAccount({ searchParams }: { searchParams: Pro
     : [0, 0, { newOrders: 0, unreadMessages: 0 }];
 
   return (
-    <div className="max-w-4xl">
+    <div className="w-full">
       <AccountShell profile={profile} base="/admin/account" tabs={TABS} active={active} horizontal>
         {active === "overview" && (
           <>

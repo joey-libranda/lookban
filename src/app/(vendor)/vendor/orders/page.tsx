@@ -18,7 +18,7 @@ export default async function VendorOrders({ searchParams }: { searchParams: Pro
   const status = STATUSES.find((s) => s === param(sp, "status"));
   const page = parsePage(param(sp, "page"));
   const { rows, count } = await getVendorOrders(store.id, { status, page });
-  const chip = (on: boolean) => `whitespace-nowrap rounded-full border px-3.5 py-1.5 text-sm font-semibold ${on ? "border-blue bg-blue text-white" : "border-line bg-white text-ink hover:bg-blue-50"}`;
+  const chip = (on: boolean) => `whitespace-nowrap rounded-full border px-3.5 py-1.5 text-sm font-semibold ${on ? "border-blue bg-blue text-white" : "border-line bg-surface text-ink hover:bg-blue-50"}`;
   return (
     <div className="space-y-5">
       <h1 className="text-4xl">Orders</h1>
@@ -36,7 +36,7 @@ export default async function VendorOrders({ searchParams }: { searchParams: Pro
             {rows.length === 0 && <tr><td colSpan={6} className="p-6 text-center text-muted">No orders here yet.</td></tr>}
             {rows.map((o) => (
               <ClickableRow key={o.id} href={`/vendor/orders/${o.order_id}`}>
-                <td className="p-3"><Link href={`/vendor/orders/${o.order_id}`} className="font-semibold text-blue pop hover:text-orange">{o.receipt_no}</Link></td>
+                <td className="p-3"><Link href={`/vendor/orders/${o.order_id}`} className="font-semibold text-brand pop hover:text-orange">{o.receipt_no}</Link></td>
                 <td className="p-3">{o.customer_name}</td>
                 <td className="p-3">{formatDateTime(o.created_at)}</td>
                 <td className="p-3">{paymentMethodLabel(o.payment_method)}</td>

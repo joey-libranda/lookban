@@ -25,7 +25,7 @@ export default async function AdminProducts({ searchParams }: { searchParams: Pr
       </div>
 
       {waiting > 0 && status !== "pending" && (
-        <p className="flex flex-wrap items-center justify-between gap-3 rounded-xl border-2 border-orange bg-yellow/30 p-4">
+        <p className="flex flex-wrap items-center justify-between gap-3 rounded-xl border-2 border-orange bg-sun/30 p-4">
           <span className="font-semibold">{waiting} product{waiting === 1 ? " is" : "s are"} waiting for your approval.</span>
           <Link href="/admin/products?status=pending" className="btn-primary !py-1.5 text-sm">Review Now</Link>
         </p>
@@ -53,7 +53,7 @@ export default async function AdminProducts({ searchParams }: { searchParams: Pr
             {rows.map((p) => (
               <tr key={p.id}>
                 <td className="p-3">
-                  <Link href={`/admin/products/${p.id}`} className="flex items-center gap-3 font-semibold text-blue">
+                  <Link href={`/admin/products/${p.id}`} className="flex items-center gap-3 font-semibold text-brand">
                     <span className="relative block size-12 shrink-0 overflow-hidden rounded-lg bg-cream"><SafeImage src={p.image} alt={p.name} sizes="48px" compact /></span>
                     <span>{p.name}{p.variant && <span className="block font-normal text-muted">{p.variant}</span>}</span>
                   </Link>

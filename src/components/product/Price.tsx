@@ -1,7 +1,7 @@
 import { discountPercent, formatPeso } from "@/lib/utils/format";
 
 /** Selling price, with the original price crossed out when the product is on promo. */
-export function Price({ price, compareAt, className = "text-xl font-bold text-blue", prefix = "" }: {
+export function Price({ price, compareAt, className = "text-xl font-bold text-brand", prefix = "" }: {
   price: number; compareAt?: number | null; className?: string; prefix?: string;
 }) {
   const on = discountPercent(price, compareAt) !== null;

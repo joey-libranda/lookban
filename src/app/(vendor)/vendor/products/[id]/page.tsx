@@ -33,8 +33,8 @@ export default async function EditVendorProduct({ params, searchParams }: { para
   }
 
   return (
-    <div className="max-w-3xl space-y-6">
-      <Link href="/vendor/products" className="text-sm font-semibold text-blue pop hover:text-orange">← Products</Link>
+    <div className="space-y-6">
+      <Link href="/vendor/products" className="text-sm font-semibold text-brand pop hover:text-orange">← Products</Link>
       <div className="flex flex-wrap items-center gap-3"><h1 className="text-4xl">{product.name}</h1><ApprovalBadge approval={approval} status={product.status as "active" | "archived"} /></div>
       {created && <FlashToast text="Product submitted. Add its photos below; it will appear in the shop once LOOKBAN approves it." />}
       {approval === "pending" && !created && <FormNotice kind="success">Waiting for LOOKBAN&apos;s approval. You can keep editing it meanwhile.</FormNotice>}
@@ -42,6 +42,8 @@ export default async function EditVendorProduct({ params, searchParams }: { para
         <FormNotice kind="error">LOOKBAN asked for changes{product.review_note ? `: ${product.review_note}` : "."} Edit the product and save it to send it back for review.</FormNotice>
       )}
 
+      <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+        <div className="space-y-6">
       <section className="card p-5" aria-labelledby="photos">
         <h2 id="photos" className="text-2xl">Photos</h2>
         <p className="mt-1 text-sm text-muted">The first (cover) photo appears in the shop. Without a photo, customers see a Photo coming soon tile.</p>
@@ -53,11 +55,11 @@ export default async function EditVendorProduct({ params, searchParams }: { para
                   <SafeImage src={img.url} alt={img.alt ?? product.name} sizes="200px" />
                   {img.is_primary && <span className="absolute left-2 top-2 rounded-full bg-blue px-2 py-0.5 text-xs font-semibold text-white">Cover</span>}
                 </div>
-                <div className="flex flex-wrap gap-2 text-sm">
+                <div className="flex flex-wrap items-center gap-2">
                   {!img.is_primary && (
-                    <form action={setPrimaryImageAction.bind(null, id, img.id)}><button className="font-semibold text-blue pop hover:text-orange">Make Cover</button></form>
+                    <form action={setPrimaryImageAction.bind(null, id, img.id)}><button className="btn-outline !px-3 !py-1.5 text-sm">Make Cover</button></form>
                   )}
-                  <ConfirmButton className="text-sm font-semibold text-red-700 pop hover:text-red-900" confirm="Delete this photo?" action={deleteProductImageAction.bind(null, id, img.id)}>Delete</ConfirmButton>
+                  <ConfirmButton className="btn border-2 border-red-700 !px-3 !py-1.5 text-sm text-red-700 hover:bg-red-50" confirm="Remove this photo?" action={deleteProductImageAction.bind(null, id, img.id)}>Remove</ConfirmButton>
                 </div>
               </li>
             ))}
@@ -68,16 +70,18 @@ export default async function EditVendorProduct({ params, searchParams }: { para
         </div>
       </section>
 
-      <section className="card p-5" aria-labelledby="details">
-        <h2 id="details" className="mb-4 text-2xl">Details</h2>
-        <ProductForm action={saveProductAction.bind(null, id)} product={product} stores={[]} categories={categories} vendor={{ storeId: store.id }} submitLabel="Save Changes" />
-      </section>
-
       <section className="card border-red-200 p-5">
         <h2 className="text-xl">Remove Product</h2>
         <p className="mt-1 text-sm text-muted">Archive a product (set Visibility to Archived above) to hide it but keep order history. Products already ordered can only be archived.</p>
         <div className="mt-3"><ConfirmButton action={remove} confirm="Permanently delete this product and its photos?" className="btn border-2 border-red-700 text-red-700 hover:bg-red-50">Delete Product</ConfirmButton></div>
       </section>
+        </div>
+      <section className="card p-5" aria-labelledby="details">
+        <h2 id="details" className="mb-4 text-2xl">Details</h2>
+        <ProductForm action={saveProductAction.bind(null, id)} product={product} stores={[]} categories={categories} vendor={{ storeId: store.id }} submitLabel="Save Changes" />
+      </section>
+
+      </div>
     </div>
   );
 }

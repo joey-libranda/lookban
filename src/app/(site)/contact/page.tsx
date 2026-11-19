@@ -22,7 +22,7 @@ export default function ContactPage() {
         <ul className="mt-8 space-y-5">
           {rows.map((r) => (
             <li key={r.label} className="flex items-center gap-4">
-              <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-yellow/70 text-blue"><r.icon className="size-5" aria-hidden /></span>
+              <span className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-sun/70 text-brand"><r.icon className="size-5" aria-hidden /></span>
               <div className="min-w-0">
                 <p className="font-semibold">{r.label}</p>
                 <p className="break-words text-sm text-muted">{r.value}</p>
@@ -31,7 +31,7 @@ export default function ContactPage() {
           ))}
         </ul>
         <p className="mt-8 font-semibold">Follow Us</p>
-        <SocialLinks className="mt-3 [&_a]:bg-yellow/70 [&_a]:text-blue [&_a:hover]:bg-orange [&_a:hover]:text-white" />
+        <SocialLinks className="mt-3 [&_a]:bg-sun/70 [&_a]:text-brand [&_a:hover]:bg-orange [&_a:hover]:text-white" />
       </div>
 
       <section className="card p-6 sm:p-8" aria-labelledby="msg-h">

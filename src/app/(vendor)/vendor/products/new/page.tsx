@@ -11,8 +11,8 @@ export default async function NewVendorProduct() {
   const { store } = await requireVendor("/vendor/products/new");
   const categories = await getAdminCategoryOptions();
   return (
-    <div className="max-w-3xl space-y-5">
-      <Link href="/vendor/products" className="text-sm font-semibold text-blue pop hover:text-orange">← Products</Link>
+    <div className="max-w-4xl space-y-5">
+      <Link href="/vendor/products" className="text-sm font-semibold text-brand pop hover:text-orange">← Products</Link>
       <h1 className="text-4xl">Add Product</h1>
       <p className="text-muted">Save the product first, then you can upload its photos. LOOKBAN reviews every new product before it appears in the shop.</p>
       <div className="card p-5">

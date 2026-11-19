@@ -26,7 +26,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       <div aria-live="polite" role="status" className="no-print pointer-events-none fixed inset-x-0 bottom-4 z-[70] flex flex-col items-center gap-2 px-4">
         {toasts.map((t) => (
           <div key={t.id} className={`pointer-events-auto flex max-w-sm items-center gap-2.5 rounded-xl px-4 py-3 text-sm font-semibold shadow-lg
-            ${t.kind === "success" ? "bg-blue text-white" : "bg-red-700 text-white"}`}>
+            ${t.kind === "success" ? "bg-blue text-white" : "bg-danger text-white"}`}>
             {t.kind === "success" ? <CheckCircle2 className="size-5 shrink-0" aria-hidden /> : <XCircle className="size-5 shrink-0" aria-hidden />}
             <span>{t.text}</span>
             <button type="button" aria-label="Dismiss" onClick={() => dismiss(t.id)} className="pop ml-1 rounded p-0.5 hover:bg-white/20"><X className="size-4" aria-hidden /></button>

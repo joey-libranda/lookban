@@ -44,7 +44,7 @@ export default async function ApplyPage() {
             </div>
           </div>
           <div className="card mt-6 p-5">
-            <h2 className="flex items-center gap-2 text-xl"><FileCheck2 className="size-5 text-blue" aria-hidden /> What You&apos;ll Need</h2>
+            <h2 className="flex items-center gap-2 text-xl"><FileCheck2 className="size-5 text-brand" aria-hidden /> What You&apos;ll Need</h2>
             <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-muted">
               <li>Business / Mayor&apos;s Permit (number, valid-until date and a PDF or photo)</li>
               <li>DTI, SEC or CDA registration (number and a PDF or photo)</li>
@@ -60,7 +60,7 @@ export default async function ApplyPage() {
           <Link href="/vendor" className="btn-primary mt-4">Open Vendor Dashboard</Link></div>
       )}
       {current && current.profile.role === "admin" && (
-        <p className="card mt-8 p-5 text-muted">Administrator accounts can&apos;t open a store. Review applications in <Link href="/admin/applications" className="font-semibold text-blue">Admin → Applications</Link>.</p>
+        <p className="card mt-8 p-5 text-muted">Administrator accounts can&apos;t open a store. Review applications in <Link href="/admin/applications" className="font-semibold text-brand">Admin → Applications</Link>.</p>
       )}
 
       {current?.profile.role === "customer" && app?.status === "pending" && (

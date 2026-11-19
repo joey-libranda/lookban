@@ -15,10 +15,10 @@ export default async function CommissionPage({ searchParams }: { searchParams: P
   const totals = rows.reduce((t, r) => ({ sales: t.sales + r.sales, commission: t.commission + r.commission, owed: t.owed + r.owed, orders: t.orders + r.orders }), { sales: 0, commission: 0, owed: 0, orders: 0 });
 
   return (
-    <div className="max-w-5xl space-y-6">
+    <div className="space-y-6">
       <div>
         <h1 className="text-4xl">Commission</h1>
-        <p className="mt-1 max-w-2xl text-muted">
+        <p className="mt-1 text-muted">
           LOOKBAN&apos;s share of item sales, counted when a store&apos;s part of an order is Delivered. Cancelled orders earn nothing and shipping is not included.
           This is a record only: no money is collected or paid out through the website.
         </p>
@@ -49,7 +49,7 @@ export default async function CommissionPage({ searchParams }: { searchParams: P
                   <td className="py-3 text-right">{formatPeso(r.sales)}</td>
                   <td className="py-3 text-right">{formatPeso(r.commission)}</td>
                   <td className="py-3 text-right font-bold">{formatPeso(r.owed)}</td>
-                  <td className="px-5 py-3 text-right"><Link href={`/admin/commission/statement?store=${r.store_id}&${periodQuery(period)}`} className="font-semibold text-blue hover:text-orange">View</Link></td>
+                  <td className="px-5 py-3 text-right"><Link href={`/admin/commission/statement?store=${r.store_id}&${periodQuery(period)}`} className="font-semibold text-brand hover:text-orange">View</Link></td>
                 </tr>
               ))}
             </tbody>

@@ -35,8 +35,8 @@ export function DocumentUpdateForm({ userId, hasRecord }: { userId: string; hasR
   const fileField = (k: Key, label: string) => (
     <div>
       <p className="label">{label}</p>
-      <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-dashed border-line bg-white px-3 py-3 hover:bg-blue-50">
-        <FileCheck2 className="size-5 shrink-0 text-blue" aria-hidden />
+      <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-dashed border-line bg-surface px-3 py-3 hover:bg-blue-50">
+        <FileCheck2 className="size-5 shrink-0 text-brand" aria-hidden />
         <span className="min-w-0 flex-1 truncate text-sm">{names[k] ?? <span className="text-muted">{hasRecord ? "Keep current file" : "PDF or photo, up to 5 MB"}</span>}</span>
         <span className="btn-outline !px-3 !py-1 !text-sm">{names[k] ? "Change" : "Choose File"}</span>
         <input type="file" accept="application/pdf,image/jpeg,image/png,image/webp" className="sr-only"

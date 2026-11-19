@@ -27,10 +27,10 @@ export default async function StatementPage({ searchParams }: { searchParams: Pr
   return (
     <div className="mx-auto max-w-3xl space-y-5">
       <div className="flex items-center justify-between print:hidden">
-        <Link href={back} className="text-sm font-semibold text-blue pop hover:text-orange">← Commission</Link>
+        <Link href={back} className="text-sm font-semibold text-brand pop hover:text-orange">← Commission</Link>
         <PrintButton label="Print Statement" />
       </div>
-      <article className="card space-y-5 p-6 print:border-0 print:p-0 print:shadow-none">
+      <article data-theme="light" className="card space-y-5 p-6 print:border-0 print:p-0 print:shadow-none">
         <header className="flex flex-wrap items-start justify-between gap-3 border-b border-line pb-4">
           <div>
             <Image src="/brand/lookban-wordmark.png" alt="LOOKBAN" width={150} height={46} />

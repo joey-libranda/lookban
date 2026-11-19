@@ -8,7 +8,7 @@ export function BackButton() {
   const router = useRouter();
   return (
     <button type="button" onClick={() => (window.history.length > 1 ? router.back() : router.push("/"))}
-            className="pop mb-5 inline-flex items-center gap-1.5 self-start text-sm font-semibold text-blue hover:text-orange">
+            className="pop mb-5 inline-flex items-center gap-1.5 self-start text-sm font-semibold text-brand hover:text-orange">
       <ArrowLeft className="size-4" aria-hidden /> Back
     </button>
   );

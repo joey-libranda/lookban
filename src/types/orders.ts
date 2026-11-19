@@ -9,6 +9,7 @@ export interface StoreOrderRow {
   store_address: string | null; store_phone: string | null;
   subtotal: number; shipping_fee: number; total: number;
   fulfillment_status: FulfillmentStatus; items: OrderItemRow[];
+  refunded_amount: number;
   received_at: string | null; rating: number | null; rating_comment: string | null; rated_at: string | null;
 }
 export interface OrderRow {

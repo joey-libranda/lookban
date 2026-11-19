@@ -36,7 +36,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <Link href="/shop" className="btn-primary">Shop Now</Link>
-              <Link href="/stores" className="btn border-2 border-white text-white hover:bg-white hover:text-blue">Explore Stores</Link>
+              <Link href="/stores" className="btn border-2 border-white text-white hover:bg-white hover:text-navy">Explore Stores</Link>
             </div>
           </div>
         </HeroCarousel>
@@ -55,7 +55,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             <h2 className="text-3xl !text-white sm:text-4xl">One Cart, Many Lucban Stores.</h2>
             <p className="mt-1 max-w-xl text-white/90">Mix longganisa from one store with miki from another. Each store prepares its own part of your order.</p>
           </div>
-          <Link href="/shop" className="btn bg-white text-blue hover:bg-yellow">Start Shopping</Link>
+          <Link href="/shop" className="btn bg-white text-navy hover:bg-yellow">Start Shopping</Link>
         </div>
       </section>
 
@@ -64,7 +64,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
         <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6" aria-labelledby="stores-h">
           <div className="mb-6 flex items-end justify-between gap-4">
             <h2 id="stores-h" className="text-3xl sm:text-4xl">Featured Local Stores</h2>
-            <Link href="/stores" className="shrink-0 font-semibold text-blue pop hover:text-orange">All stores</Link>
+            <Link href="/stores" className="shrink-0 font-semibold text-brand pop hover:text-orange">All stores</Link>
           </div>
           <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 [&>*]:min-w-0">
             {[...stores].filter((s) => s.product_count > 0).sort((a, b) => b.product_count - a.product_count).slice(0, 6).map((s) => <li key={s.id} className="h-full"><StoreCard s={s} /></li>)}
@@ -79,7 +79,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
             <h2 className="text-4xl !text-yellow">Discover Lucban</h2>
             <p className="mt-4 text-lg text-white/90">Known for its Pahiyas Festival, when homes are decorated with colorful kiping, Lucban is also home to garlicky air-dried longganisa, miki noodles for pancit habhab, and heritage biscuits baked for generations.</p>
             <p className="mt-4 text-white/80">Behind each product is a small, family-run business. Shopping on LOOKBAN helps them reach customers beyond the town.</p>
-            <Link href="/about" className="btn mt-6 bg-yellow text-blue hover:bg-white">Our Story</Link>
+            <Link href="/about" className="btn mt-6 bg-yellow text-navy hover:bg-white">Our Story</Link>
           </div>
           <ul className="grid gap-4 self-center">
             {[
@@ -100,7 +100,7 @@ export default async function HomePage({ searchParams }: { searchParams: Promise
       </section>
 
       {/* CLOSING BAND: white, so the blue Discover band and the blue footer never touch. */}
-      <section className="flush-footer relative bg-white" aria-labelledby="cta-h">
+      <section className="flush-footer relative bg-page" aria-labelledby="cta-h">
         <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 px-4 py-14 text-center sm:px-6">
           <h2 id="cta-h" className="max-w-2xl text-3xl !font-display !font-normal !tracking-normal sm:text-4xl">Bring home a taste of Lucban.</h2>
           <p className="max-w-xl text-ink/80">Longganisa, miki, hardinera, biscuits and more, straight from the stores that make them.</p>

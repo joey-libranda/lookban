@@ -21,8 +21,8 @@ export default async function AdminOrderDetail({ params }: { params: Promise<{ i
   const cancelledTotal = o.store_orders.filter((x) => x.fulfillment_status === "cancelled").reduce((n, x) => n + x.total, 0);
   const commissions = await getOrderCommissions(o.store_orders.map((x) => x.id));
   return (
-    <div className="max-w-4xl space-y-6">
-      <Link href="/admin/orders" className="text-sm font-semibold text-blue pop hover:text-orange">← Orders</Link>
+    <div className="space-y-6">
+      <Link href="/admin/orders" className="text-sm font-semibold text-brand pop hover:text-orange">← Orders</Link>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div><h1 className="text-4xl">{o.receipt_no}</h1><p className="text-muted">Placed {formatDateTime(o.created_at)}</p></div>
         <div className="flex flex-wrap items-center gap-3"><StatusBadge status={o.status} />

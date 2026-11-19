@@ -13,14 +13,14 @@ export function CustomerToggle({ id, name, active }: { id: string; name: string;
   return (
     <>
       <button type="button" onClick={() => setOpen(true)}
-        className={`pop font-semibold ${active ? "text-red-700 hover:text-red-900" : "text-blue hover:text-orange"}`}>
+        className={`pop font-semibold ${active ? "text-red-700 hover:text-red-900" : "text-brand hover:text-orange"}`}>
         {active ? "Deactivate" : "Reactivate"}
       </button>
       <ConfirmModal open={open} busy={pending}
         title={active ? "Deactivate this customer?" : "Reactivate this customer?"}
         text={active ? `${name} will no longer be able to log in or place orders. You can reactivate the account later.` : `${name} will be able to log in and place orders again.`}
         confirmLabel={active ? "Yes, Deactivate" : "Yes, Reactivate"} cancelLabel="Cancel"
-        confirmClass={active ? "bg-red-700 hover:bg-red-800" : "bg-blue hover:bg-blue-700"}
+        confirmClass={active ? "bg-danger hover:bg-danger-700" : "bg-blue hover:bg-blue-700"}
         onClose={() => setOpen(false)}
         onConfirm={() => start(async () => {
           try { await setCustomerActiveAction(id, !active); toast("success", active ? "Customer deactivated" : "Customer reactivated"); }

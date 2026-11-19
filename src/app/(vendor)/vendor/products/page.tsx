@@ -46,7 +46,7 @@ export default async function VendorProducts({ searchParams }: { searchParams: P
             {rows.map((p) => (
               <tr key={p.id}>
                 <td className="p-3">
-                  <Link href={`/vendor/products/${p.id}`} className="flex items-center gap-3 font-semibold text-blue">
+                  <Link href={`/vendor/products/${p.id}`} className="flex items-center gap-3 font-semibold text-brand">
                     <span className="relative block size-12 shrink-0 overflow-hidden rounded-lg bg-cream"><SafeImage src={p.image} alt={p.name} sizes="48px" compact /></span>
                     <span>{p.name}{p.variant && <span className="block font-normal text-muted">{p.variant}</span>}
                       {p.approval === "rejected" && p.note && <span className="block text-xs font-normal text-red-800">Reason: {p.note}</span>}</span>

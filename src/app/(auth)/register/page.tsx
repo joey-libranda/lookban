@@ -12,7 +12,7 @@ export default function RegisterPage() {
       <RegisterForm />
       <p className="mt-6 text-center text-sm">
         Already have an account?{" "}
-        <Link href="/login" className="font-semibold text-blue pop hover:text-orange">Log in</Link>
+        <Link href="/login" className="font-semibold text-brand pop hover:text-orange">Log in</Link>
       </p>
     </>
   );

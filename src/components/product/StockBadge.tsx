@@ -2,7 +2,7 @@ import { availability } from "@/lib/utils/format";
 
 const TONES = {
   ok: "bg-green-50 text-green-800",
-  low: "bg-yellow text-ink",
+  low: "bg-yellow text-dark",
   out: "bg-red-50 text-red-800",
   closed: "bg-line text-muted",
 } as const;

@@ -48,7 +48,7 @@ export function CartLineRow({ line, local }: { line: CartLine; local?: { setQty:
             )}
             {p && <p className="text-sm text-muted">{[p.variant_label, p.weight].filter(Boolean).join(" · ")}</p>}
           </div>
-          {p && <p className="shrink-0 font-bold text-blue">{formatPeso(p.price * line.quantity)}</p>}
+          {p && <p className="shrink-0 font-bold text-brand">{formatPeso(p.price * line.quantity)}</p>}
         </div>
         {p && <p className="text-sm text-muted">{formatPeso(p.price)} each</p>}
 

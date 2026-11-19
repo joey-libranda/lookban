@@ -45,7 +45,7 @@ export function CheckoutForm({ defaults, guest }: { defaults: Partial<CheckoutVa
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8" noValidate>
       <fieldset className="card space-y-4 p-5">
-        <legend className="px-1 text-2xl font-heading font-bold tracking-tighter text-blue">Delivery details</legend>
+        <legend className="px-1 text-2xl font-heading font-bold tracking-tighter text-brand">Delivery details</legend>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field placeholder="e.g. Juan Dela Cruz" label="Full name" autoComplete="name" error={errors.full_name} {...register("full_name")} />
           <Field label="Mobile number" type="tel" autoComplete="tel" placeholder="09171234567" error={errors.phone} {...register("phone")} />
@@ -66,12 +66,12 @@ export function CheckoutForm({ defaults, guest }: { defaults: Partial<CheckoutVa
       </fieldset>
 
       <fieldset className="card space-y-3 p-5">
-        <legend className="px-1 text-2xl font-heading font-bold tracking-tighter text-blue">Payment method</legend>
-        <label className="flex cursor-pointer gap-3 rounded-lg border border-line p-3 has-[:checked]:border-blue has-[:checked]:bg-blue-50">
+        <legend className="px-1 text-2xl font-heading font-bold tracking-tighter text-brand">Payment method</legend>
+        <label className="flex cursor-pointer gap-3 rounded-lg border border-line p-3 has-[:checked]:border-brand has-[:checked]:bg-blue-50">
           <input type="radio" value="cod" className="mt-1" {...register("payment_method")} />
           <span><span className="font-semibold">Cash on Delivery</span><br /><span className="text-sm text-muted">Pay in cash when your order arrives.</span></span>
         </label>
-        <label className="flex cursor-pointer gap-3 rounded-lg border border-line p-3 has-[:checked]:border-blue has-[:checked]:bg-blue-50">
+        <label className="flex cursor-pointer gap-3 rounded-lg border border-line p-3 has-[:checked]:border-brand has-[:checked]:bg-blue-50">
           <input type="radio" value="simulated_online" className="mt-1" {...register("payment_method")} />
           <span>
             <span className="font-semibold">Online payment</span><br />

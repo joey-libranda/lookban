@@ -22,7 +22,7 @@ function PendingCard({ a }: { a: AdminApplication }) {
     <article className="card p-5">
       <header className="flex flex-wrap items-start justify-between gap-2">
         <div><h3 className="text-2xl">{a.store_name}</h3><p className="text-sm text-muted">Applied {formatDateTime(a.created_at)} · account {a.applicant?.email}</p></div>
-        <span className="rounded-full bg-yellow px-3 py-0.5 text-xs font-bold text-ink">Pending</span>
+        <span className="rounded-full bg-yellow px-3 py-0.5 text-xs font-bold text-dark">Pending</span>
       </header>
       <p className="mt-3 text-sm">{a.description}</p>
       <dl className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -39,7 +39,7 @@ function PendingCard({ a }: { a: AdminApplication }) {
           {a.docs.map((d) => (
             <li key={d.label} className="flex items-center gap-2 text-sm">
               {d.missing || !d.url ? <FileWarning className="size-4 text-red-700" aria-hidden /> : <CheckCircle2 className="size-4 text-green-700" aria-hidden />}
-              {d.url ? <a href={d.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-semibold text-blue hover:text-orange">{d.label} <ExternalLink className="size-3.5" aria-hidden /></a>
+              {d.url ? <a href={d.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-semibold text-brand hover:text-orange">{d.label} <ExternalLink className="size-3.5" aria-hidden /></a>
                      : <span className="text-red-700">{d.label}: {d.missing ? "not uploaded" : "could not be opened"}</span>}
             </li>
           ))}
@@ -58,7 +58,7 @@ function FileLinks({ files }: { files: DocFile[] }) {
       {files.map((d) => (
         <li key={d.label} className="flex items-center gap-2 text-sm">
           {d.url ? <CheckCircle2 className="size-4 text-green-700" aria-hidden /> : <FileWarning className="size-4 text-red-700" aria-hidden />}
-          {d.url ? <a href={d.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-semibold text-blue hover:text-orange">{d.label} <ExternalLink className="size-3.5" aria-hidden /></a>
+          {d.url ? <a href={d.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 font-semibold text-brand hover:text-orange">{d.label} <ExternalLink className="size-3.5" aria-hidden /></a>
                  : <span className="text-red-700">{d.label}: could not be opened</span>}
         </li>
       ))}
@@ -91,7 +91,7 @@ function DocRequestCard({ r }: { r: AdminDocRequest }) {
           <h3 className="text-2xl">{r.store?.name ?? "Store"}</h3>
           <p className="text-sm text-muted">Sent {formatDateTime(r.created_at)} · record on file: <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${DOC_STATUS_TONE[st]}`}>{DOC_STATUS_LABEL[st]}</span></p>
         </div>
-        <span className="rounded-full bg-yellow px-3 py-0.5 text-xs font-bold text-ink">Pending</span>
+        <span className="rounded-full bg-yellow px-3 py-0.5 text-xs font-bold text-dark">Pending</span>
       </header>
       {r.vendor_note && <p className="mt-3 rounded-lg bg-blue-50 p-3 text-sm"><span className="font-semibold">Vendor&apos;s note:</span> {r.vendor_note}</p>}
       <table className="mt-4 w-full">
@@ -150,15 +150,15 @@ export default async function ApplicationsPage({ searchParams }: { searchParams:
   const pending = apps.filter((a) => a.status === "pending");
   const reviewed = apps.filter((a) => a.status !== "pending");
   return (
-    <div className="max-w-4xl space-y-8">
+    <div className="space-y-8">
       <div>
         <h1 className="text-4xl">Applications</h1>
-        <p className="mt-1 max-w-2xl text-muted">{docsTab ? "Vendors ask for approval before their permit or registration on file changes. Their current documents stay in place until you approve." : "Check the business information and the uploaded permit and registration before you approve. Approving creates the store and a Vendor Dashboard for the applicant. A rejected applicant can apply again."}</p>
+        <p className="mt-1 text-muted">{docsTab ? "Check each new permit or registration before you approve it. The current documents stay in place until you approve." : "Check the business information and the uploaded permit and registration before you approve. Approving creates the store and a Vendor Dashboard."}</p>
       </div>
       <nav aria-label="Applications" className="flex gap-1 border-b border-line">
         {[["", "New Stores"], ["documents", "Document Updates"]].map(([k, l]) => (
           <Link key={k} href={k ? `/admin/applications?tab=${k}` : "/admin/applications"} aria-current={(docsTab ? "documents" : "") === k ? "page" : undefined}
-            className={`-mb-px border-b-2 px-4 py-2.5 text-sm font-semibold pop ${(docsTab ? "documents" : "") === k ? "border-orange text-blue" : "border-transparent text-muted hover:text-blue"}`}>{l}</Link>
+            className={`-mb-px border-b-2 px-4 py-2.5 text-sm font-semibold pop ${(docsTab ? "documents" : "") === k ? "border-orange text-brand" : "border-transparent text-muted hover:text-brand"}`}>{l}</Link>
         ))}
       </nav>
       {docsTab ? <DocumentUpdates /> : <>
