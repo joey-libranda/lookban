@@ -1,15 +1,18 @@
 import type { Metadata } from "next";
 import { CommissionSettingForm, SettingsForm } from "@/components/admin/SettingsForm";
+import { AboutHeroEditor, SocialLinksForm } from "@/components/admin/SiteSettings";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
+import { getAboutHero, getSocialLinks } from "@/server/queries/site";
 import { HeroSlideList, HeroSlideUploader } from "@/components/admin/HeroSlides";
 import { getAdminHeroSlides, getCommissionRateSetting, getShippingFeeSetting } from "@/server/queries/admin";
 
 export const metadata: Metadata = { title: "Settings · Admin" };
 
 export default async function AdminSettings() {
-  const [fee, rate, slides] = await Promise.all([getShippingFeeSetting(), getCommissionRateSetting(), getAdminHeroSlides()]);
+  const [fee, rate, slides, aboutHero, socials] = await Promise.all([getShippingFeeSetting(), getCommissionRateSetting(), getAdminHeroSlides(), getAboutHero(), getSocialLinks()]);
   return (
     <div className="space-y-6">
-      <h1 className="text-4xl">Settings</h1>
+      <div className="flex items-start justify-between gap-4"><h1 className="text-4xl">Settings</h1><ThemeToggle /></div>
       <div className="grid gap-6 lg:grid-cols-2 lg:gap-y-0">
       <section className="card p-5 lg:row-span-3 lg:grid lg:grid-rows-subgrid">
         <h2 className="text-2xl">Shipping</h2>
@@ -22,7 +25,8 @@ export default async function AdminSettings() {
         <CommissionSettingForm rate={rate} />
       </section>
       </div>
-      <section className="space-y-4" aria-labelledby="hero-h">
+      <div className="grid items-start gap-6 lg:grid-cols-2">
+      <section className="space-y-4 min-w-0" aria-labelledby="hero-h">
         <div>
           <h2 id="hero-h" className="text-2xl">Hero Photos</h2>
           <p className="mt-1 max-w-2xl text-sm text-muted">
@@ -33,6 +37,19 @@ export default async function AdminSettings() {
         <HeroSlideUploader />
         {slides.length > 0 && <HeroSlideList slides={slides} />}
       </section>
+        <div className="space-y-6">
+        <section className="card p-5" aria-labelledby="about-h">
+          <h2 id="about-h" className="text-2xl">About Us Banner</h2>
+          <p className="mb-4 mt-1 text-sm text-muted">The wide photo behind the heading on the About Us page.</p>
+          <AboutHeroEditor url={aboutHero} />
+        </section>
+          <section className="card p-5" aria-labelledby="soc-h">
+            <h2 id="soc-h" className="text-2xl">Social Links</h2>
+            <p className="mb-4 mt-1 text-sm text-muted">The buttons in the website footer and on the Contact page.</p>
+            <SocialLinksForm links={socials} />
+          </section>
+        </div>
+      </div>
     </div>
   );
 }

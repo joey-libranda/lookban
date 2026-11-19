@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { AccountShell } from "@/components/account/AccountShell";
 import { ProfileSection, Section, SecuritySection, Tile } from "@/components/account/AccountSections";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { requireVendor } from "@/lib/auth/guards";
 import { getVendorDashboard } from "@/server/queries/vendor";
 
@@ -20,7 +21,8 @@ export default async function VendorAccount({ searchParams }: { searchParams: Pr
   const storeState = store.status === "approved" ? "Open to customers" : store.status === "pending" ? "Waiting for approval" : "Suspended";
 
   return (
-    <div className="w-full">
+    <div className="relative w-full">
+      <div className="absolute right-0 top-0 z-10"><ThemeToggle /></div>
       <AccountShell profile={profile} base="/vendor/account" tabs={TABS} active={active} horizontal>
         {active === "overview" && d && (
           <>

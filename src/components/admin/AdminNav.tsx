@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { LayoutDashboard, Package, Store, Tags, ReceiptText, Users, Settings, UserRound, Mail, Globe, Percent, FileCheck2, Undo2 } from "lucide-react";
-import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { LogoutButton } from "@/components/auth/LogoutButton";
 
 const ADMIN_SECTIONS = [
@@ -65,7 +64,7 @@ export function AdminNav({ area = "admin", pendingProducts = 0, pendingApplicati
           })}
         </div>
       ))}
-      <div className="shrink-0 lg:border-t lg:border-line lg:pt-2"><ThemeToggle variant="nav" /><LogoutButton variant="nav" /></div>
+      <div className="shrink-0 lg:border-t lg:border-line lg:pt-2"><LogoutButton variant="nav" /></div>
     </nav>
   );
 }

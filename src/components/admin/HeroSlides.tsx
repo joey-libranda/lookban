@@ -62,7 +62,7 @@ function Row({ slide, first, last }: { slide: HeroSlideRow; first: boolean; last
 
 export function HeroSlideList({ slides }: { slides: HeroSlideRow[] }) {
   return (
-    <ul className="grid items-start gap-4 xl:grid-cols-2">
+    <ul className="space-y-4">
       {slides.map((s, i) => <Row key={s.id} slide={s} first={i === 0} last={i === slides.length - 1} />)}
     </ul>
   );

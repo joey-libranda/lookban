@@ -84,3 +84,9 @@ export const heroSlideSchema = z.object({
   link_url: z.string().trim().max(200).regex(/^\/($|[^/\\])/, "Use a page on this site, like /shop or /stores."),
   is_active: z.boolean(),
 });
+
+export const socialLinksSchema = z.array(z.object({
+  key: z.enum(["facebook", "instagram", "tiktok"]),
+  href: z.string().trim().max(300).regex(/^https:\/\/[^\s/]+\.[^\s]{2,}$/i, "Enter a full link that starts with https://"),
+  visible: z.boolean(),
+})).length(3);

@@ -8,7 +8,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { SUPABASE_URL } from "@/lib/env";
 import {
-  vendorStoreSchema, reviewSchema, addressSchema, categorySchema, heroSlideSchema, finalSlug, productSchema, settingsSchema, commissionSettingsSchema, replySchema, statusSchema, storeSchema, uuid,
+  vendorStoreSchema, reviewSchema, addressSchema, categorySchema, heroSlideSchema, socialLinksSchema, finalSlug, productSchema, settingsSchema, commissionSettingsSchema, replySchema, statusSchema, storeSchema, uuid,
 } from "@/lib/validators/admin";
 import { slugify } from "@/lib/utils/slug";
 
@@ -406,6 +406,33 @@ export async function deleteMessageAction(id: string) {
   const supabase = await createClient();
   await supabase.from("contact_messages").delete().eq("id", id);
   revalidatePath("/admin/messages");
+}
+
+// ---------------------------------------------------------------- About page photo and social links
+export async function setAboutHeroAction(storagePath: string | null): Promise<FormState> {
+  await requireAdmin("/admin/settings");
+  const supabase = await createClient();
+  if (storagePath === null) {
+    const { error } = await supabase.from("settings").delete().eq("key", "about_hero_image");
+    if (error) return dbError(error, "About photo");
+  } else {
+    if (!/^about\/[\w-]+\.(jpg|png|webp)$/.test(storagePath)) return fail("Invalid upload path.");
+    const { error } = await supabase.from("settings").upsert({ key: "about_hero_image", value: `${BUCKET_PREFIX}hero-banners/${storagePath}`, updated_at: new Date().toISOString() });
+    if (error) return dbError(error, "About photo");
+  }
+  revalidatePath("/admin/settings"); revalidatePath("/about");
+  return done(storagePath === null ? "About page photo removed. The built-in photo is shown again." : "About page photo updated.");
+}
+
+export async function saveSocialLinksAction(input: { key: string; href: string; visible: boolean }[]): Promise<FormState> {
+  await requireAdmin("/admin/settings");
+  const parsed = socialLinksSchema.safeParse(input);
+  if (!parsed.success) return fail(parsed.error.issues[0]?.message ?? "Please check the links.");
+  const supabase = await createClient();
+  const { error } = await supabase.from("settings").upsert({ key: "social_links", value: parsed.data, updated_at: new Date().toISOString() });
+  if (error) return dbError(error, "Social links");
+  revalidatePath("/admin/settings"); revalidatePath("/", "layout");
+  return done("Social links saved.");
 }
 
 // ---------------------------------------------------------------- home page hero photos

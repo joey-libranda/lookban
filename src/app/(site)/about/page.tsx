@@ -1,15 +1,17 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { getAboutHero } from "@/server/queries/site";
 
 export const metadata: Metadata = { title: "About LOOKBAN" };
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const hero = await getAboutHero();
   return (
     <>
       {/* Hero: Pahiyas photo with a gradient (dark on the right, where the text is). */}
       <section className="relative isolate overflow-hidden bg-blue">
-        <Image src="/images/pahiyas-festival.jpg" alt="A house in Lucban decorated with colorful kiping, rice and produce for the Pahiyas Festival" fill sizes="100vw" priority className="-z-10 object-cover" />
+        <Image src={hero ?? "/images/pahiyas-festival.jpg"} alt={hero ? "LOOKBAN banner photo" : "A house in Lucban decorated with colorful kiping, rice and produce for the Pahiyas Festival"} fill sizes="100vw" priority className="-z-10 object-cover" />
         <div aria-hidden className="absolute inset-0 -z-10 bg-blue/40 bg-gradient-to-l from-blue/95 via-blue/75 to-blue/10 md:bg-transparent" />
         <div className="mx-auto flex min-h-[32rem] max-w-7xl items-center justify-end px-4 py-16 sm:px-6">
           <div className="max-w-2xl text-right text-white">
